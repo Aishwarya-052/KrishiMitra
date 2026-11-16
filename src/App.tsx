@@ -6,6 +6,12 @@ import {
   type WeatherForecast,
   type WeatherLocation,
 } from "./weatherService";
+import {
+  fetchMandiRecords,
+  MandiServiceError,
+  type MandiRecord,
+  type MandiResponse,
+} from "./mandiService";
 
 type Screen = "dashboard" | "weather" | "mandi" | "soil" | "crops" | "advisory" | "settings";
 type Language = "en" | "kn";
@@ -62,9 +68,34 @@ const text = {
     weatherApiError: "The weather service could not provide data for this location.",
     weatherInvalidError: "The weather service returned an unexpected response. Please try again.",
     locationSaveError: "Could not save your selected location in this browser.",
-    mandiTitle: "Mandi prices", mandiSub: "Sample market board to help you explore the screen.",
-    marketBoard: "SAMPLE MARKET BOARD", commodity: "Commodity", market: "Market", price: "Price / quintal",
-    change: "Change", sampleTip: "These fictional prices are for demonstration only. Check your local mandi for current rates.",
+    mandiTitle: "Mandi prices", mandiSub: "Government-reported daily prices from Karnataka markets.",
+    marketBoard: "AGMARKNET DAILY PRICES", commodity: "Commodity", market: "Market", price: "Price / quintal",
+    change: "Change", sampleTip: "Prices can change. Transport and other costs affect what you earn; compare carefully.",
+    state: "State", districtLabel: "District", variety: "Variety", arrivalDate: "Arrival date",
+    minPrice: "Minimum price", maxPrice: "Maximum price", modalPrice: "Modal price",
+    selectState: "Select state", selectDistrict: "All districts", selectMarket: "All markets",
+    searchCrop: "Search and select a crop", cropSearchPlaceholder: "Search dataset commodities…",
+    noCrops: "No matching commodities in the available data.", loadingMarkets: "Loading government market data…",
+    noMarketData: "No market records are available for this selection.",
+    noDataForFilters: "No records match these filters. Try another crop, district or market.",
+    chooseCropForCompare: "Search and select a crop to compare prices across markets.",
+    marketApiSource: "Government of India · AGMARKNET", lastUpdatedMandi: "Last updated",
+    dataRows: "Records returned", mandiErrorTitle: "Could not load market data",
+    missingMandiKey: "Add your data.gov.in API key to the server's .env file, then restart it.",
+    rejectedMandiKey: "data.gov.in rejected this API key. Check that it is active and allowed for this resource.",
+    mandiNetworkError: "Could not reach the market service. Check your internet connection and try again.",
+    mandiUpstreamError: "The data.gov.in service is temporarily unavailable. Please try again later.",
+    mandiSchemaError: "The dataset response format is not recognised. No prices are displayed.",
+    refreshPrices: "Refresh prices", refreshingPrices: "Refreshing…", compareMarkets: "Compare Karnataka markets",
+    sortByModal: "Sort by modal price", ascending: "Lowest first", descending: "Highest first",
+    priceAdvisory: "Price comparison notes", noCompareData: "Not enough reported prices to compare markets.",
+    highestReported: "Highest reported modal price", lowestReported: "Lowest reported modal price",
+    transportNote: "A higher reported price does not guarantee higher earnings. Transport and other costs matter.",
+    priceHistory: "Reported price history", fromDate: "From date", toDate: "To date",
+    missingDates: "No records for these dates", noHistory: "No historical records are available for this selection.",
+    sourceUnitNote: "Prices are shown in ₹ per quintal as reported in the source.",
+    noVariety: "Not reported", noPrice: "—", searchStateHelp: "Locations and crop choices come from returned dataset records.",
+    selectedRows: "matching records", allKarnataka: "All Karnataka",
     soilTitle: "Soil profile", soilSub: "A simple guide to understanding what is beneath your field.",
     soilHealth: "SOIL HEALTH SNAPSHOT", soilType: "Soil type", phLevel: "pH level", organicMatter: "Organic matter",
     nitrogen: "Nitrogen", phosphorus: "Phosphorus", potassium: "Potassium",
@@ -140,9 +171,34 @@ const text = {
     weatherApiError: "ಈ ಸ್ಥಳಕ್ಕೆ ಹವಾಮಾನ ಮಾಹಿತಿ ನೀಡಲು ಸೇವೆಗೆ ಸಾಧ್ಯವಾಗಲಿಲ್ಲ.",
     weatherInvalidError: "ಹವಾಮಾನ ಸೇವೆಯಿಂದ ನಿರೀಕ್ಷಿತವಲ್ಲದ ಮಾಹಿತಿ ಬಂದಿದೆ. ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ.",
     locationSaveError: "ಈ ಬ್ರೌಸರ್‌ನಲ್ಲಿ ಆಯ್ಕೆ ಮಾಡಿದ ಸ್ಥಳ ಉಳಿಸಲಾಗಲಿಲ್ಲ.",
-    mandiTitle: "ಮಾರುಕಟ್ಟೆ ದರಗಳು", mandiSub: "ಪರದೆಯನ್ನು ಪರಿಚಯಿಸಲು ಮಾದರಿ ಮಾರುಕಟ್ಟೆ ಪಟ್ಟಿ.",
-    marketBoard: "ಮಾದರಿ ಮಾರುಕಟ್ಟೆ ಪಟ್ಟಿ", commodity: "ಬೆಳೆ", market: "ಮಾರುಕಟ್ಟೆ", price: "ದರ / ಕ್ವಿಂಟಾಲ್",
-    change: "ಬದಲಾವಣೆ", sampleTip: "ಈ ಕಾಲ್ಪನಿಕ ದರಗಳು ಪ್ರದರ್ಶನಕ್ಕಾಗಿ ಮಾತ್ರ. ಇಂದಿನ ದರಗಳಿಗಾಗಿ ಸ್ಥಳೀಯ ಮಾರುಕಟ್ಟೆಯನ್ನು ಪರಿಶೀಲಿಸಿ.",
+    mandiTitle: "ಮಾರುಕಟ್ಟೆ ದರಗಳು", mandiSub: "ಕರ್ನಾಟಕ ಮಾರುಕಟ್ಟೆಗಳ ಸರ್ಕಾರಿ ದೈನಂದಿನ ವರದಿ ದರಗಳು.",
+    marketBoard: "ಅಗ್ಮಾರ್ಕ್‌ನೆಟ್ ದೈನಂದಿನ ದರಗಳು", commodity: "ಬೆಳೆ", market: "ಮಾರುಕಟ್ಟೆ", price: "ದರ / ಕ್ವಿಂಟಾಲ್",
+    change: "ಬದಲಾವಣೆ", sampleTip: "ದರಗಳು ಬದಲಾಗಬಹುದು. ಸಾಗಣೆ ಮತ್ತು ಇತರ ವೆಚ್ಚಗಳು ನಿಮ್ಮ ಗಳಿಕೆಗೆ ಪರಿಣಾಮ ಬೀರುತ್ತವೆ; ಎಚ್ಚರಿಕೆಯಿಂದ ಹೋಲಿಸಿ.",
+    state: "ರಾಜ್ಯ", districtLabel: "ಜಿಲ್ಲೆ", variety: "ತಳಿ", arrivalDate: "ಆಗಮನ ದಿನಾಂಕ",
+    minPrice: "ಕನಿಷ್ಠ ದರ", maxPrice: "ಗರಿಷ್ಠ ದರ", modalPrice: "ಮಾದರಿ ದರ",
+    selectState: "ರಾಜ್ಯ ಆಯ್ಕೆಮಾಡಿ", selectDistrict: "ಎಲ್ಲ ಜಿಲ್ಲೆಗಳು", selectMarket: "ಎಲ್ಲ ಮಾರುಕಟ್ಟೆಗಳು",
+    searchCrop: "ಬೆಳೆ ಹುಡುಕಿ ಆಯ್ಕೆಮಾಡಿ", cropSearchPlaceholder: "ಮಾಹಿತಿಯಲ್ಲಿನ ಬೆಳೆಗಳನ್ನು ಹುಡುಕಿ…",
+    noCrops: "ಲಭ್ಯ ಮಾಹಿತಿಯಲ್ಲಿ ಹೊಂದುವ ಬೆಳೆಗಳಿಲ್ಲ.", loadingMarkets: "ಸರ್ಕಾರಿ ಮಾರುಕಟ್ಟೆ ಮಾಹಿತಿ ಲೋಡ್ ಆಗುತ್ತಿದೆ…",
+    noMarketData: "ಈ ಆಯ್ಕೆಗೆ ಮಾರುಕಟ್ಟೆ ದಾಖಲೆಗಳಿಲ್ಲ.",
+    noDataForFilters: "ಈ ಫಿಲ್ಟರ್‌ಗಳಿಗೆ ದಾಖಲೆಗಳಿಲ್ಲ. ಬೇರೆ ಬೆಳೆ, ಜಿಲ್ಲೆ ಅಥವಾ ಮಾರುಕಟ್ಟೆ ಆಯ್ಕೆಮಾಡಿ.",
+    chooseCropForCompare: "ಮಾರುಕಟ್ಟೆಗಳ ದರ ಹೋಲಿಸಲು ಬೆಳೆ ಹುಡುಕಿ ಆಯ್ಕೆಮಾಡಿ.",
+    marketApiSource: "ಭಾರತ ಸರ್ಕಾರ · ಅಗ್ಮಾರ್ಕ್‌ನೆಟ್", lastUpdatedMandi: "ಕೊನೆಯ ನವೀಕರಣ",
+    dataRows: "ಪಡೆದ ದಾಖಲೆಗಳು", mandiErrorTitle: "ಮಾರುಕಟ್ಟೆ ಮಾಹಿತಿ ಲೋಡ್ ಆಗಲಿಲ್ಲ",
+    missingMandiKey: "ಸರ್ವರ್‌ನ .env ಕಡತಕ್ಕೆ data.gov.in API ಕೀ ಸೇರಿಸಿ, ನಂತರ ಸರ್ವರ್ ಮರುಪ್ರಾರಂಭಿಸಿ.",
+    rejectedMandiKey: "data.gov.in ಈ API ಕೀಯನ್ನು ತಿರಸ್ಕರಿಸಿದೆ. ಅದು ಸಕ್ರಿಯವಾಗಿದೆಯೇ ಮತ್ತು ಈ ಮಾಹಿತಿಗೆ ಅನುಮತಿದೆಯೇ ಪರಿಶೀಲಿಸಿ.",
+    mandiNetworkError: "ಮಾರುಕಟ್ಟೆ ಸೇವೆಯನ್ನು ತಲುಪಲಾಗಲಿಲ್ಲ. ಇಂಟರ್ನೆಟ್ ಪರಿಶೀಲಿಸಿ ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ.",
+    mandiUpstreamError: "data.gov.in ಸೇವೆ ತಾತ್ಕಾಲಿಕವಾಗಿ ಲಭ್ಯವಿಲ್ಲ. ಸ್ವಲ್ಪ ಸಮಯದ ನಂತರ ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ.",
+    mandiSchemaError: "ಮಾಹಿತಿಯ ಪ್ರತಿಕ್ರಿಯೆಯ ರೂಪ ಗುರುತಿಸಲಾಗಲಿಲ್ಲ. ಯಾವುದೇ ದರ ತೋರಿಸಲಾಗುವುದಿಲ್ಲ.",
+    refreshPrices: "ದರಗಳನ್ನು ನವೀಕರಿಸಿ", refreshingPrices: "ನವೀಕರಿಸಲಾಗುತ್ತಿದೆ…", compareMarkets: "ಕರ್ನಾಟಕ ಮಾರುಕಟ್ಟೆಗಳನ್ನು ಹೋಲಿಸಿ",
+    sortByModal: "ಮಾದರಿ ದರದಂತೆ ವಿಂಗಡಿಸಿ", ascending: "ಕಡಿಮೆಯಿಂದ ಹೆಚ್ಚು", descending: "ಹೆಚ್ಚಿನಿಂದ ಕಡಿಮೆ",
+    priceAdvisory: "ದರ ಹೋಲಿಕೆ ಸೂಚನೆಗಳು", noCompareData: "ಮಾರುಕಟ್ಟೆ ಹೋಲಿಕೆಗೆ ಸಾಕಷ್ಟು ವರದಿಯಾದ ದರಗಳಿಲ್ಲ.",
+    highestReported: "ವರದಿಯಾದ ಅತ್ಯಧಿಕ ಮಾದರಿ ದರ", lowestReported: "ವರದಿಯಾದ ಕನಿಷ್ಠ ಮಾದರಿ ದರ",
+    transportNote: "ಹೆಚ್ಚಿನ ವರದಿಯಾದ ದರ ಎಂದರೆ ಹೆಚ್ಚಿನ ಗಳಿಕೆ ಖಚಿತವಲ್ಲ. ಸಾಗಣೆ ಮತ್ತು ಇತರ ವೆಚ್ಚಗಳು ಮುಖ್ಯ.",
+    priceHistory: "ವರದಿಯಾದ ದರದ ಇತಿಹಾಸ", fromDate: "ದಿನಾಂಕದಿಂದ", toDate: "ದಿನಾಂಕದವರೆಗೆ",
+    missingDates: "ಈ ದಿನಾಂಕಗಳಿಗೆ ದಾಖಲೆಗಳಿಲ್ಲ", noHistory: "ಈ ಆಯ್ಕೆಗೆ ಹಿಂದಿನ ದಾಖಲೆಗಳು ಲಭ್ಯವಿಲ್ಲ.",
+    sourceUnitNote: "ಮೂಲದಲ್ಲಿ ವರದಿಯಾದಂತೆ ದರಗಳನ್ನು ₹ ಪ್ರತಿ ಕ್ವಿಂಟಾಲ್‌ನಲ್ಲಿ ತೋರಿಸಲಾಗಿದೆ.",
+    noVariety: "ವರದಿಯಾಗಿಲ್ಲ", noPrice: "—", searchStateHelp: "ಸ್ಥಳ ಮತ್ತು ಬೆಳೆ ಆಯ್ಕೆಗಳು ಪಡೆದ ದಾಖಲೆಗಳಿಂದ ಬರುತ್ತವೆ.",
+    selectedRows: "ಹೊಂದಿದ ದಾಖಲೆಗಳು", allKarnataka: "ಎಲ್ಲ ಕರ್ನಾಟಕ",
     soilTitle: "ಮಣ್ಣಿನ ವಿವರ", soilSub: "ನಿಮ್ಮ ಹೊಲದ ಮಣ್ಣನ್ನು ಅರ್ಥಮಾಡಿಕೊಳ್ಳಲು ಸರಳ ಮಾರ್ಗದರ್ಶಿ.",
     soilHealth: "ಮಣ್ಣಿನ ಆರೋಗ್ಯ ನೋಟ", soilType: "ಮಣ್ಣಿನ ಪ್ರಕಾರ", phLevel: "ಪಿಎಚ್ ಮಟ್ಟ", organicMatter: "ಸಾವಯವ ಪದಾರ್ಥ",
     nitrogen: "ಸಾರಜನಕ", phosphorus: "ರಂಜಕ", potassium: "ಪೊಟ್ಯಾಸಿಯಂ",
@@ -189,13 +245,6 @@ const navItems: { id: Screen; icon: string; key: keyof typeof text.en }[] = [
   { id: "crops", icon: "❋", key: "crops" },
   { id: "advisory", icon: "✳", key: "advisory" },
   { id: "settings", icon: "⚙", key: "settings" },
-];
-
-const samplePrices = [
-  { crop: "Paddy", market: "Mysuru", price: "₹2,180", change: "+2.4%", up: true },
-  { crop: "Ragi", market: "Mandya", price: "₹3,450", change: "+1.2%", up: true },
-  { crop: "Maize", market: "Hassan", price: "₹2,060", change: "−0.8%", up: false },
-  { crop: "Tur dal", market: "Kalaburagi", price: "₹7,200", change: "+0.5%", up: true },
 ];
 
 function readSavedWeatherLocation(): WeatherLocation | null {
@@ -647,18 +696,229 @@ function Weather({ t, language, location, forecast, loading, error, updatedAt, o
   </>;
 }
 
+function mandiErrorMessage(error: string, t: Translate) {
+  const key = error === "missing_credentials" ? "missingMandiKey"
+    : error === "credentials_rejected" ? "rejectedMandiKey"
+      : error === "network_error" || error === "upstream_unavailable" ? "mandiNetworkError"
+        : error === "invalid_upstream_response" || error === "unrecognized_upstream_fields" || error === "invalid_response" ? "mandiSchemaError"
+          : "mandiUpstreamError";
+  return t(key);
+}
+
+function uniqueSorted(values: string[]) {
+  return Array.from(new Set(values.filter(Boolean))).sort((a, b) => a.localeCompare(b));
+}
+
+function formatMandiDate(value: string, language: Language) {
+  const date = new Date(`${value}T12:00:00Z`);
+  if (Number.isNaN(date.getTime())) return value;
+  return date.toLocaleDateString(language === "en" ? "en-IN" : "kn-IN", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+    timeZone: "UTC",
+  });
+}
+
+function formatPrice(value: number | null) {
+  return value === null ? "—" : `₹${new Intl.NumberFormat("en-IN", { maximumFractionDigits: 2 }).format(value)}`;
+}
+
 function Mandi({ t }: PageProps) {
-  const cropNames: Record<string, string> = { Paddy: t("cropRice"), Ragi: t("cropRagi"), Maize: t("cropMaize"), "Tur dal": t("turDal") };
-  const marketNames: Record<string, string> = languageOf(t) === "en"
-    ? { Mysuru: "Mysuru", Mandya: "Mandya", Hassan: "Hassan", Kalaburagi: "Kalaburagi" }
-    : { Mysuru: "ಮೈಸೂರು", Mandya: "ಮಂಡ್ಯ", Hassan: "ಹಾಸನ", Kalaburagi: "ಕಲಬುರಗಿ" };
+  const [records, setRecords] = useState<MandiRecord[]>([]);
+  const [catalogRecords, setCatalogRecords] = useState<MandiRecord[]>([]);
+  const [stateOptions, setStateOptions] = useState<string[]>([]);
+  const [selectedState, setSelectedState] = useState("");
+  const [selectedDistrict, setSelectedDistrict] = useState("");
+  const [selectedMarket, setSelectedMarket] = useState("");
+  const [selectedCommodity, setSelectedCommodity] = useState("");
+  const [commodityQuery, setCommodityQuery] = useState("");
+  const [commodityMenuOpen, setCommodityMenuOpen] = useState(false);
+  const [sortAscending, setSortAscending] = useState(true);
+  const [dateFrom, setDateFrom] = useState("");
+  const [dateTo, setDateTo] = useState("");
+  const [loaded, setLoaded] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [total, setTotal] = useState(0);
+  const [fetchedAt, setFetchedAt] = useState("");
+  const [refreshCount, setRefreshCount] = useState(0);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    async function loadRecords() {
+      setLoading(true);
+      setError("");
+      try {
+        const response = await fetchMandiRecords({}, controller.signal);
+        if (controller.signal.aborted) return;
+        setRecords(response.records);
+        setCatalogRecords(response.records);
+        setStateOptions(uniqueSorted(response.records.map((record) => record.state)));
+        setTotal(response.total);
+        setFetchedAt(response.fetchedAt);
+        const preferredState = response.records.some((record) => record.state.toLocaleLowerCase() === "karnataka")
+          ? response.records.find((record) => record.state.toLocaleLowerCase() === "karnataka")?.state ?? ""
+          : uniqueSorted(response.records.map((record) => record.state))[0] ?? "";
+        setSelectedState(preferredState);
+      } catch (caught) {
+        if (controller.signal.aborted) return;
+        console.error("Could not load AGMARKNET market options.", caught);
+        setError(caught instanceof MandiServiceError ? caught.code : "invalid_response");
+      } finally {
+        if (!controller.signal.aborted) {
+          setLoading(false);
+          setLoaded(true);
+        }
+      }
+    }
+    void loadRecords();
+    return () => controller.abort();
+  }, []);
+
+  useEffect(() => {
+    if (!loaded || !selectedState) return;
+    const controller = new AbortController();
+    async function loadFilteredRecords() {
+      setLoading(true);
+      setError("");
+      setRecords([]);
+      try {
+        const response = await fetchMandiRecords({
+          state: selectedState,
+          district: selectedDistrict || undefined,
+          market: selectedMarket || undefined,
+          commodity: selectedCommodity || undefined,
+        }, controller.signal);
+        if (controller.signal.aborted) return;
+        setRecords(response.records);
+        setTotal(response.total);
+        setFetchedAt(response.fetchedAt);
+        setCatalogRecords((current) => [...current, ...response.records]);
+      } catch (caught) {
+        if (controller.signal.aborted) return;
+        console.error("Could not load filtered AGMARKNET prices.", caught);
+        setError(caught instanceof MandiServiceError ? caught.code : "invalid_response");
+      } finally {
+        if (!controller.signal.aborted) setLoading(false);
+      }
+    }
+    void loadFilteredRecords();
+    return () => controller.abort();
+  }, [loaded, selectedState, selectedDistrict, selectedMarket, selectedCommodity, refreshCount]);
+
+  const knownRecords = [...catalogRecords, ...records];
+  const districts = uniqueSorted(knownRecords.filter((record) => record.state === selectedState).map((record) => record.district));
+  const markets = uniqueSorted(knownRecords.filter((record) =>
+    record.state === selectedState && (!selectedDistrict || record.district === selectedDistrict),
+  ).map((record) => record.market));
+  const commodities = uniqueSorted(knownRecords.filter((record) =>
+    record.state === selectedState &&
+    (!selectedDistrict || record.district === selectedDistrict) &&
+    (!selectedMarket || record.market === selectedMarket),
+  ).map((record) => record.commodity));
+  const matchingCommodities = commodities.filter((commodity) => commodity.toLocaleLowerCase().includes(commodityQuery.trim().toLocaleLowerCase()));
+  const sortedRecords = [...records].sort((a, b) => b.arrivalDate.localeCompare(a.arrivalDate));
+
+  const comparisonByMarket = new Map<string, MandiRecord>();
+  for (const record of sortedRecords) {
+    if (!selectedCommodity || record.commodity !== selectedCommodity) continue;
+    if (record.modalPrice !== null && !comparisonByMarket.has(record.market)) comparisonByMarket.set(record.market, record);
+  }
+  const comparisons = Array.from(comparisonByMarket.values()).sort((a, b) => {
+    if (sortAscending) return (a.modalPrice ?? 0) - (b.modalPrice ?? 0);
+    return (b.modalPrice ?? 0) - (a.modalPrice ?? 0);
+  });
+  const highestPrice = comparisons.reduce<MandiRecord | null>((highest, record) =>
+    record.modalPrice !== null && (highest?.modalPrice === null || highest?.modalPrice === undefined || record.modalPrice > highest.modalPrice) ? record : highest,
+  null);
+  const lowestPrice = comparisons.reduce<MandiRecord | null>((lowest, record) =>
+    record.modalPrice !== null && (lowest?.modalPrice === null || lowest?.modalPrice === undefined || record.modalPrice < lowest.modalPrice) ? record : lowest,
+  null);
+
+  const availableDates = uniqueSorted(records.map((record) => record.arrivalDate)).sort();
+  const defaultTo = availableDates.at(-1) ?? "";
+  const defaultFrom = availableDates[Math.max(0, availableDates.length - 7)] ?? "";
+  const activeFrom = dateFrom || defaultFrom;
+  const activeTo = dateTo || defaultTo;
+  const historyByDate = new Map<string, { sum: number; count: number }>();
+  for (const record of records) {
+    if (!selectedCommodity || record.commodity !== selectedCommodity || record.modalPrice === null || record.arrivalDate < activeFrom || record.arrivalDate > activeTo) continue;
+    const current = historyByDate.get(record.arrivalDate) ?? { sum: 0, count: 0 };
+    current.sum += record.modalPrice;
+    current.count += 1;
+    historyByDate.set(record.arrivalDate, current);
+  }
+  const historyValues = Array.from(historyByDate.entries()).map(([date, value]) => ({ date, modalPrice: value.sum / value.count }));
+  const maximumHistoryPrice = Math.max(1, ...historyValues.map((entry) => entry.modalPrice));
+  const missingDates: string[] = [];
+  if (activeFrom && activeTo && activeFrom <= activeTo) {
+    const cursor = new Date(`${activeFrom}T12:00:00Z`);
+    const end = new Date(`${activeTo}T12:00:00Z`);
+    while (cursor <= end && missingDates.length <= 31) {
+      const current = cursor.toISOString().slice(0, 10);
+      if (!historyByDate.has(current)) missingDates.push(current);
+      cursor.setUTCDate(cursor.getUTCDate() + 1);
+    }
+  }
+  const updatedLabel = fetchedAt
+    ? new Date(fetchedAt).toLocaleString(languageOf(t) === "en" ? "en-IN" : "kn-IN", { dateStyle: "medium", timeStyle: "short" })
+    : "";
+
+  function chooseCommodity(value: string) {
+    setSelectedCommodity(value);
+    setCommodityQuery(value);
+    setCommodityMenuOpen(false);
+    setDateFrom("");
+    setDateTo("");
+  }
+
   return <>
-    <PageHeading eyebrow={t("marketBoard")} title={t("mandiTitle")} description={t("mandiSub")} t={t} />
-    <div className="market-callout"><span className="callout-icon">↗</span><p>{t("sampleTip")}</p></div>
-    <section className="panel table-panel"><div className="table-heading"><div><h2>{languageOf(t) === "en" ? "Nearby market snapshot" : "ಸಮೀಪದ ಮಾರುಕಟ್ಟೆ ನೋಟ"}</h2><p>{t("marketItems")}</p></div><span className="location-chip">⌖ &nbsp;{t("locationUnset")}</span></div>
-      <div className="table-scroll"><table><thead><tr><th>{t("commodity")}</th><th>{t("market")}</th><th>{t("price")}</th><th>{t("change")}</th></tr></thead><tbody>{samplePrices.map((row) => <tr key={row.crop}><td><span className={`commodity-dot ${row.up ? "" : "gold"}`} />{cropNames[row.crop]}</td><td>{marketNames[row.market]}</td><td className="price-cell">{row.price}</td><td><span className={row.up ? "change-up" : "change-down"}>{row.change}</span></td></tr>)}</tbody></table></div>
-      <div className="table-footnote"><span>ⓘ</span>{t("sampleTip")}</div>
+    <PageHeading eyebrow={t("marketBoard")} title={t("mandiTitle")} description={t("mandiSub")} t={t} badge="AGMARKNET" badgeKind="source" />
+    <section className="panel mandi-filter-panel">
+      <div className="mandi-filters">
+        <label>{t("state")}<select value={selectedState} disabled={loading && stateOptions.length === 0} onChange={(event) => {
+          setSelectedState(event.target.value); setSelectedDistrict(""); setSelectedMarket(""); chooseCommodity("");
+        }}><option value="">{t("selectState")}</option>{stateOptions.map((state) => <option value={state} key={state}>{state}</option>)}</select></label>
+        <label>{t("districtLabel")}<select value={selectedDistrict} disabled={!selectedState} onChange={(event) => {
+          setSelectedDistrict(event.target.value); setSelectedMarket(""); chooseCommodity("");
+        }}><option value="">{t("selectDistrict")}</option>{districts.map((district) => <option value={district} key={district}>{district}</option>)}</select></label>
+        <label>{t("market")}<select value={selectedMarket} disabled={!selectedState} onChange={(event) => {
+          setSelectedMarket(event.target.value); chooseCommodity("");
+        }}><option value="">{t("selectMarket")}</option>{markets.map((market) => <option value={market} key={market}>{market}</option>)}</select></label>
+        <div className="commodity-picker"><label htmlFor="commodity-search">{t("searchCrop")}</label><input id="commodity-search" role="combobox" aria-expanded={commodityMenuOpen} aria-controls="commodity-options" aria-autocomplete="list" value={commodityQuery} placeholder={t("cropSearchPlaceholder")} onFocus={() => setCommodityMenuOpen(true)} onChange={(event) => {
+          setCommodityQuery(event.target.value); setSelectedCommodity(""); setCommodityMenuOpen(true);
+        }} onKeyDown={(event) => {
+          if (event.key === "Escape") setCommodityMenuOpen(false);
+          if (event.key === "Enter" && matchingCommodities.length) { event.preventDefault(); chooseCommodity(matchingCommodities[0]); }
+        }} />
+          {commodityMenuOpen && <div className="commodity-options" id="commodity-options" role="listbox">{matchingCommodities.length
+            ? matchingCommodities.slice(0, 30).map((commodity) => <button type="button" role="option" aria-selected={selectedCommodity === commodity} key={commodity} onMouseDown={(event) => event.preventDefault()} onClick={() => chooseCommodity(commodity)}>{commodity}</button>)
+            : <span>{t("noCrops")}</span>}</div>}
+        </div>
+      </div>
+      <div className="mandi-filter-foot"><span>ⓘ &nbsp;{t("searchStateHelp")}</span><button className="button button-outline" onClick={() => setRefreshCount((count) => count + 1)} disabled={loading}>{loading ? <><span className="spinner" />{t("refreshingPrices")}</> : <>↻ &nbsp;{t("refreshPrices")}</>}</button></div>
     </section>
+    <div className="mandi-source-line"><span>◉ &nbsp;{t("marketApiSource")}</span>{updatedLabel && <span>{t("lastUpdatedMandi")}: {updatedLabel}</span>}{total > 0 && <span>{total.toLocaleString()} {t("selectedRows")}</span>}</div>
+    {error && <div className="mandi-error" role="alert"><strong>{t("mandiErrorTitle")}</strong><p>{mandiErrorMessage(error, t)}</p>{error === "missing_credentials" && <code>DATA_GOV_IN_API_KEY</code>}</div>}
+    {loading && <div className="mandi-loading panel" role="status"><span className="spinner" />{t("loadingMarkets")}</div>}
+    {!loading && !error && !records.length && <div className="mandi-empty panel"><span>⌕</span><h2>{loaded ? t("noDataForFilters") : t("noMarketData")}</h2></div>}
+    {!loading && !error && records.length > 0 && <>
+      <section className="panel table-panel mandi-table-panel"><div className="table-heading"><div><h2>{selectedCommodity || t("mandiTitle")}</h2><p>{records.length} {t("selectedRows")}</p></div><span className="source-badge demo-badge">AGMARKNET</span></div>
+        <div className="table-scroll"><table><thead><tr><th>{t("commodity")}</th><th>{t("market")}</th><th>{t("districtLabel")}</th><th>{t("variety")}</th><th>{t("arrivalDate")}</th><th>{t("minPrice")}</th><th>{t("maxPrice")}</th><th>{t("modalPrice")}</th></tr></thead><tbody>{sortedRecords.slice(0, 250).map((record, index) => <tr key={`${record.arrivalDate}-${record.market}-${record.commodity}-${record.variety}-${index}`}><td>{record.commodity}</td><td>{record.market}</td><td>{record.district}</td><td>{record.variety || t("noVariety")}</td><td>{formatMandiDate(record.arrivalDate, languageOf(t) === "en" ? "en" : "kn")}</td><td>{formatPrice(record.minPrice)}</td><td>{formatPrice(record.maxPrice)}</td><td className="price-cell">{formatPrice(record.modalPrice)}</td></tr>)}</tbody></table></div>
+        <div className="table-footnote"><span>ⓘ</span>{t("sourceUnitNote")}</div>
+      </section>
+      <section className="panel mandi-comparison"><div className="mandi-section-heading"><div><div className="eyebrow">{selectedState}</div><h2>{t("compareMarkets")}{selectedCommodity ? ` · ${selectedCommodity}` : ""}</h2></div><button className="button button-outline" onClick={() => setSortAscending((ascending) => !ascending)}>{t("sortByModal")}: {t(sortAscending ? "ascending" : "descending")}</button></div>
+        {comparisons.length > 0 ? <div className="comparison-grid">{comparisons.map((record, index) => <article className="comparison-card" key={`${record.market}-${record.arrivalDate}`}><div><strong>{record.market}</strong><small>{record.district}</small></div><b className={index === 0 ? "comparison-low" : index === comparisons.length - 1 ? "comparison-high" : ""}>{formatPrice(record.modalPrice)}</b><span>{t("minPrice")}: {formatPrice(record.minPrice)} · {t("maxPrice")}: {formatPrice(record.maxPrice)}</span><small>{t("arrivalDate")}: {formatMandiDate(record.arrivalDate, languageOf(t) === "en" ? "en" : "kn")}</small></article>)}</div> : <p className="mandi-history-empty">{selectedCommodity ? t("noCompareData") : t("chooseCropForCompare")}</p>}
+        {highestPrice && lowestPrice && highestPrice.market !== lowestPrice.market && <div className="price-advisory"><div><strong>{t("highestReported")}</strong><span>{highestPrice.market} · {formatPrice(highestPrice.modalPrice)}</span></div><div><strong>{t("lowestReported")}</strong><span>{lowestPrice.market} · {formatPrice(lowestPrice.modalPrice)}</span></div></div>}
+        <p className="transport-warning">{t("transportNote")}</p>
+      </section>
+      <section className="panel mandi-history"><div className="mandi-section-heading"><div><div className="eyebrow">{selectedCommodity || t("commodity")}</div><h2>{t("priceHistory")}</h2></div><div className="date-filters"><label>{t("fromDate")}<input type="date" min={availableDates[0]} max={defaultTo} value={dateFrom || defaultFrom} onChange={(event) => setDateFrom(event.target.value)} /></label><label>{t("toDate")}<input type="date" min={availableDates[0]} max={defaultTo} value={dateTo || defaultTo} onChange={(event) => setDateTo(event.target.value)} /></label></div></div>
+        {historyValues.length > 0 ? <div className="history-bars" role="img" aria-label={t("priceHistory")}>{historyValues.map((entry) => <div className="history-point" key={entry.date}><strong>{formatPrice(entry.modalPrice)}</strong><span><i style={{ height: `${Math.max(8, entry.modalPrice / maximumHistoryPrice * 100)}%` }} /></span><small>{formatMandiDate(entry.date, languageOf(t) === "en" ? "en" : "kn")}</small></div>)}</div> : <p className="mandi-history-empty">{t("noHistory")}</p>}
+        {missingDates.length > 0 && <div className="missing-date-note"><strong>{t("missingDates")}:</strong> {missingDates.map((date) => formatMandiDate(date, languageOf(t) === "en" ? "en" : "kn")).join(", ")}{missingDates.length > 31 ? "…" : ""}</div>}
+        <p className="history-method">{t("sourceUnitNote")}</p>
+      </section>
+    </>}
   </>;
 }
 

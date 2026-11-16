@@ -282,6 +282,68 @@ td:first-child { color: #455b49; font-weight: 600; }
 .price-cell { color: #34503b; font-weight: 700; }
 .table-footnote { display: flex; gap: 7px; padding: 13px 18px; border-top: 1px solid #eff1eb; color: #969d95; font-size: 9px; line-height: 1.5; }
 .table-footnote span { color: #b08a4d; }
+.mandi-filter-panel { padding: 16px; margin-bottom: 12px; }
+.mandi-filters { display: grid; grid-template-columns: repeat(3, minmax(125px, .8fr)) minmax(190px, 1.25fr); gap: 11px; align-items: start; }
+.mandi-filters > label, .commodity-picker > label { display: grid; gap: 6px; color: #607065; font-size: 9px; font-weight: 600; }
+.mandi-filters select, .commodity-picker > input, .date-filters input { width: 100%; min-width: 0; height: 36px; padding: 0 9px; border: 1px solid #e5e9e1; border-radius: 7px; color: #4c6251; background: #fff; font-size: 9px; }
+.mandi-filters select:disabled { color: #9da69e; background: #f7f8f5; }
+.commodity-picker { position: relative; }
+.commodity-picker > input { margin-top: 6px; }
+.commodity-options { position: absolute; z-index: 15; top: 61px; left: 0; right: 0; max-height: 235px; overflow-y: auto; padding: 5px; border: 1px solid #e3e9df; border-radius: 8px; background: #fff; box-shadow: 0 8px 24px #21382218; }
+.commodity-options button { width: 100%; display: block; padding: 8px; border: 0; border-radius: 5px; color: #526856; background: #fff; text-align: left; font-size: 9px; }
+.commodity-options button:hover, .commodity-options button[aria-selected="true"] { background: #eef4e9; }
+.commodity-options > span { display: block; padding: 9px; color: #89968b; font-size: 9px; }
+.mandi-filter-foot { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 12px; padding-top: 10px; border-top: 1px solid #eff1eb; color: #929d93; font-size: 8px; }
+.mandi-filter-foot .button { min-height: 30px; padding: 0 9px; font-size: 8px; white-space: nowrap; }
+.mandi-filter-foot .button:disabled { opacity: .7; cursor: wait; }
+.mandi-filter-foot .spinner { width: 11px; height: 11px; margin-right: 5px; vertical-align: -2px; }
+.mandi-source-line { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 7px 14px; margin: 0 1px 12px; color: #869388; font-size: 8px; }
+.mandi-source-line > span:first-child { color: #5d795c; font-weight: 700; }
+.mandi-error { padding: 12px 14px; margin-bottom: 12px; border: 1px solid #f0d7cb; border-radius: 9px; color: #925a43; background: #fff7f2; font-size: 9px; }
+.mandi-error > strong { display: block; font-size: 10px; }
+.mandi-error > p { margin: 5px 0 0; line-height: 1.5; }
+.mandi-error > code { display: inline-block; margin-top: 7px; padding: 4px 6px; border-radius: 4px; background: #f7e9df; font-size: 8px; }
+.mandi-loading { min-height: 125px; display: flex; align-items: center; justify-content: center; gap: 10px; color: #718071; font-size: 10px; }
+.mandi-empty { min-height: 150px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+.mandi-empty > span { color: #89a27b; font-size: 28px; }
+.mandi-empty h2 { max-width: 500px; margin: 8px 12px; color: #627465; font: 600 12px "DM Sans", sans-serif; }
+.mandi-table-panel { margin-bottom: 14px; }
+.mandi-table-panel .table-scroll { max-height: 540px; }
+.mandi-table-panel table { min-width: 930px; }
+.mandi-table-panel td { font-size: 9px; }
+.mandi-table-panel .source-badge { font-size: 7px; letter-spacing: .3px; }
+.mandi-comparison, .mandi-history { padding: 17px; margin-bottom: 14px; }
+.mandi-section-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.mandi-section-heading .eyebrow { margin-bottom: 5px; }
+.mandi-section-heading h2 { margin: 0; color: #334a39; font: 700 14px "Manrope", sans-serif; }
+.mandi-section-heading > .button { min-height: 31px; padding: 0 9px; white-space: nowrap; font-size: 8px; }
+.comparison-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 9px; margin-top: 13px; }
+.comparison-card { min-width: 0; display: grid; grid-template-columns: 1fr auto; gap: 6px 8px; padding: 11px; border: 1px solid #e9eee5; border-radius: 9px; background: #fbfcf9; }
+.comparison-card > div strong, .comparison-card > div small { display: block; }
+.comparison-card > div strong { overflow: hidden; color: #49604b; font-size: 10px; text-overflow: ellipsis; white-space: nowrap; }
+.comparison-card > div small, .comparison-card > small { color: #909b91; font-size: 8px; }
+.comparison-card > b { grid-row: span 2; align-self: center; color: #435c48; font: 700 14px "Manrope", sans-serif; white-space: nowrap; }
+.comparison-card > b.comparison-low { color: #58835b; }
+.comparison-card > b.comparison-high { color: #a27243; }
+.comparison-card > span { grid-column: 1 / -1; color: #7f8c81; font-size: 8px; }
+.comparison-card > small { grid-column: 1 / -1; }
+.price-advisory { display: flex; flex-wrap: wrap; gap: 9px; margin-top: 12px; }
+.price-advisory > div { flex: 1 1 190px; padding: 9px 10px; border-radius: 7px; background: #f2f5ee; }
+.price-advisory > div strong, .price-advisory > div span { display: block; }
+.price-advisory > div strong { color: #778575; font-size: 8px; }.price-advisory > div span { margin-top: 4px; color: #47634a; font-size: 10px; font-weight: 700; }
+.transport-warning { margin: 11px 0 0; padding: 9px 10px; border-radius: 7px; color: #8d754f; background: #fbf7eb; font-size: 8px; line-height: 1.5; }
+.date-filters { display: flex; gap: 7px; }
+.date-filters label { display: grid; gap: 4px; color: #879287; font-size: 7px; }
+.date-filters input { height: 30px; min-width: 120px; padding: 0 6px; color: #536755; font-size: 8px; }
+.history-bars { min-height: 150px; display: flex; align-items: end; gap: 7px; overflow-x: auto; margin-top: 15px; padding: 10px 4px 0; border-bottom: 1px solid #edf0e9; }
+.history-point { min-width: 46px; height: 145px; display: grid; grid-template-rows: 17px 1fr 30px; justify-items: center; gap: 4px; }
+.history-point > strong { color: #617463; font-size: 7px; white-space: nowrap; }
+.history-point > span { width: 19px; height: 100%; display: flex; align-items: end; overflow: hidden; border-radius: 5px 5px 0 0; background: #eff3ea; }
+.history-point > span i { width: 100%; min-height: 3px; border-radius: 4px 4px 0 0; background: #85a777; }
+.history-point > small { color: #8c988e; font-size: 7px; text-align: center; }
+.missing-date-note { margin-top: 10px; color: #9a8053; font-size: 8px; line-height: 1.6; }
+.missing-date-note strong { margin-right: 4px; }
+.history-method, .mandi-history-empty { margin: 10px 0 0; color: #8d988e; font-size: 8px; line-height: 1.5; }
 
 .soil-summary { display: flex; align-items: center; gap: 15px; padding: 20px; background: #f0f3e8; }
 .soil-emblem { width: 58px; height: 58px; flex: 0 0 58px; display: grid; place-items: center; position: relative; border-radius: 16px; color: #668358; background: #dfe8d2; font-size: 34px; }
@@ -372,6 +434,7 @@ td:first-child { color: #455b49; font-weight: 600; }
   .weather-live-facts { padding: 10px 9px; }.weather-live-facts > div { grid-template-columns: 12px 1fr; column-gap: 3px; padding-left: 5px; }.weather-live-facts > div > span { font-size: 11px; }.weather-live-facts small { font-size: 6px; }.weather-live-facts strong { font-size: 9px; }.weather-live-facts em { font-size: 6px; }
   .weather-data-meta { align-items: flex-start; flex-wrap: wrap; gap: 7px; line-height: 1.5; }.weather-data-meta > span:first-child { flex-basis: 100%; }.weather-data-meta .button { margin-left: auto; }.seven-day-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 7px; }.forecast-card { gap: 6px; padding: 10px 5px; }.forecast-date { font-size: 8px; }.forecast-condition { min-height: 0; }.forecast-temperatures { font-size: 7px; }.forecast-rain { font-size: 7px; }.live-forecast-panel { padding: 14px 11px; }.farming-advisory { padding: 14px; }
   .table-heading { align-items: start; padding: 15px 13px 12px; }.table-heading h2 { font-size: 12px; }.location-chip { padding: 6px 7px; font-size: 8px; }.table-panel th, .table-panel td { padding: 12px 10px; }.table-panel th { font-size: 8px; }.table-panel td { font-size: 9px; }.table-footnote { padding: 11px 12px; font-size: 8px; }
+  .mandi-filter-panel, .mandi-comparison, .mandi-history { padding: 12px; }.mandi-filters { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 9px; }.commodity-options { top: 61px; }.mandi-filter-foot { align-items: flex-start; }.mandi-filter-foot > span { line-height: 1.5; }.mandi-source-line { font-size: 7px; }.mandi-section-heading { align-items: flex-start; flex-direction: column; }.mandi-section-heading h2 { font-size: 12px; }.comparison-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 7px; }.comparison-card { padding: 8px; }.comparison-card > b { font-size: 12px; }.date-filters { width: 100%; }.date-filters label { flex: 1; }.date-filters input { min-width: 0; }.history-bars { gap: 4px; }
   .soil-summary { padding: 14px; gap: 11px; }.soil-emblem { width: 46px; height: 46px; flex-basis: 46px; font-size: 28px; }.soil-summary-main h2 { font-size: 14px; }.soil-summary .demo-badge { font-size: 7px; }.soil-metrics { grid-template-columns: repeat(2, 1fr); gap: 9px; }.soil-metric { min-height: 111px; padding: 13px 12px; }.soil-metric:last-child { grid-column: span 2; min-height: 102px; }.soil-metric > strong { margin: 9px 0; font-size: 16px; }
   .crop-grid { gap: 9px; }.crop-art { height: 84px; }.crop-art > span { font-size: 47px; }.crop-art > small { left: 8px; top: 9px; font-size: 6px; }.crop-content { padding: 11px 10px; }.crop-content h2 { font-size: 13px; }.crop-content > p { min-height: 55px; font-size: 8px; }.crop-facts { grid-template-columns: 1fr; gap: 7px; }.crop-facts strong { font-size: 8px; }.crop-content .button { min-height: 34px; padding: 0 5px; font-size: 8px; }
   .chat-layout { grid-template-columns: 1fr; }.chat-window { min-height: 420px; }.chat-side { min-height: 210px; padding: 17px; }.side-spark { margin-bottom: 12px; }.chat-side-bottom { padding: 11px 17px; }
