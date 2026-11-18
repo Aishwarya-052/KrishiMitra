@@ -11,9 +11,11 @@ import {
   MandiServiceError,
   type MandiRecord,
 } from "./mandiService";
+import GovtSchemesFinder from "./GovtSchemesFinder";
+import SmartIrrigationScheduler from "./SmartIrrigationScheduler";
 
-type Screen = "dashboard" | "weather" | "mandi" | "profit" | "smartFarm" | "soil" | "crops" | "advisory" | "settings";
-type Language = "en" | "kn";
+type Screen = "dashboard" | "weather" | "mandi" | "profit" | "smartFarm" | "irrigation" | "soil" | "crops" | "rotation" | "cropDoctor" | "schemes" | "advisory" | "settings";
+type Language = "en" | "kn" | "hi";
 type FarmerProfile = {
   name: string;
   village: string;
@@ -54,8 +56,9 @@ const initialProfitInputs: ProfitInputs = {
 
 const text = {
   en: {
-    dashboard: "Dashboard", weather: "Weather", mandi: "Mandi prices", profit: "Profit calculator", smartFarm: "Smart Farm", soil: "Soil profile",
-    crops: "Crop suggestions", advisory: "Advisory chat", settings: "Settings",
+    dashboard: "Dashboard", weather: "Weather", mandi: "Mandi prices", profit: "Profit calculator", smartFarm: "Smart Farm", irrigationPlanner: "Irrigation planner", soil: "Soil profile",
+    cropDoctor: "Crop Doctor", schemes: "Schemes & Subsidies",
+    crops: "Crop suggestions", cropRotation: "Crop rotation planner", advisory: "Advisory chat", settings: "Settings",
     greeting: "Good morning", welcome: "Your farm, one step ahead.", demo: "DEMO DATA",
     demoNote: "Sample information for this prototype — not live or location-specific.",
     todayAt: "TODAY AT A GLANCE", weatherCard: "Weather outlook", marketCard: "Market snapshot",
@@ -231,14 +234,47 @@ const text = {
     typeSandy: "Sandy soil", typeLoamy: "Loamy soil", waterCanal: "Canal", waterBorewell: "Borewell",
     waterRainfed: "Rainfed", waterOther: "Other", clearConfirm: "Clear the farmer profile saved on this device?",
     chartLabel: "Sample rainfall trend", marketItems: "Showing fictional sample prices", noProfile: "No profile saved yet",
-    close: "Close", menu: "Open menu", percent: "percent", acres: "acres",
+    close: "Close", menu: "Open menu", more: "More", prototype: "Prototype", percent: "percent", acres: "acres",
+    listenToSummary: "Listen / Read Aloud", stopReading: "Stop reading", speechUnavailable: "Speech is not available in this browser.", speechError: "Speech playback failed. Check browser audio settings and try again.",
+    profitSpeechSummary: "{crop}. Total expected yield: {yield} quintals. Revenue: {revenue}. Expenses: {expenses}. Estimated profit: {profit}. Profit per acre: {perAcre}. This is an estimate, not a guaranteed return.",
     turDal: "Tur dal", sampleMarket: "Mysuru sample market", nearNeutral: "Near neutral",
     sampleLevel: "Sample level", medium: "Medium", good: "Good", dayUnit: "days",
     waterLowMedium: "Low–medium", waterLow: "Low", waterMedium: "Medium", waterHigh: "High",
+    cropDoctorTitle: "Crop Doctor / Symptom Checker",
+    cropDoctorSub: "Select a crop and visible symptoms to see cautious possibilities and next steps.",
+    cropDoctorGuide: "FIELD SCREENING GUIDE", cropDoctorCrop: "Select crop", cropDoctorSymptoms: "Select visible symptoms",
+    cropDoctorChooseCrop: "Choose a crop", cropDoctorChooseSymptoms: "Choose one or more tags that match what you see.",
+    cropDoctorPossibleIssue: "Possible issue to inspect", cropDoctorSeverity: "Initial severity",
+    cropDoctorOrganic: "Immediate organic remedy / action", cropDoctorChemical: "Chemical option (only if confirmed)",
+    cropDoctorPrevention: "Prevention and monitoring", cropDoctorNoSelection: "Select a crop and at least one symptom to see possible causes.",
+    cropDoctorClearSymptoms: "Clear symptoms",
+    cropDoctorDisclaimer: "This visual screening guide cannot diagnose a crop. Several problems look alike; severity is an initial triage cue, not a measured assessment. Confirm with your local KVK or agriculture officer before treatment.",
+    cropDoctorSafety: "Use only products currently registered and labeled for this crop and confirmed target. Follow the label, protective equipment, re-entry and pre-harvest instructions. No dose or brand is provided.",
+    cropDoctorYellowing: "Yellowing leaves", cropDoctorBrownSpots: "Brown spots", cropDoctorLeafCurling: "Leaf curling",
+    cropDoctorWilting: "Wilting", cropDoctorWhitePowder: "White powder or growth", cropDoctorBorerHoles: "Stem or fruit borer holes",
+    cropDoctorTomato: "Tomato", cropDoctorCotton: "Cotton", cropDoctorChilli: "Chilli",
+    cropDoctorOrganicYellow: "Check soil moisture, drainage and the leaf underside. Correct nutrients only after checking local conditions; use neem only if sucking pests are visible and the crop label permits it.",
+    cropDoctorOrganicSpots: "Remove badly affected leaves and crop residue; avoid wetting foliage. These steps support hygiene but do not guarantee a cure.",
+    cropDoctorOrganicCurl: "Inspect leaf undersides and remove badly affected leaves. Neem may help some visible soft-bodied pests when permitted by the crop label, but cannot cure a virus.",
+    cropDoctorOrganicWilt: "Check soil moisture and drainage; isolate and remove confirmed wilted plants with roots. Avoid applying unverified mixtures to the soil.",
+    cropDoctorOrganicPowder: "Remove affected leaves and improve airflow. Check that the growth is not dust or spray residue before treating.",
+    cropDoctorOrganicBorer: "Remove and destroy infested plant parts; use a pheromone trap only when suitable for the identified pest and crop.",
+    cropDoctorPreventYellow: "Scout regularly, maintain suitable drainage and use balanced nutrients based on local soil guidance.",
+    cropDoctorPreventSpots: "Remove crop residues, allow airflow and avoid prolonged leaf wetness where practical.",
+    cropDoctorPreventCurl: "Check leaf undersides for vectors, remove weeds or volunteer hosts and monitor nearby plants.",
+    cropDoctorPreventWilt: "Use clean tools, avoid moving contaminated soil and seek local advice on rotation and drainage.",
+    cropDoctorPreventPowder: "Space plants for airflow, remove affected residue and scout nearby plants for early symptoms.",
+    cropDoctorPreventBorer: "Scout for eggs and fresh entry holes; remove infested parts and use pest-specific monitoring traps where advised.",
+    cropDoctorChemicalNone: "No chemical is recommended from this symptom alone. Check water, nutrients and pest presence first; seek confirmation before spraying.",
+    cropDoctorChemicalFungicide: "If a fungal disease is confirmed, ask your local KVK or agriculture officer for a product currently registered for this crop and disease. Follow its label.",
+    cropDoctorChemicalInsecticide: "If the named insect is confirmed, use only a currently registered product whose label lists this crop and pest; get local advice and follow the label.",
+    cropDoctorChemicalVector: "If whiteflies or thrips are confirmed, local advice may identify a registered vector-control product. It cannot cure virus-infected plants; follow the product label.",
+    cropDoctorChemicalBorer: "If a borer is confirmed, ask your local KVK or agriculture officer for a product currently registered for this crop and pest. Follow its label.",
   },
   kn: {
-    dashboard: "ಡ್ಯಾಶ್‌ಬೋರ್ಡ್", weather: "ಹವಾಮಾನ", mandi: "ಮಾರುಕಟ್ಟೆ ದರ", profit: "ಲಾಭದ ಲೆಕ್ಕಾಚಾರ", smartFarm: "ಸ್ಮಾರ್ಟ್ ಕೃಷಿ", soil: "ಮಣ್ಣಿನ ವಿವರ",
-    crops: "ಬೆಳೆ ಸಲಹೆಗಳು", advisory: "ಸಲಹೆ ಚಾಟ್", settings: "ಸೆಟ್ಟಿಂಗ್‌ಗಳು",
+    dashboard: "ಡ್ಯಾಶ್‌ಬೋರ್ಡ್", weather: "ಹವಾಮಾನ", mandi: "ಮಾರುಕಟ್ಟೆ ದರ", profit: "ಲಾಭದ ಲೆಕ್ಕಾಚಾರ", smartFarm: "ಸ್ಮಾರ್ಟ್ ಕೃಷಿ", irrigationPlanner: "ನೀರಾವರಿ ಯೋಜಕ", soil: "ಮಣ್ಣಿನ ವಿವರ",
+    cropDoctor: "ಬೆಳೆ ವೈದ್ಯ", schemes: "ಸರ್ಕಾರಿ ಯೋಜನೆಗಳು",
+    crops: "ಬೆಳೆ ಸಲಹೆಗಳು", cropRotation: "ಬೆಳೆ ಪರಿವರ್ತನೆ ಯೋಜಕ", advisory: "ಸಲಹೆ ಚಾಟ್", settings: "ಸೆಟ್ಟಿಂಗ್‌ಗಳು",
     greeting: "ಶುಭೋದಯ", welcome: "ನಿಮ್ಮ ಕೃಷಿ, ಒಂದು ಹೆಜ್ಜೆ ಮುಂದೆ.", demo: "ಡೆಮೋ ಮಾಹಿತಿ",
     demoNote: "ಈ ಮಾದರಿಯ ಮಾಹಿತಿಯು ಪ್ರಾತ್ಯಕ್ಷಿಕೆಗಾಗಿ ಮಾತ್ರ — ನೈಜ ಅಥವಾ ಸ್ಥಳಾಧಾರಿತವಲ್ಲ.",
     todayAt: "ಇಂದಿನ ಮುಖ್ಯಾಂಶಗಳು", weatherCard: "ಹವಾಮಾನ ಮುನ್ಸೂಚನೆ", marketCard: "ಮಾರುಕಟ್ಟೆ ನೋಟ",
@@ -414,10 +450,43 @@ const text = {
     typeSandy: "ಮರಳು ಮಣ್ಣು", typeLoamy: "ಲೋಮಿ ಮಣ್ಣು", waterCanal: "ಕಾಲುವೆ", waterBorewell: "ಬೋರ್‌ವೆಲ್",
     waterRainfed: "ಮಳೆ ಆಧಾರಿತ", waterOther: "ಇತರೆ", clearConfirm: "ಈ ಸಾಧನದಲ್ಲಿ ಉಳಿಸಿದ ರೈತರ ಪ್ರೊಫೈಲ್ ಅಳಿಸಬೇಕೆ?",
     chartLabel: "ಮಾದರಿ ಮಳೆಯ ಪ್ರವೃತ್ತಿ", marketItems: "ಕಾಲ್ಪನಿಕ ಮಾದರಿ ದರಗಳು", noProfile: "ಇನ್ನೂ ಪ್ರೊಫೈಲ್ ಉಳಿಸಿಲ್ಲ",
-    close: "ಮುಚ್ಚಿ", menu: "ಮೆನು ತೆರೆಯಿರಿ", percent: "ಶೇಕಡಾ", acres: "ಎಕರೆ",
+    close: "ಮುಚ್ಚಿ", menu: "ಮೆನು ತೆರೆಯಿರಿ", more: "ಇನ್ನಷ್ಟು", prototype: "ಮಾದರಿ", percent: "ಶೇಕಡಾ", acres: "ಎಕರೆ",
+    listenToSummary: "ಕೇಳಿ / ಓದಿ", stopReading: "ಓದುವುದನ್ನು ನಿಲ್ಲಿಸಿ", speechUnavailable: "ಈ ಬ್ರೌಸರ್‌ನಲ್ಲಿ ಧ್ವನಿ ಸೌಲಭ್ಯ ಲಭ್ಯವಿಲ್ಲ.", speechError: "ಧ್ವನಿ ಪ್ಲೇ ಆಗಲಿಲ್ಲ. ಬ್ರೌಸರ್ ಆಡಿಯೊ ಸೆಟ್ಟಿಂಗ್ ಪರಿಶೀಲಿಸಿ ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ.",
+    profitSpeechSummary: "{crop}. ಒಟ್ಟು ನಿರೀಕ್ಷಿತ ಇಳುವರಿ: {yield} ಕ್ವಿಂಟಾಲ್. ಆದಾಯ: {revenue}. ವೆಚ್ಚ: {expenses}. ಅಂದಾಜು ಲಾಭ: {profit}. ಪ್ರತಿ ಎಕರೆಗೆ ಲಾಭ: {perAcre}. ಇದು ಅಂದಾಜು ಮಾತ್ರ, ಖಚಿತ ಆದಾಯವಲ್ಲ.",
     turDal: "ತೊಗರಿ ಬೇಳೆ", sampleMarket: "ಮೈಸೂರು ಮಾದರಿ ಮಾರುಕಟ್ಟೆ", nearNeutral: "ತಟಸ್ಥದ ಹತ್ತಿರ",
     sampleLevel: "ಮಾದರಿ ಮಟ್ಟ", medium: "ಮಧ್ಯಮ", good: "ಉತ್ತಮ", dayUnit: "ದಿನಗಳು",
     waterLowMedium: "ಕಡಿಮೆ–ಮಧ್ಯಮ", waterLow: "ಕಡಿಮೆ", waterMedium: "ಮಧ್ಯಮ", waterHigh: "ಹೆಚ್ಚು",
+    cropDoctorTitle: "ಬೆಳೆ ವೈದ್ಯ / ಲಕ್ಷಣ ಪರೀಕ್ಷಕ",
+    cropDoctorSub: "ಬೆಳೆ ಮತ್ತು ಕಾಣುವ ಲಕ್ಷಣಗಳನ್ನು ಆಯ್ಕೆಮಾಡಿ; ಸಾಧ್ಯತೆಗಳು ಮತ್ತು ಮುಂದಿನ ಕ್ರಮಗಳನ್ನು ಎಚ್ಚರಿಕೆಯಿಂದ ನೋಡಿ.",
+    cropDoctorGuide: "ಹೊಲದ ಪ್ರಾಥಮಿಕ ಪರಿಶೀಲನೆ", cropDoctorCrop: "ಬೆಳೆ ಆಯ್ಕೆಮಾಡಿ", cropDoctorSymptoms: "ಕಾಣುವ ಲಕ್ಷಣಗಳನ್ನು ಆಯ್ಕೆಮಾಡಿ",
+    cropDoctorChooseCrop: "ಬೆಳೆ ಆಯ್ಕೆಮಾಡಿ", cropDoctorChooseSymptoms: "ನೀವು ಗಮನಿಸಿದ ಒಂದು ಅಥವಾ ಹೆಚ್ಚು ಲಕ್ಷಣಗಳನ್ನು ಆಯ್ಕೆಮಾಡಿ.",
+    cropDoctorPossibleIssue: "ಪರಿಶೀಲಿಸಬಹುದಾದ ಸಾಧ್ಯ ಸಮಸ್ಯೆ", cropDoctorSeverity: "ಆರಂಭಿಕ ತೀವ್ರತೆ",
+    cropDoctorOrganic: "ತಕ್ಷಣದ ಸಾವಯವ ಕ್ರಮ / ಉಪಾಯ", cropDoctorChemical: "ರಾಸಾಯನಿಕ ಆಯ್ಕೆ (ದೃಢಪಟ್ಟರೆ ಮಾತ್ರ)",
+    cropDoctorPrevention: "ತಡೆಗಟ್ಟುವಿಕೆ ಮತ್ತು ಗಮನ",
+    cropDoctorNoSelection: "ಸಾಧ್ಯ ಕಾರಣಗಳನ್ನು ನೋಡಲು ಬೆಳೆ ಮತ್ತು ಕನಿಷ್ಠ ಒಂದು ಲಕ್ಷಣ ಆಯ್ಕೆಮಾಡಿ.",
+    cropDoctorClearSymptoms: "ಲಕ್ಷಣಗಳನ್ನು ತೆರವುಗೊಳಿಸಿ",
+    cropDoctorDisclaimer: "ಈ ದೃಶ್ಯ ಪರಿಶೀಲನಾ ಮಾರ್ಗದರ್ಶಿ ಬೆಳೆಯ ರೋಗನಿರ್ಣಯ ಮಾಡುವುದಿಲ್ಲ. ಹಲವು ಸಮಸ್ಯೆಗಳು ಒಂದೇ ರೀತಿ ಕಾಣುತ್ತವೆ; ತೀವ್ರತೆ ಆರಂಭಿಕ ಸೂಚನೆ ಮಾತ್ರ, ಅಳತೆಯ ಮೌಲ್ಯಮಾಪನವಲ್ಲ. ಚಿಕಿತ್ಸೆಗೂ ಮೊದಲು ಸ್ಥಳೀಯ ಕೃಷಿ ವಿಜ್ಞಾನ ಕೇಂದ್ರ ಅಥವಾ ಕೃಷಿ ಅಧಿಕಾರಿಯಿಂದ ದೃಢಪಡಿಸಿ.",
+    cropDoctorSafety: "ಈ ಬೆಳೆ ಮತ್ತು ದೃಢಪಟ್ಟ ಸಮಸ್ಯೆಗೆ ಪ್ರಸ್ತುತ ನೋಂದಾಯಿತ ಹಾಗೂ ಲೇಬಲ್‌ನಲ್ಲಿ ಸೂಚಿಸಿದ ಉತ್ಪನ್ನವನ್ನಷ್ಟೇ ಬಳಸಿ. ಲೇಬಲ್, ರಕ್ಷಣಾ ಸಾಧನ, ಮರುಪ್ರವೇಶ ಮತ್ತು ಕೊಯ್ಲಿಗೂ ಮುನ್ನದ ಸೂಚನೆಗಳನ್ನು ಪಾಲಿಸಿ. ಪ್ರಮಾಣ ಅಥವಾ ಬ್ರ್ಯಾಂಡ್ ಸೂಚಿಸಿಲ್ಲ.",
+    cropDoctorYellowing: "ಎಲೆ ಹಳದಿಯಾಗುವುದು", cropDoctorBrownSpots: "ಕಂದು ಚುಕ್ಕೆಗಳು", cropDoctorLeafCurling: "ಎಲೆ ಮುದುಡುವುದು",
+    cropDoctorWilting: "ಬಾಡುವುದು", cropDoctorWhitePowder: "ಬಿಳಿ ಪುಡಿ ಅಥವಾ ಬೆಳವಣಿಗೆ", cropDoctorBorerHoles: "ಕಾಂಡ ಅಥವಾ ಹಣ್ಣಿನಲ್ಲಿ ಕೊರೆಯುವ ರಂಧ್ರಗಳು",
+    cropDoctorTomato: "ಟೊಮೇಟೊ", cropDoctorCotton: "ಹತ್ತಿ", cropDoctorChilli: "ಮೆಣಸಿನಕಾಯಿ",
+    cropDoctorOrganicYellow: "ಮಣ್ಣಿನ ತೇವಾಂಶ, ಒಳಚರಂಡಿ ಮತ್ತು ಎಲೆಯ ಕೆಳಭಾಗ ಪರಿಶೀಲಿಸಿ. ಸ್ಥಳೀಯ ಸ್ಥಿತಿ ನೋಡಿದ ನಂತರವೇ ಪೋಷಕಾಂಶ ಸರಿಪಡಿಸಿ; ಹೀರುವ ಕೀಟಗಳು ಕಂಡುಬಂದರೆ ಮತ್ತು ಬೆಳೆ ಲೇಬಲ್ ಅನುಮತಿಸಿದರೆ ಮಾತ್ರ ಬೇವಿನ ಉತ್ಪನ್ನ ಬಳಸಿ.",
+    cropDoctorOrganicSpots: "ತೀವ್ರವಾಗಿ ಬಾಧಿತ ಎಲೆ ಮತ್ತು ಬೆಳೆ ಅವಶೇಷ ತೆಗೆದುಹಾಕಿ; ಎಲೆಗಳನ್ನು ನೆನೆಸುವುದನ್ನು ತಪ್ಪಿಸಿ. ಇದು ಸ್ವಚ್ಛತೆಗೆ ನೆರವಾಗುತ್ತದೆ, ಆದರೆ ಗುಣಮುಖತೆಯ ಖಾತರಿಯಲ್ಲ.",
+    cropDoctorOrganicCurl: "ಎಲೆಯ ಕೆಳಭಾಗ ಪರಿಶೀಲಿಸಿ, ತೀವ್ರವಾಗಿ ಬಾಧಿತ ಎಲೆಗಳನ್ನು ತೆಗೆದುಹಾಕಿ. ಬೆಳೆ ಲೇಬಲ್ ಅನುಮತಿಸಿದರೆ ಮಾತ್ರ ಕಾಣುವ ಮೃದುದೇಹದ ಕೀಟಗಳಿಗೆ ಬೇವಿನ ಉತ್ಪನ್ನ ನೆರವಾಗಬಹುದು; ವೈರಸ್ ಗುಣಪಡಿಸುವುದಿಲ್ಲ.",
+    cropDoctorOrganicWilt: "ಮಣ್ಣಿನ ತೇವಾಂಶ ಮತ್ತು ಒಳಚರಂಡಿ ಪರಿಶೀಲಿಸಿ; ದೃಢಪಟ್ಟ ಬಾಡಿದ ಗಿಡವನ್ನು ಬೇರು ಸಮೇತ ಬೇರ್ಪಡಿಸಿ ತೆಗೆದುಹಾಕಿ. ಪರಿಶೀಲಿಸದ ಮಿಶ್ರಣವನ್ನು ಮಣ್ಣಿಗೆ ಹಾಕಬೇಡಿ.",
+    cropDoctorOrganicPowder: "ಬಾಧಿತ ಎಲೆಗಳನ್ನು ತೆಗೆದು ಗಾಳಿಯ ಸಂಚಾರ ಹೆಚ್ಚಿಸಿ. ಚಿಕಿತ್ಸೆಗೂ ಮೊದಲು ಅದು ಧೂಳು ಅಥವಾ ಸಿಂಪಡಣೆ ಅವಶೇಷವಲ್ಲವೆಂದು ಪರಿಶೀಲಿಸಿ.",
+    cropDoctorOrganicBorer: "ಕೊರೆಯುವ ಕೀಟ ತಗುಲಿದ ಭಾಗಗಳನ್ನು ತೆಗೆದು ನಾಶಮಾಡಿ; ಗುರುತಿಸಿದ ಕೀಟ ಮತ್ತು ಬೆಳೆಗೆ ಸೂಕ್ತವಾದರೆ ಮಾತ್ರ ಫೆರೋಮೋನ್ ಬಲೆ ಬಳಸಿ.",
+    cropDoctorPreventYellow: "ನಿಯಮಿತವಾಗಿ ಪರಿಶೀಲಿಸಿ, ಸೂಕ್ತ ಒಳಚರಂಡಿ ಕಾಪಾಡಿ ಮತ್ತು ಸ್ಥಳೀಯ ಮಣ್ಣಿನ ಸಲಹೆಯಂತೆ ಸಮತೋಲಿತ ಪೋಷಕಾಂಶ ಬಳಸಿ.",
+    cropDoctorPreventSpots: "ಬೆಳೆ ಅವಶೇಷಗಳನ್ನು ತೆಗೆದುಹಾಕಿ, ಗಾಳಿಯಾಡುವಿಕೆ ಇರಲಿ ಮತ್ತು ಸಾಧ್ಯವಾದಲ್ಲಿ ಎಲೆಗಳು ಹೆಚ್ಚು ಹೊತ್ತು ತೇವವಾಗುವುದನ್ನು ತಪ್ಪಿಸಿ.",
+    cropDoctorPreventCurl: "ಎಲೆಯ ಕೆಳಭಾಗದ ಕೀಟ ವಾಹಕಗಳನ್ನು ಪರಿಶೀಲಿಸಿ, ಕಳೆ ಅಥವಾ ಸ್ವಯಂ ಬೆಳೆದ ಆತಿಥೇಯ ಗಿಡ ತೆಗೆದುಹಾಕಿ ಮತ್ತು ಪಕ್ಕದ ಗಿಡಗಳನ್ನೂ ಗಮನಿಸಿ.",
+    cropDoctorPreventWilt: "ಸ್ವಚ್ಛ ಸಾಧನ ಬಳಸಿ, ಸೋಂಕಿತ ಮಣ್ಣಿನ ಸಾಗಣೆ ತಪ್ಪಿಸಿ ಮತ್ತು ಬೆಳೆ ಪರಿವರ್ತನೆ ಹಾಗೂ ಒಳಚರಂಡಿಗೆ ಸ್ಥಳೀಯ ಸಲಹೆ ಪಡೆಯಿರಿ.",
+    cropDoctorPreventPowder: "ಗಾಳಿಯಾಡಲು ಗಿಡಗಳಿಗೆ ಅಂತರ ನೀಡಿ, ಬಾಧಿತ ಅವಶೇಷ ತೆಗೆದುಹಾಕಿ ಮತ್ತು ಪಕ್ಕದ ಗಿಡಗಳನ್ನು ಬೇಗ ಪರಿಶೀಲಿಸಿ.",
+    cropDoctorPreventBorer: "ಮೊಟ್ಟೆ ಮತ್ತು ಹೊಸ ರಂಧ್ರಗಳಿಗಾಗಿ ಪರಿಶೀಲಿಸಿ; ಬಾಧಿತ ಭಾಗಗಳನ್ನು ತೆಗೆದುಹಾಕಿ ಮತ್ತು ಸಲಹೆಯಂತೆ ಕೀಟ-ನಿರ್ದಿಷ್ಟ ನಿಗಾ ಬಲೆ ಬಳಸಿ.",
+    cropDoctorChemicalNone: "ಈ ಲಕ್ಷಣದಿಂದ ಮಾತ್ರ ರಾಸಾಯನಿಕ ಶಿಫಾರಸು ಇಲ್ಲ. ಮೊದಲು ನೀರು, ಪೋಷಕಾಂಶ ಮತ್ತು ಕೀಟಗಳ ಇರುವಿಕೆ ಪರಿಶೀಲಿಸಿ; ಸಿಂಪಡಿಸುವ ಮೊದಲು ಕಾರಣ ದೃಢಪಡಿಸಿ.",
+    cropDoctorChemicalFungicide: "ಶಿಲೀಂಧ್ರ ರೋಗ ದೃಢಪಟ್ಟರೆ, ಈ ಬೆಳೆ ಮತ್ತು ರೋಗಕ್ಕೆ ಪ್ರಸ್ತುತ ನೋಂದಾಯಿತ ಉತ್ಪನ್ನಕ್ಕಾಗಿ ಸ್ಥಳೀಯ ಕೃಷಿ ವಿಜ್ಞಾನ ಕೇಂದ್ರ ಅಥವಾ ಕೃಷಿ ಅಧಿಕಾರಿಯನ್ನು ಸಂಪರ್ಕಿಸಿ. ಲೇಬಲ್ ಪಾಲಿಸಿ.",
+    cropDoctorChemicalInsecticide: "ಹೆಸರಿಸಿದ ಕೀಟ ದೃಢಪಟ್ಟರೆ, ಈ ಬೆಳೆ ಮತ್ತು ಕೀಟವನ್ನು ಲೇಬಲ್‌ನಲ್ಲಿ ಸೂಚಿಸಿರುವ ಪ್ರಸ್ತುತ ನೋಂದಾಯಿತ ಉತ್ಪನ್ನವನ್ನಷ್ಟೇ ಸ್ಥಳೀಯ ಸಲಹೆಯೊಂದಿಗೆ ಬಳಸಿ.",
+    cropDoctorChemicalVector: "ಬಿಳಿನೊಣ ಅಥವಾ ಥ್ರಿಪ್ಸ್ ದೃಢಪಟ್ಟರೆ, ಸ್ಥಳೀಯ ಸಲಹೆಯಂತೆ ನೋಂದಾಯಿತ ಕೀಟವಾಹಕ ನಿಯಂತ್ರಣ ಉತ್ಪನ್ನ ಪರಿಗಣಿಸಿ. ವೈರಸ್ ಬಾಧಿತ ಗಿಡವನ್ನು ಇದು ಗುಣಪಡಿಸುವುದಿಲ್ಲ; ಲೇಬಲ್ ಪಾಲಿಸಿ.",
+    cropDoctorChemicalBorer: "ಕೊರೆಯುವ ಕೀಟ ದೃಢಪಟ್ಟರೆ, ಈ ಬೆಳೆ ಮತ್ತು ಕೀಟಕ್ಕೆ ಪ್ರಸ್ತುತ ನೋಂದಾಯಿತ ಉತ್ಪನ್ನಕ್ಕಾಗಿ ಸ್ಥಳೀಯ ಕೃಷಿ ವಿಜ್ಞಾನ ಕೇಂದ್ರ ಅಥವಾ ಕೃಷಿ ಅಧಿಕಾರಿಯನ್ನು ಸಂಪರ್ಕಿಸಿ. ಲೇಬಲ್ ಪಾಲಿಸಿ.",
   },
 } as const;
 
@@ -427,8 +496,12 @@ const navItems: { id: Screen; icon: string; key: keyof typeof text.en }[] = [
   { id: "mandi", icon: "↗", key: "mandi" },
   { id: "profit", icon: "₹", key: "profit" },
   { id: "smartFarm", icon: "✳", key: "smartFarm" },
+  { id: "irrigation", icon: "◌", key: "irrigationPlanner" },
   { id: "soil", icon: "◉", key: "soil" },
   { id: "crops", icon: "❋", key: "crops" },
+  { id: "rotation", icon: "↻", key: "cropRotation" },
+  { id: "cropDoctor", icon: "✚", key: "cropDoctor" },
+  { id: "schemes", icon: "▣", key: "schemes" },
   { id: "advisory", icon: "✳", key: "advisory" },
   { id: "settings", icon: "⚙", key: "settings" },
 ];
@@ -469,6 +542,104 @@ function readSavedWeatherLocation(): WeatherLocation | null {
   }
 }
 
+const hindiText: Partial<Record<keyof typeof text.en, string>> = {
+  dashboard: "डैशबोर्ड", weather: "मौसम", mandi: "मंडी भाव", profit: "लाभ कैलकुलेटर",
+  smartFarm: "स्मार्ट कृषि", irrigationPlanner: "सिंचाई योजना", soil: "मिट्टी प्रोफ़ाइल",
+  cropDoctor: "फसल डॉक्टर", schemes: "सरकारी योजनाएँ", crops: "फसल सुझाव", cropRotation: "फसल चक्र योजनाकार",
+  advisory: "कृषि सलाह", settings: "सेटिंग्स",
+  greeting: "नमस्कार", welcome: "आपका खेत, एक कदम आगे।", demo: "डेमो जानकारी",
+  todayAt: "आज की मुख्य जानकारी", weatherCard: "मौसम का हाल", marketCard: "मंडी का हाल",
+  rainChance: "बारिश की संभावना", humidity: "नमी", viewWeather: "मौसम देखें",
+  viewMarket: "मंडी भाव देखें", yourFarm: "आपका खेत", quickActions: "त्वरित विकल्प",
+  weatherTitle: "मौसम का हाल", weatherSub: "मौजूदा मौसम और सात दिन का पूर्वानुमान देखने के लिए शहर, जिला या गाँव खोजें।",
+  currentConditions: "मौजूदा स्थिति", wind: "हवा", forecastTitle: "सात दिन का पूर्वानुमान",
+  high: "अधिकतम", low: "न्यूनतम", expectedRain: "अनुमानित बारिश",
+  weatherSource: "ओपन-मेटियो", live: "लाइव", searchLocation: "अपना स्थान खोजें",
+  searchPlaceholder: "शहर, जिला या गाँव खोजें", search: "खोजें", searching: "खोज रहे हैं…",
+  selectLocation: "सही स्थान चुनें", selectedLocation: "चुना गया स्थान",
+  clearLocation: "स्थान बदलें", currentTemperature: "तापमान", rainfall: "बारिश",
+  todayRainProbability: "आज बारिश की संभावना", lastUpdated: "अंतिम अपडेट",
+  refreshWeather: "मौसम अपडेट करें", refreshing: "अपडेट हो रहा है…",
+  loadingWeather: "लाइव मौसम प्राप्त हो रहा है…", chooseWeatherLocation: "लाइव मौसम देखने के लिए स्थान चुनें।",
+  noWeatherData: "अभी मौसम की जानकारी उपलब्ध नहीं है।",
+  farmingAdvisory: "मौसम आधारित कृषि सलाह", noAdvisories: "इस पूर्वानुमान के लिए कोई मौसम चेतावनी नहीं है।",
+  advisoryRain: "बारिश का पूर्वानुमान है। सिंचाई से पहले मिट्टी की नमी जाँचें।",
+  advisoryHeavyRain: "भारी बारिश का पूर्वानुमान है। खेत की जल-निकासी जाँचें।",
+  advisoryHeat: "अधिक तापमान का पूर्वानुमान है। फसल की पानी की जरूरत पर नज़र रखें।",
+  advisoryWind: "तेज़ हवा का पूर्वानुमान है। कमजोर फसलों और सहारे की जाँच करें।",
+  weatherError: "मौसम सेवा में त्रुटि", weatherNetworkError: "कनेक्शन नहीं हो पाया। इंटरनेट जाँचकर फिर कोशिश करें।",
+  weatherHttpError: "मौसम सेवा अभी अस्थायी रूप से उपलब्ध नहीं है। बाद में फिर कोशिश करें।",
+  weatherApiError: "इस स्थान के लिए मौसम जानकारी उपलब्ध नहीं हो सकी।",
+  weatherInvalidError: "मौसम सेवा से अनपेक्षित जानकारी मिली। फिर कोशिश करें।",
+  dashboardWeatherNote: "मौसम Open-Meteo से लाइव है। मंडी भाव डेमो जानकारी हैं।",
+  alertHeavyRainTitle: "भारी बारिश की संभावना", alertHeavyRainBody: "पूर्वानुमान: {date} को {amount} मिमी। सिंचाई टालने और खेत की जल-निकासी जाँचने पर विचार करें।",
+  alertRainTitle: "बारिश की संभावना", alertRainBody: "{date} को बारिश की संभावना {chance}% है। अनावश्यक सिंचाई से बचने के लिए पहले मिट्टी की नमी जाँचें।",
+  alertRainAmountBody: "{date} को {amount} मिमी बारिश का पूर्वानुमान है। अनावश्यक सिंचाई से बचने के लिए पहले मिट्टी की नमी जाँचें।",
+  alertHeatTitle: "अधिक तापमान की संभावना", alertHeatBody: "{date} को अधिकतम तापमान {temperature}°C रहने का पूर्वानुमान है। फसल की पानी की जरूरत पर नज़र रखें।",
+  alertWindTitle: "अभी तेज़ हवा", alertWindBody: "हवा की गति {speed} किमी/घंटा दर्ज हुई। फसल और सहारा संरचनाओं की जाँच करें।",
+  generalWeatherAdviceTitle: "सामान्य मौसम सूचना",
+  generalWeatherAdviceBody: "सिंचाई, कटाई या खेत के काम से पहले स्थानीय पूर्वानुमान देखें। इस खेत के लिए लाइव पूर्वानुमान उपलब्ध नहीं है।",
+  farmAlertsTitle: "मौसम आधारित खेत चेतावनी", forecastVerified: "पूर्वानुमान आधारित",
+  generalAdviceLabel: "सामान्य सलाह · आपके स्थान पर सत्यापित नहीं",
+  noActiveFarmAlerts: "उपलब्ध पूर्वानुमान में चेतावनी की सीमा पार नहीं हुई। स्थानीय स्थिति देखते रहें।",
+  smartFarmTitle: "स्मार्ट कृषि निर्णय केंद्र",
+  smartFarmSub: "अपने खेत, मौसम, मंडी भाव और खर्च के अनुमान को एक साथ देखें।",
+  smartFarmEyebrow: "आपका कृषि निर्णय केंद्र", smartFarmOverview: "खेत का सार",
+  todayForecast: "मौसम का पूर्वानुमान", noForecastForFarm: "लाइव पूर्वानुमान के लिए मौसम स्क्रीन पर स्थान चुनें।",
+  soilChoice: "मिट्टी का प्रकार", locationUnset: "स्थान जोड़ें",
+  cropRiskTitle: "मौसम से जुड़ा फसल जोखिम", lowRisk: "कम जोखिम", moderateRisk: "मध्यम जोखिम", highRisk: "अधिक जोखिम",
+  riskUnavailable: "जोखिम संकेतक उपलब्ध नहीं", riskWeatherUnavailable: "यह संकेतक देखने के लिए फसल चुनें, प्रोफ़ाइल में मिट्टी का प्रकार सहेजें और लाइव पूर्वानुमान लोड करें।",
+  riskMethod: "यह सामान्य संकेतक पूर्वानुमान चेतावनी के प्रकार गिनता है: कोई नहीं = कम, एक = मध्यम, दो या अधिक = अधिक। यह उपज या फसल नुकसान का पूर्वानुमान नहीं है।",
+  riskContextNote: "इस संकेतक के लिए चुनी गई फसल, सहेजा गया मिट्टी का प्रकार और लाइव पूर्वानुमान जरूरी हैं। यह सामान्य मौसम चेतावनियों पर आधारित है।",
+  noFarmSoil: "किसान प्रोफ़ाइल में मिट्टी का प्रकार सहेजा नहीं गया है।",
+  profileSoilNote: "सहेजी गई किसान प्रोफ़ाइल का मिट्टी प्रकार; प्रयोगशाला जाँच नहीं।",
+  farmCostsTitle: "खेती के खर्च का सार", totalInvestment: "कुल निवेश", largestExpense: "सबसे बड़ा खर्च",
+  latestMandiAverage: "मंडी भाव का नवीनतम औसत", currentReportedPrice: "नवीनतम रिपोर्ट किया गया औसत",
+  previousReportedPrice: "पिछला रिपोर्ट किया गया औसत", priceChange: "पिछली रिपोर्ट से बदलाव",
+  trend: "हाल का रिपोर्ट किया गया रुझान", trendIncreasing: "बढ़ रहा है",
+  trendDecreasing: "घट रहा है", trendStable: "स्थिर या मिला-जुला",
+  reportedPriceHistory: "हाल के रिपोर्ट किए गए भाव",
+  typeRed: "लाल मिट्टी", typeBlack: "काली मिट्टी", typeSandy: "रेतीली मिट्टी", typeLoamy: "दोमट मिट्टी",
+  expenseBreakdown: "खर्च का विवरण", noExpensesEntered: "खर्च का विवरण देखने के लिए लाभ कैलकुलेटर में अनुमानित खर्च भरें।",
+  largestExpenseInsight: "आपके कुल अनुमानित खर्च में {category} सबसे बड़ा खर्च है ({share}%)।",
+  personalizedTitle: "आपके लिए कृषि सुझाव", priorityHigh: "उच्च", priorityMedium: "मध्यम", priorityLow: "कम",
+  weatherRecommendationTitle: "{crop} के लिए मौसम जाँच", weatherRecommendationBody: "{alert} खेत के काम की योजना बनाने के लिए ऊपर दिया पूर्वानुमान देखें।",
+  weatherRecommendationNoAlert: "कोई निर्धारित मौसम चेतावनी सीमा पार नहीं हुई। खेत के काम से पहले नया पूर्वानुमान देखते रहें।",
+  weatherRecommendationNoData: "पूर्वानुमान आधारित सलाह पाने के लिए मौसम स्थान जोड़ें।",
+  marketRecommendationTitle: "{crop} के लिए मंडी भाव की समीक्षा",
+  marketRecommendationBody: "{recommendation}: {reason}",
+  marketSampleReason: "यह सुझाव केवल उदाहरण के डेमो भावों से बना है। यह वास्तविक बाजार संकेत या बिक्री सलाह नहीं है।",
+  samplePriceExplanation: "केवल प्रदर्शन के लिए उदाहरण भाव। इस फसल के रिपोर्ट किए गए भाव देखने के लिए मंडी भाव खोलें।",
+  demoPriceLabel: "डेमो उदाहरण · लाइव मंडी भाव नहीं",
+  monitorMarket: "मंडी भाव पर नज़र रखें", sellNow: "अभी बेचने पर विचार करें", waitMarket: "रुककर फिर समीक्षा करें",
+  expenseRecommendationTitle: "{category} खर्च की समीक्षा करें",
+  expenseRecommendationBody: "आपके दर्ज खर्च में {category} का हिस्सा {share}% है। स्थानीय दरों की तुलना करें और रसीदें रखें।",
+  expenseRecommendationNoData: "खर्च की जानकारी पाने के लिए लाभ कैलकुलेटर में क्षेत्रफल, उपज, बिक्री मूल्य और खर्च भरें।",
+  expenseRecommendationNoCosts: "सबसे बड़े खर्च की पहचान के लिए लाभ कैलकुलेटर में खर्च जोड़ें।",
+  selectCropForSmartFarm: "खेत का सार देखने के लिए फसल चुनें।",
+  profitCalculatorEyebrow: "खेती के मौसम की योजना", profitCalculatorTitle: "किसान लाभ कैलकुलेटर",
+  profitCalculatorSub: "अपने खेत के अनुमान से फसल की आय, खर्च और लाभ का हिसाब लगाएँ।",
+  estimateBadge: "आपका अनुमान", cropSelect: "फसल", chooseCrop: "फसल चुनें",
+  cultivatedArea: "खेती का क्षेत्रफल (एकड़)", expectedYieldPerAcre: "प्रति एकड़ अनुमानित उपज (क्विंटल)",
+  expectedSellingPrice: "अनुमानित बिक्री मूल्य (₹ / क्विंटल)", estimatedExpenses: "अनुमानित खर्च (₹)",
+  calculatorExpenseHelp: "मौसम के अनुमानित खर्च भरें; लागू न होने वाले खर्च ₹0 रख सकते हैं।",
+  seedExpense: "बीज", fertilizerExpense: "उर्वरक", labourExpense: "मजदूरी",
+  irrigationExpense: "सिंचाई", transportExpense: "परिवहन", otherExpense: "अन्य खर्च",
+  calculatorResults: "आपके अनुमानित परिणाम", calculatorPrompt: "अनुमान देखने के लिए फसल चुनें और क्षेत्रफल, उपज व बिक्री मूल्य भरें।",
+  totalExpectedYield: "कुल अनुमानित उपज", expectedRevenue: "कुल अनुमानित आय", quintals: "क्विंटल",
+  totalExpenses: "कुल खर्च", estimatedProfit: "अनुमानित लाभ", profitPerAcre: "प्रति एकड़ लाभ",
+  financialBreakdown: "आय और खर्च की तुलना", revenueLabel: "आय", expensesLabel: "खर्च",
+  netProfitLabel: "शुद्ध लाभ", calculatorDisclaimer: "यह आपके इनपुट पर आधारित अनुमान है, निश्चित आय नहीं। वास्तविक उपज, भाव और खर्च अलग हो सकते हैं।",
+  cropRice: "धान", cropRagi: "रागी", cropMaize: "मक्का", cropPulses: "दलहन",
+  settingsTitle: "सेटिंग्स", settingsSub: "कृषिमित्र को अपनी जरूरत के अनुसार बनाएँ।",
+  language: "भाषा", chooseLanguage: "अपनी पसंद की भाषा चुनें",
+  prototype: "प्रोटोटाइप", more: "और",
+  listenToSummary: "सुनें / पढ़कर सुनाएँ", stopReading: "सुनना रोकें",
+  speechUnavailable: "इस ब्राउज़र में वाक् सुविधा उपलब्ध नहीं है।",
+  speechError: "आवाज़ नहीं चल सकी। ब्राउज़र की ऑडियो सेटिंग जाँचकर फिर कोशिश करें।",
+  profitSpeechSummary: "{crop}. कुल अनुमानित उपज: {yield} क्विंटल। आय: {revenue}। खर्च: {expenses}। अनुमानित लाभ: {profit}। प्रति एकड़ लाभ: {perAcre}। यह अनुमान है, निश्चित आय नहीं।",
+};
+
 function App() {
   const [language, setLanguage] = useState<Language>("en");
   const [screen, setScreen] = useState<Screen>("dashboard");
@@ -493,7 +664,9 @@ function App() {
   const [weatherRefresh, setWeatherRefresh] = useState(0);
   const [profitInputs, setProfitInputs] = useState<ProfitInputs>(initialProfitInputs);
   const [mandiSnapshot, setMandiSnapshot] = useState<MandiSnapshot | null>(null);
-  const t = (key: keyof typeof text.en) => text[language][key];
+  const t = (key: keyof typeof text.en) => language === "hi"
+    ? hindiText[key] ?? text.en[key]
+    : text[language][key];
 
   useEffect(() => {
     if (weatherLocation === null) {
@@ -604,7 +777,7 @@ function App() {
           <span className="brand-mark">K<span>✳</span></span>
           <span><strong>KrishiMitra</strong><small>GROW WITH CONFIDENCE</small></span>
         </button>
-        <div className="side-label">{language === "en" ? "YOUR SPACE" : "ನಿಮ್ಮ ಸ್ಥಳ"}</div>
+        <div className="side-label">{t("yourFarm")}</div>
         <nav className="side-nav" aria-label="Main navigation">
           {navItems.map((item) => (
             <button key={item.id} className={`nav-item ${screen === item.id ? "active" : ""}`} onClick={() => navigate(item.id)}>
@@ -614,7 +787,7 @@ function App() {
           ))}
         </nav>
         <div className="sidebar-bottom">
-          <div className="season-card"><span className="season-icon">☀</span><div><strong>{language === "en" ? "A fresh season" : "ಹೊಸ ಹಂಗಾಮು"}</strong><small>{language === "en" ? "Small steps, good harvests." : "ಸಣ್ಣ ಹೆಜ್ಜೆ, ಉತ್ತಮ ಫಸಲು."}</small></div></div>
+          <div className="season-card"><span className="season-icon">☀</span><div><strong>{t("season")}</strong><small>{t("fieldNote")}</small></div></div>
           <span className="version">KRISHIMITRA · PHASE 1</span>
         </div>
       </aside>
@@ -622,12 +795,14 @@ function App() {
       <main className="main-area">
         <header className="topbar">
           <div className="mobile-brand"><span className="brand-mark">K<span>✳</span></span><strong>KrishiMitra</strong></div>
-          <div className="breadcrumb"><span>{language === "en" ? "YOUR FARM" : "ನಿಮ್ಮ ಹೊಲ"}</span><b>/</b>{headerTitle}</div>
+          <div className="breadcrumb"><span>{t("yourFarm")}</span><b>/</b>{headerTitle}</div>
           <div className="top-actions">
-            <span className="offline-pill"><i /> {language === "en" ? "Prototype" : "ಮಾದರಿ"}</span>
-            <button className="language-toggle" onClick={() => setLanguage(language === "en" ? "kn" : "en")} aria-label="Switch language">
-              <span className={language === "en" ? "selected" : ""}>EN</span><span className={language === "kn" ? "selected" : ""}>ಕನ್ನಡ</span>
-            </button>
+            <span className="offline-pill"><i /> {t("prototype")}</span>
+            <div className="language-toggle" role="group" aria-label={t("chooseLanguage")}>
+              <button type="button" className={language === "en" ? "selected" : ""} onClick={() => setLanguage("en")} aria-pressed={language === "en"} aria-label="English">EN</button>
+              <button type="button" className={language === "kn" ? "selected" : ""} onClick={() => setLanguage("kn")} aria-pressed={language === "kn"} aria-label="ಕನ್ನಡ">ಕನ್ನಡ</button>
+              <button type="button" className={language === "hi" ? "selected" : ""} onClick={() => setLanguage("hi")} aria-pressed={language === "hi"} aria-label="हिंदी">हिंदी</button>
+            </div>
             <button className="avatar-button" onClick={() => navigate("settings")} aria-label={t("settings")}>
               {profile?.name ? profile.name.charAt(0).toUpperCase() : "☺"}
             </button>
@@ -639,10 +814,14 @@ function App() {
           {screen === "dashboard" && <Dashboard t={t} profile={profile} navigate={navigate} weatherLocation={weatherLocation} weatherForecast={weatherForecast} weatherLoading={weatherLoading} />}
           {screen === "weather" && <Weather t={t} language={language} location={weatherLocation} forecast={weatherForecast} loading={weatherLoading} error={weatherError} updatedAt={weatherUpdatedAt} onSelectLocation={chooseWeatherLocation} onClearLocation={clearWeatherLocation} onRefresh={() => setWeatherRefresh((count) => count + 1)} />}
           {screen === "mandi" && <Mandi t={t} onSnapshot={setMandiSnapshot} />}
-          {screen === "profit" && <ProfitCalculator t={t} form={profitInputs} onChange={updateProfitInput} />}
+          {screen === "profit" && <ProfitCalculator t={t} language={language} form={profitInputs} onChange={updateProfitInput} />}
           {screen === "smartFarm" && <SmartFarm t={t} language={language} profile={profile} location={weatherLocation} forecast={weatherForecast} profitInputs={profitInputs} onProfitInputChange={updateProfitInput} mandiSnapshot={mandiSnapshot} navigate={navigate} />}
+          {screen === "irrigation" && <SmartIrrigationScheduler language={language === "kn" ? "kn" : "en"} forecast={weatherForecast} location={weatherLocation} profileSoil={profile?.soil ?? ""} />}
           {screen === "soil" && <Soil t={t} profile={profile} />}
           {screen === "crops" && <Crops t={t} navigate={navigate} />}
+          {screen === "rotation" && <CropRotationPlanner language={language} profileSoil={profile?.soil ?? ""} />}
+          {screen === "cropDoctor" && <CropDoctor t={t} />}
+          {screen === "schemes" && <GovtSchemesFinder language={language === "kn" ? "kn" : "en"} />}
           {screen === "advisory" && <Advisory t={t} messages={chatMessages} input={chatInput} setInput={setChatInput} send={sendMessage} />}
           {screen === "settings" && <Settings t={t} language={language} setLanguage={setLanguage} profile={profile} clearProfile={clearProfile} navigate={navigate} />}
           {screen === "settings" && <ProfileForm t={t} profile={profile} saveProfile={saveProfile} />}
@@ -657,7 +836,7 @@ function App() {
           </button>
         ))}
         <button className={mobileMore || navItems.slice(4).some((item) => item.id === screen) ? "selected" : ""} onClick={() => setMobileMore((open) => !open)}>
-          <span>•••</span><small>{language === "en" ? "More" : "ಇನ್ನಷ್ಟು"}</small>
+          <span>•••</span><small>{t("more")}</small>
         </button>
         {mobileMore && <div className="mobile-more-menu">
           {navItems.slice(4).map((item) => <button key={item.id} onClick={() => navigate(item.id)}><span>{item.icon}</span>{t(item.key)}</button>)}
@@ -672,6 +851,55 @@ type PageProps = { t: Translate };
 
 function PageHeading({ eyebrow, title, description, t, badge = t("demo"), badgeKind = "demo" }: PageProps & { eyebrow: string; title: string; description: string; badge?: string; badgeKind?: "demo" | "source" }) {
   return <div className="page-heading"><div><div className="eyebrow">{eyebrow}</div><h1>{title}</h1><p>{description}</p></div><span className={`demo-badge ${badgeKind === "source" ? "source-badge" : ""}`}><i />{badge}</span></div>;
+}
+
+function SpeakButton({ textToSpeak, language, t }: PageProps & { textToSpeak: string; language: Language }) {
+  const [speaking, setSpeaking] = useState(false);
+  const [failed, setFailed] = useState(false);
+  const supported = typeof window !== "undefined" &&
+    "speechSynthesis" in window &&
+    typeof SpeechSynthesisUtterance !== "undefined";
+
+  useEffect(() => () => {
+    if (typeof window !== "undefined" && "speechSynthesis" in window) {
+      window.speechSynthesis.cancel();
+    }
+  }, []);
+
+  function toggleSpeech() {
+    if (!supported) return;
+    if (speaking) {
+      window.speechSynthesis.cancel();
+      setSpeaking(false);
+      return;
+    }
+
+    setFailed(false);
+    window.speechSynthesis.cancel();
+    const utterance = new SpeechSynthesisUtterance(textToSpeak);
+    utterance.lang = localeForLanguage(language);
+    utterance.onend = () => setSpeaking(false);
+    utterance.onerror = (event) => {
+      setSpeaking(false);
+      if (event.error !== "canceled" && event.error !== "interrupted") setFailed(true);
+    };
+    setSpeaking(true);
+    try {
+      window.speechSynthesis.speak(utterance);
+    } catch (error) {
+      console.error("Could not start browser speech synthesis.", error);
+      setSpeaking(false);
+      setFailed(true);
+    }
+  }
+
+  return <div className="speech-control">
+    <button type="button" className="speech-button" onClick={toggleSpeech} disabled={!supported || !textToSpeak.trim()} aria-pressed={speaking}>
+      <span aria-hidden="true">{speaking ? "■" : "🔊"}</span>{speaking ? t("stopReading") : t("listenToSummary")}
+    </button>
+    {!supported && <small role="status">{t("speechUnavailable")}</small>}
+    {failed && <small role="status">{t("speechError")}</small>}
+  </div>;
 }
 
 function fillTemplate(template: string, values: Record<string, string>) {
@@ -717,11 +945,11 @@ function Dashboard({ t, profile, navigate, weatherLocation, weatherForecast, wea
             <><p className="panel-copy">{t("setupPrompt")}</p><button className="button button-primary" onClick={() => navigate("settings")}>{t("completeProfile")} <span>→</span></button></>}
         </section>
         <section className="panel actions-panel">
-          <div className="panel-heading"><div><div className="eyebrow">{languageOf(t) === "en" ? "HERE TO HELP" : "ನಿಮ್ಮ ನೆರವಿಗೆ"}</div><h2>{t("quickActions")}</h2></div><span className="action-spark">✳</span></div>
+          <div className="panel-heading"><div><div className="eyebrow">{languageOf(t) === "kn" ? "ನಿಮ್ಮ ನೆರವಿಗೆ" : "HERE TO HELP"}</div><h2>{t("quickActions")}</h2></div><span className="action-spark">✳</span></div>
           <div className="quick-actions">
-            <button onClick={() => navigate("advisory")}><span className="action-icon chat-icon">✳</span><span><strong>{t("askMitra")}</strong><small>{languageOf(t) === "en" ? "A question on your mind?" : "ನಿಮ್ಮ ಪ್ರಶ್ನೆ ಕೇಳಿ"}</small></span><b>→</b></button>
-            <button onClick={() => navigate("soil")}><span className="action-icon soil-icon">◉</span><span><strong>{t("soilCheck")}</strong><small>{languageOf(t) === "en" ? "Know your soil better" : "ನಿಮ್ಮ ಮಣ್ಣನ್ನು ತಿಳಿಯಿರಿ"}</small></span><b>→</b></button>
-            <button onClick={() => navigate("crops")}><span className="action-icon crop-icon">❋</span><span><strong>{t("cropPlanner")}</strong><small>{languageOf(t) === "en" ? "Ideas for the season" : "ಈ ಹಂಗಾಮಿನ ಕಲ್ಪನೆಗಳು"}</small></span><b>→</b></button>
+            <button onClick={() => navigate("advisory")}><span className="action-icon chat-icon">✳</span><span><strong>{t("askMitra")}</strong><small>{languageOf(t) === "kn" ? "ನಿಮ್ಮ ಪ್ರಶ್ನೆ ಕೇಳಿ" : "A question on your mind?"}</small></span><b>→</b></button>
+            <button onClick={() => navigate("soil")}><span className="action-icon soil-icon">◉</span><span><strong>{t("soilCheck")}</strong><small>{languageOf(t) === "kn" ? "ನಿಮ್ಮ ಮಣ್ಣನ್ನು ತಿಳಿಯಿರಿ" : "Know your soil better"}</small></span><b>→</b></button>
+            <button onClick={() => navigate("crops")}><span className="action-icon crop-icon">❋</span><span><strong>{t("cropPlanner")}</strong><small>{languageOf(t) === "kn" ? "ಈ ಹಂಗಾಮಿನ ಕಲ್ಪನೆಗಳು" : "Ideas for the season"}</small></span><b>→</b></button>
           </div>
         </section>
       </div>
@@ -730,7 +958,15 @@ function Dashboard({ t, profile, navigate, weatherLocation, weatherForecast, wea
   );
 }
 
-function languageOf(t: Translate) { return t("dashboard") === "Dashboard" ? "en" : "kn"; }
+function languageOf(t: Translate): Language {
+  if (t("dashboard") === text.en.dashboard) return "en";
+  if (t("dashboard") === hindiText.dashboard) return "hi";
+  return "kn";
+}
+
+function localeForLanguage(language: Language) {
+  return language === "kn" ? "kn-IN" : language === "hi" ? "hi-IN" : "en-IN";
+}
 
 function weatherConditionKey(code: number | null): keyof typeof text.en {
   if (code === 0 || code === 1) return "sunny";
@@ -832,7 +1068,7 @@ function farmWeatherAlertCopy(alert: FarmWeatherAlert, t: Translate, language: L
     heat: "alertHeatBody",
     wind: "alertWindBody",
   } as const;
-  const value = new Intl.NumberFormat(language === "en" ? "en-IN" : "kn-IN", { maximumFractionDigits: 1 }).format(alert.value);
+  const value = new Intl.NumberFormat(localeForLanguage(language), { maximumFractionDigits: 1 }).format(alert.value);
   const date = alert.date ? formatMandiDate(alert.date, language) : "";
   const selectedBodyKey = alert.kind === "rain" && alert.metric === "amount"
     ? "alertRainAmountBody"
@@ -886,7 +1122,7 @@ function Weather({ t, language, location, forecast, loading, error, updatedAt, o
   }
 
   const advisories = forecast ? weatherAdvisories(forecast, t) : [];
-  const locale = language === "en" ? "en-IN" : "kn-IN";
+  const locale = localeForLanguage(language);
   const updatedLabel = updatedAt ? updatedAt.toLocaleString(locale, { dateStyle: "medium", timeStyle: "short" }) : "";
 
   return <>
@@ -950,7 +1186,9 @@ function Weather({ t, language, location, forecast, loading, error, updatedAt, o
         })}</div>
       </section>
       <section className="panel farming-advisory">
-        <div className="advisory-heading"><span>✿</span><div><div className="eyebrow">{t("weatherSource")}</div><h2>{t("farmingAdvisory")}</h2></div></div>
+        <div className="advisory-heading"><span>✿</span><div><div className="eyebrow">{t("weatherSource")}</div><h2>{t("farmingAdvisory")}</h2></div>
+          <SpeakButton textToSpeak={advisories.length ? advisories.join(". ") : t("noAdvisories")} language={language} t={t} />
+        </div>
         {advisories.length
           ? <ul>{advisories.map((advisory) => <li key={advisory}><span>✓</span>{advisory}</li>)}</ul>
           : <p>{t("noAdvisories")}</p>}
@@ -975,7 +1213,7 @@ function uniqueSorted(values: string[]) {
 function formatMandiDate(value: string, language: Language) {
   const date = new Date(`${value}T12:00:00Z`);
   if (Number.isNaN(date.getTime())) return value;
-  return date.toLocaleDateString(language === "en" ? "en-IN" : "kn-IN", {
+  return date.toLocaleDateString(localeForLanguage(language), {
     day: "numeric",
     month: "short",
     year: "numeric",
@@ -1089,7 +1327,7 @@ function SellWaitAdvisor({ t, records, commodity }: PageProps & { records: Mandi
   const change = current && previous && previous.modalPrice !== 0
     ? ((current.modalPrice - previous.modalPrice) / previous.modalPrice) * 100
     : null;
-  const locale = languageOf(t) === "en" ? "en-IN" : "kn-IN";
+  const locale = localeForLanguage(languageOf(t));
   const changeLabel = change === null
     ? t("noPrice")
     : `${new Intl.NumberFormat(locale, { signDisplay: "exceptZero", minimumFractionDigits: 1, maximumFractionDigits: 1 }).format(change)}%`;
@@ -1107,8 +1345,8 @@ function SellWaitAdvisor({ t, records, commodity }: PageProps & { records: Mandi
         ? <p className="sell-wait-message">{t("noAdvisorPrices")}</p>
         : <>
           <div className="sell-wait-metrics">
-            <div><span>{t("currentReportedPrice")}</span><strong>{formatPrice(current?.modalPrice ?? null)}</strong>{current && <small>{formatMandiDate(current.date, languageOf(t) === "en" ? "en" : "kn")}</small>}</div>
-            <div><span>{t("previousReportedPrice")}</span><strong>{formatPrice(previous?.modalPrice ?? null)}</strong>{previous && <small>{formatMandiDate(previous.date, languageOf(t) === "en" ? "en" : "kn")}</small>}</div>
+            <div><span>{t("currentReportedPrice")}</span><strong>{formatPrice(current?.modalPrice ?? null)}</strong>{current && <small>{formatMandiDate(current.date, languageOf(t))}</small>}</div>
+            <div><span>{t("previousReportedPrice")}</span><strong>{formatPrice(previous?.modalPrice ?? null)}</strong>{previous && <small>{formatMandiDate(previous.date, languageOf(t))}</small>}</div>
             <div><span>{t("priceChange")}</span><strong className={change === null ? "" : change > 0 ? "advisor-up" : change < 0 ? "advisor-down" : ""}>{changeLabel}</strong></div>
           </div>
           <div className="sell-wait-result">
@@ -1121,7 +1359,7 @@ function SellWaitAdvisor({ t, records, commodity }: PageProps & { records: Mandi
               {visibleHistory.map((point) => <div className="sell-wait-bar" key={point.date}>
                 <span>{formatPrice(point.modalPrice)}</span>
                 <i style={{ height: `${Math.max(8, point.modalPrice / maximumPrice * 100)}%` }} />
-                <small>{formatMandiDate(point.date, languageOf(t) === "en" ? "en" : "kn")}</small>
+                <small>{formatMandiDate(point.date, languageOf(t))}</small>
               </div>)}
             </div>
           </div>
@@ -1270,7 +1508,7 @@ function Mandi({ t, onSnapshot }: PageProps & { onSnapshot: (snapshot: MandiSnap
     }
   }
   const updatedLabel = fetchedAt
-    ? new Date(fetchedAt).toLocaleString(languageOf(t) === "en" ? "en-IN" : "kn-IN", { dateStyle: "medium", timeStyle: "short" })
+    ? new Date(fetchedAt).toLocaleString(localeForLanguage(languageOf(t)), { dateStyle: "medium", timeStyle: "short" })
     : "";
 
   function chooseCommodity(value: string) {
@@ -1314,17 +1552,17 @@ function Mandi({ t, onSnapshot }: PageProps & { onSnapshot: (snapshot: MandiSnap
     {!loading && !error && !records.length && <div className="mandi-empty panel"><span>⌕</span><h2>{loaded ? t("noDataForFilters") : t("noMarketData")}</h2></div>}
     {!loading && !error && records.length > 0 && <>
       <section className="panel table-panel mandi-table-panel"><div className="table-heading"><div><h2>{selectedCommodity || t("mandiTitle")}</h2><p>{records.length} {t("selectedRows")}</p></div><span className="source-badge demo-badge">AGMARKNET</span></div>
-        <div className="table-scroll"><table><thead><tr><th>{t("commodity")}</th><th>{t("market")}</th><th>{t("districtLabel")}</th><th>{t("variety")}</th><th>{t("arrivalDate")}</th><th>{t("minPrice")}</th><th>{t("maxPrice")}</th><th>{t("modalPrice")}</th></tr></thead><tbody>{sortedRecords.slice(0, 250).map((record, index) => <tr key={`${record.arrivalDate}-${record.market}-${record.commodity}-${record.variety}-${index}`}><td>{record.commodity}</td><td>{record.market}</td><td>{record.district}</td><td>{record.variety || t("noVariety")}</td><td>{formatMandiDate(record.arrivalDate, languageOf(t) === "en" ? "en" : "kn")}</td><td>{formatPrice(record.minPrice)}</td><td>{formatPrice(record.maxPrice)}</td><td className="price-cell">{formatPrice(record.modalPrice)}</td></tr>)}</tbody></table></div>
+        <div className="table-scroll"><table><thead><tr><th>{t("commodity")}</th><th>{t("market")}</th><th>{t("districtLabel")}</th><th>{t("variety")}</th><th>{t("arrivalDate")}</th><th>{t("minPrice")}</th><th>{t("maxPrice")}</th><th>{t("modalPrice")}</th></tr></thead><tbody>{sortedRecords.slice(0, 250).map((record, index) => <tr key={`${record.arrivalDate}-${record.market}-${record.commodity}-${record.variety}-${index}`}><td>{record.commodity}</td><td>{record.market}</td><td>{record.district}</td><td>{record.variety || t("noVariety")}</td><td>{formatMandiDate(record.arrivalDate, languageOf(t))}</td><td>{formatPrice(record.minPrice)}</td><td>{formatPrice(record.maxPrice)}</td><td className="price-cell">{formatPrice(record.modalPrice)}</td></tr>)}</tbody></table></div>
         <div className="table-footnote"><span>ⓘ</span>{t("sourceUnitNote")}</div>
       </section>
       <section className="panel mandi-comparison"><div className="mandi-section-heading"><div><div className="eyebrow">{selectedState}</div><h2>{t("compareMarkets")}{selectedCommodity ? ` · ${selectedCommodity}` : ""}</h2></div><button className="button button-outline" onClick={() => setSortAscending((ascending) => !ascending)}>{t("sortByModal")}: {t(sortAscending ? "ascending" : "descending")}</button></div>
-        {comparisons.length > 0 ? <div className="comparison-grid">{comparisons.map((record, index) => <article className="comparison-card" key={`${record.market}-${record.arrivalDate}`}><div><strong>{record.market}</strong><small>{record.district}</small></div><b className={index === 0 ? "comparison-low" : index === comparisons.length - 1 ? "comparison-high" : ""}>{formatPrice(record.modalPrice)}</b><span>{t("minPrice")}: {formatPrice(record.minPrice)} · {t("maxPrice")}: {formatPrice(record.maxPrice)}</span><small>{t("arrivalDate")}: {formatMandiDate(record.arrivalDate, languageOf(t) === "en" ? "en" : "kn")}</small></article>)}</div> : <p className="mandi-history-empty">{selectedCommodity ? t("noCompareData") : t("chooseCropForCompare")}</p>}
+        {comparisons.length > 0 ? <div className="comparison-grid">{comparisons.map((record, index) => <article className="comparison-card" key={`${record.market}-${record.arrivalDate}`}><div><strong>{record.market}</strong><small>{record.district}</small></div><b className={index === 0 ? "comparison-low" : index === comparisons.length - 1 ? "comparison-high" : ""}>{formatPrice(record.modalPrice)}</b><span>{t("minPrice")}: {formatPrice(record.minPrice)} · {t("maxPrice")}: {formatPrice(record.maxPrice)}</span><small>{t("arrivalDate")}: {formatMandiDate(record.arrivalDate, languageOf(t))}</small></article>)}</div> : <p className="mandi-history-empty">{selectedCommodity ? t("noCompareData") : t("chooseCropForCompare")}</p>}
         {highestPrice && lowestPrice && highestPrice.market !== lowestPrice.market && <div className="price-advisory"><div><strong>{t("highestReported")}</strong><span>{highestPrice.market} · {formatPrice(highestPrice.modalPrice)}</span></div><div><strong>{t("lowestReported")}</strong><span>{lowestPrice.market} · {formatPrice(lowestPrice.modalPrice)}</span></div></div>}
         <p className="transport-warning">{t("transportNote")}</p>
       </section>
       <section className="panel mandi-history"><div className="mandi-section-heading"><div><div className="eyebrow">{selectedCommodity || t("commodity")}</div><h2>{t("priceHistory")}</h2></div><div className="date-filters"><label>{t("fromDate")}<input type="date" min={availableDates[0]} max={defaultTo} value={dateFrom || defaultFrom} onChange={(event) => setDateFrom(event.target.value)} /></label><label>{t("toDate")}<input type="date" min={availableDates[0]} max={defaultTo} value={dateTo || defaultTo} onChange={(event) => setDateTo(event.target.value)} /></label></div></div>
-        {historyValues.length > 0 ? <div className="history-bars" role="img" aria-label={t("priceHistory")}>{historyValues.map((entry) => <div className="history-point" key={entry.date}><strong>{formatPrice(entry.modalPrice)}</strong><span><i style={{ height: `${Math.max(8, entry.modalPrice / maximumHistoryPrice * 100)}%` }} /></span><small>{formatMandiDate(entry.date, languageOf(t) === "en" ? "en" : "kn")}</small></div>)}</div> : <p className="mandi-history-empty">{t("noHistory")}</p>}
-        {missingDates.length > 0 && <div className="missing-date-note"><strong>{t("missingDates")}:</strong> {missingDates.map((date) => formatMandiDate(date, languageOf(t) === "en" ? "en" : "kn")).join(", ")}{missingDates.length > 31 ? "…" : ""}</div>}
+        {historyValues.length > 0 ? <div className="history-bars" role="img" aria-label={t("priceHistory")}>{historyValues.map((entry) => <div className="history-point" key={entry.date}><strong>{formatPrice(entry.modalPrice)}</strong><span><i style={{ height: `${Math.max(8, entry.modalPrice / maximumHistoryPrice * 100)}%` }} /></span><small>{formatMandiDate(entry.date, languageOf(t))}</small></div>)}</div> : <p className="mandi-history-empty">{t("noHistory")}</p>}
+        {missingDates.length > 0 && <div className="missing-date-note"><strong>{t("missingDates")}:</strong> {missingDates.map((date) => formatMandiDate(date, languageOf(t))).join(", ")}{missingDates.length > 31 ? "…" : ""}</div>}
         <p className="history-method">{t("sourceUnitNote")}</p>
       </section>
     </>}
@@ -1376,7 +1614,8 @@ function calculateFarmProfit(inputs: ProfitInputs) {
   };
 }
 
-function ProfitCalculator({ t, form, onChange }: PageProps & {
+function ProfitCalculator({ t, language, form, onChange }: PageProps & {
+  language: Language;
   form: ProfitInputs;
   onChange: (field: keyof ProfitInputs, value: string) => void;
 }) {
@@ -1396,7 +1635,7 @@ function ProfitCalculator({ t, form, onChange }: PageProps & {
   const { totalYield, revenue, totalExpenses: expenses, profit, profitPerAcre: perAcreProfit } = calculation;
   const chartMaximum = Math.max(revenue, expenses, Math.abs(profit), 1);
   const metrics = [
-    { label: "totalExpectedYield" as const, value: validInputs ? new Intl.NumberFormat("en-IN", { maximumFractionDigits: 2 }).format(totalYield) : "—", unit: validInputs ? t("quintals") : "", negative: false },
+    { label: "totalExpectedYield" as const, value: validInputs ? new Intl.NumberFormat(localeForLanguage(language), { maximumFractionDigits: 2 }).format(totalYield) : "—", unit: validInputs ? t("quintals") : "", negative: false },
     { label: "expectedRevenue" as const, value: validInputs ? formatRupees(revenue) : "—", unit: "", negative: false },
     { label: "totalExpenses" as const, value: validInputs ? formatRupees(expenses) : "—", unit: "", negative: false },
     { label: "estimatedProfit" as const, value: validInputs ? formatRupees(profit) : "—", unit: "", negative: profit < 0 },
@@ -1407,6 +1646,14 @@ function ProfitCalculator({ t, form, onChange }: PageProps & {
     { label: "expensesLabel" as const, value: expenses, className: "expenses" },
     { label: "netProfitLabel" as const, value: profit, className: "net-profit", negative: profit < 0 },
   ];
+  const profitSpeech = validInputs ? fillTemplate(t("profitSpeechSummary"), {
+    "{crop}": cropOptions.find((crop) => crop.value === form.crop)?.label ?? t("chooseCrop"),
+    "{yield}": new Intl.NumberFormat(localeForLanguage(language), { maximumFractionDigits: 2 }).format(totalYield),
+    "{revenue}": formatRupees(revenue),
+    "{expenses}": formatRupees(expenses),
+    "{profit}": formatRupees(profit),
+    "{perAcre}": formatRupees(perAcreProfit),
+  }) : "";
 
   return <>
     <PageHeading eyebrow={t("profitCalculatorEyebrow")} title={t("profitCalculatorTitle")} description={t("profitCalculatorSub")} t={t} badge={t("estimateBadge")} badgeKind="source" />
@@ -1426,7 +1673,7 @@ function ProfitCalculator({ t, form, onChange }: PageProps & {
       </section>
 
       <section className="panel profit-results-panel">
-        <div className="panel-heading"><div><div className="eyebrow">{t("estimateBadge")}</div><h2>{t("calculatorResults")}</h2></div><span className="profit-result-icon">✳</span></div>
+        <div className="panel-heading"><div><div className="eyebrow">{t("estimateBadge")}</div><h2>{t("calculatorResults")}</h2></div><div className="profit-results-actions">{validInputs && <SpeakButton textToSpeak={profitSpeech} language={language} t={t} />}<span className="profit-result-icon">✳</span></div></div>
         {!validInputs && <p className="profit-prompt">{t("calculatorPrompt")}</p>}
         <div className="profit-metrics">{metrics.map((metric) => <article className="profit-metric" key={metric.label}>
           <span>{t(metric.label)}</span><strong className={metric.negative ? "profit-negative" : ""}>{metric.value}</strong>{metric.unit && <small>{metric.unit}</small>}
@@ -1480,7 +1727,7 @@ function SmartFarm({ t, language, profile, location, forecast, profitInputs, onP
   const marketAnalysis = analyzeFarmPrices(priceHistory);
   const priceChangeLabel = marketAnalysis.percentageChange === null
     ? t("noPrice")
-    : `${new Intl.NumberFormat(language === "en" ? "en-IN" : "kn-IN", {
+    : `${new Intl.NumberFormat(localeForLanguage(language), {
       signDisplay: "exceptZero",
       minimumFractionDigits: 1,
       maximumFractionDigits: 1,
@@ -1541,12 +1788,23 @@ function SmartFarm({ t, language, profile, location, forecast, profitInputs, onP
         : largestExpense && calculation.totalExpenses > 0
           ? fillTemplate(t("expenseRecommendationBody"), {
             "{category}": t(largestExpense.label),
-            "{share}": new Intl.NumberFormat(language === "en" ? "en-IN" : "kn-IN", { maximumFractionDigits: 1 }).format(largestExpenseShare),
+            "{share}": new Intl.NumberFormat(localeForLanguage(language), { maximumFractionDigits: 1 }).format(largestExpenseShare),
           })
           : t("expenseRecommendationNoCosts"),
       priority: largestExpenseShare >= 50 ? "priorityMedium" as const : "priorityLow" as const,
     },
   ];
+  const recommendationSpeech = recommendations.map((recommendation) =>
+    `${recommendation.title}. ${recommendation.body}`,
+  ).join(". ");
+  const farmProfitSpeech = calculation.valid ? fillTemplate(t("profitSpeechSummary"), {
+    "{crop}": cropName,
+    "{yield}": new Intl.NumberFormat(localeForLanguage(language), { maximumFractionDigits: 2 }).format(calculation.totalYield),
+    "{revenue}": formatRupees(calculation.revenue),
+    "{expenses}": formatRupees(calculation.totalExpenses),
+    "{profit}": formatRupees(calculation.profit),
+    "{perAcre}": formatRupees(calculation.profitPerAcre),
+  }) : "";
   const marketRecommendationReason = !selectedCrop ? t("selectCropForSmartFarm")
     : isDemoMarket ? t("samplePriceExplanation")
       : marketAnalysis.reason === "marketInsufficientReason" ? t("marketInsufficientReason")
@@ -1616,14 +1874,14 @@ function SmartFarm({ t, language, profile, location, forecast, profitInputs, onP
       </section>
 
       <section className="panel smart-farm-alerts">
-        <div className="smart-farm-panel-heading"><div><div className="eyebrow">{t("farmAlertsTitle")}</div><h2>{t("todayForecast")}</h2></div><span className={`demo-badge ${forecast ? "source-badge" : ""}`}><i />{forecast ? t("forecastVerified") : t("generalAdviceLabel")}</span></div>
+        <div className="smart-farm-panel-heading"><div><div className="eyebrow">{t("farmAlertsTitle")}</div><h2>{t("todayForecast")}</h2></div><div className="farm-alert-actions"><SpeakButton textToSpeak={weatherAlertCopy.length ? weatherAlertCopy.map(({ title, body }) => `${title}. ${body}`).join(". ") : t(forecast ? "noActiveFarmAlerts" : "generalWeatherAdviceBody")} language={language} t={t} /><span className={`demo-badge ${forecast ? "source-badge" : ""}`}><i />{forecast ? t("forecastVerified") : t("generalAdviceLabel")}</span></div></div>
         {forecast && alerts.length
           ? <ul className="farm-alert-list">{weatherAlertCopy.map(({ alert, title, body }) => <li key={`${alert.kind}-${alert.date ?? "current"}`}><span className="farm-alert-icon">!</span><div><strong>{title}</strong><p>{body}</p></div><b>{t(alert.kind === "heavyRain" ? "priorityHigh" : "priorityMedium")}</b></li>)}</ul>
           : <div className="general-weather-note"><strong>{t(forecast ? "noActiveFarmAlerts" : "generalWeatherAdviceTitle")}</strong><p>{t(forecast ? "noActiveFarmAlerts" : "generalWeatherAdviceBody")}</p></div>}
       </section>
 
       <section className="panel smart-farm-expenses">
-        <div className="smart-farm-panel-heading"><div><div className="eyebrow">{t("farmCostsTitle")}</div><h2>{t("calculatorResults")}</h2></div><button className="button button-outline" onClick={() => navigate("profit")}>{t("profit")} <span>→</span></button></div>
+        <div className="smart-farm-panel-heading"><div><div className="eyebrow">{t("farmCostsTitle")}</div><h2>{t("calculatorResults")}</h2></div><div className="farm-finance-actions">{calculation.valid && <SpeakButton textToSpeak={farmProfitSpeech} language={language} t={t} />}<button className="button button-outline" onClick={() => navigate("profit")}>{t("profit")} <span>→</span></button></div></div>
         <div className="farm-finance-metrics">
           {[{ label: "totalInvestment" as const, value: calculation.valid ? formatRupees(calculation.totalExpenses) : "—" },
             { label: "expectedRevenue" as const, value: calculation.valid ? formatRupees(calculation.revenue) : "—" },
@@ -1634,7 +1892,7 @@ function SmartFarm({ t, language, profile, location, forecast, profitInputs, onP
         {calculation.valid ? <>
           {largestExpense && largestExpenseShare > 0 && <p className="largest-expense-insight">{fillTemplate(t("largestExpenseInsight"), {
             "{category}": t(largestExpense.label),
-            "{share}": new Intl.NumberFormat(language === "en" ? "en-IN" : "kn-IN", { maximumFractionDigits: 1 }).format(largestExpenseShare),
+            "{share}": new Intl.NumberFormat(localeForLanguage(language), { maximumFractionDigits: 1 }).format(largestExpenseShare),
           })}</p>}
           <div className="farm-expense-breakdown">{calculation.expenseBreakdown.map((expense) => <div key={expense.field}>
             <div><span>{t(expense.label)}</span><strong>{formatRupees(expense.amount)}</strong></div>
@@ -1645,7 +1903,7 @@ function SmartFarm({ t, language, profile, location, forecast, profitInputs, onP
       </section>
 
       <section className="panel smart-farm-recommendations">
-        <div className="smart-farm-panel-heading"><div><div className="eyebrow">{t("smartFarmEyebrow")}</div><h2>{t("personalizedTitle")}</h2></div><span className="profile-illustration">✳</span></div>
+        <div className="smart-farm-panel-heading"><div><div className="eyebrow">{t("smartFarmEyebrow")}</div><h2>{t("personalizedTitle")}</h2></div><div className="farm-finance-actions"><SpeakButton textToSpeak={recommendationSpeech} language={language} t={t} /><span className="profile-illustration">✳</span></div></div>
         <div className="farm-recommendation-list">{recommendations.map((recommendation, index) => <article key={index}>
           <span className="farm-rec-icon">{recommendation.icon}</span>
           <div><div className="farm-rec-heading"><strong>{recommendation.title}</strong><small className={`priority-label ${recommendation.priority}`}>{t(recommendation.priority)}</small></div><p>{recommendation.body}</p></div>
@@ -1667,12 +1925,331 @@ function Soil({ t, profile }: PageProps & { profile: FarmerProfile | null }) {
   </>;
 }
 
+type RotationSeason = "kharif" | "rabi" | "zaid";
+type RotationSoil = "red" | "black" | "loamy" | "sandy";
+type RotationFamily = "cereal" | "legume" | "oilseed" | "fiber" | "solanaceous";
+type RotationCropId = "paddy" | "ragi" | "maize" | "cotton" | "pulses" | "tomato" | "chilli";
+type CandidateCropId = "greenGram" | "cowpea" | "groundnut" | "chickpea" | "horseGram" | "sunflower" | "rotationMaize" | "rotationRagi";
+
+const rotationCopy = {
+  en: {
+    title: "Crop Rotation & Soil Health Planner",
+    subtitle: "Explore general next-season crop options that diversify rotations and support soil nutrient cycling.",
+    label: "GENERAL SOIL-HEALTH GUIDE",
+    currentCrop: "Current / harvested crop",
+    soilType: "Soil type",
+    nextSeason: "Next season",
+    chooseCrop: "Choose the crop you just harvested",
+    chooseSoil: "Choose soil type",
+    kharif: "Kharif",
+    rabi: "Rabi",
+    zaid: "Zaid / summer",
+    paddy: "Paddy",
+    ragi: "Ragi",
+    maize: "Maize",
+    cotton: "Cotton",
+    pulses: "Pulses",
+    tomato: "Tomato",
+    chilli: "Chilli",
+    red: "Red soil",
+    black: "Black soil",
+    loamy: "Loamy soil",
+    sandy: "Sandy soil",
+    greenGram: "Green gram",
+    cowpea: "Cowpea",
+    groundnut: "Groundnut",
+    chickpea: "Chickpea",
+    horseGram: "Horse gram",
+    sunflower: "Sunflower",
+    rotationMaize: "Maize",
+    rotationRagi: "Ragi",
+    familyCereal: "Cereal",
+    familyLegume: "Pulse / legume",
+    familyOilseed: "Oilseed",
+    familyFiber: "Fibre crop",
+    familySolanaceous: "Vegetable family",
+    recommendationTitle: "Suggested next-season crops",
+    recommendationIntro: "Ranked for crop-family rotation and broad soil compatibility, not as a guaranteed yield or local variety recommendation.",
+    soilMatch: "Broad soil match",
+    soilCheck: "Check local suitability",
+    legumeReason: "As a legume after {crop}, it can fix atmospheric nitrogen when compatible root bacteria form effective nodules. Keeping healthy residues in the field can return nutrients to the soil.",
+    otherLegumeReason: "A pulse can diversify the rotation, but avoid repeating the same pulse family if local pest or disease pressure is high. Nitrogen fixation depends on effective nodulation.",
+    diversityReason: "This crop belongs to a different plant family than {crop}; rotation diversity and returning suitable residues can support soil structure and nutrient cycling.",
+    soilMatchNote: "This crop is broadly listed for the selected soil type; local variety, drainage, rainfall, and irrigation still determine suitability.",
+    soilCheckNote: "Soil match is less direct in this general guide. Check variety and field suitability with local agriculture staff before sowing.",
+    selectInputs: "Choose the harvested crop and soil type to view three candidates for the selected season.",
+    companionTitle: "Companion plants to consider",
+    companionIntro: "These examples may support pest management or beneficial insects in some systems; they do not reliably repel all pests and are not a substitute for scouting or integrated pest management.",
+    marigold: "Marigold (Tagetes)",
+    marigoldNote: "Used in some vegetable systems for nematode suppression when the right Tagetes type and planting method are used; simple interplanting is not a guaranteed treatment.",
+    coriander: "Coriander",
+    corianderNote: "Allowing some plants to flower may attract beneficial insects; this supports biodiversity rather than guaranteeing pest control.",
+    allium: "Onion or garlic",
+    alliumNote: "Aromatic Allium borders may deter some pests in certain settings, but results vary and they can compete for water and nutrients.",
+    soilBasisTitle: "How the soil-health ranking works",
+    soilBasis: "Legumes can fix atmospheric nitrogen only when suitable rhizobia nodulate their roots; the amount varies. Crop rotation does not replace soil testing, balanced nutrient management, or locally recommended fertilizer rates.",
+    localNote: "These are educational candidates, not location-specific prescriptions. Confirm season, variety, water availability, and rotation risks with your local KVK or agriculture officer.",
+  },
+  kn: {
+    title: "ಬೆಳೆ ಪರಿವರ್ತನೆ ಮತ್ತು ಮಣ್ಣಿನ ಆರೋಗ್ಯ ಯೋಜಕ",
+    subtitle: "ಬೆಳೆ ವೈವಿಧ್ಯ ಮತ್ತು ಮಣ್ಣಿನ ಪೋಷಕಾಂಶ ಚಕ್ರಕ್ಕೆ ನೆರವಾಗುವ ಮುಂದಿನ ಹಂಗಾಮಿನ ಸಾಮಾನ್ಯ ಆಯ್ಕೆಗಳನ್ನು ನೋಡಿ.",
+    label: "ಮಣ್ಣಿನ ಆರೋಗ್ಯದ ಸಾಮಾನ್ಯ ಮಾರ್ಗದರ್ಶಿ",
+    currentCrop: "ಪ್ರಸ್ತುತ / ಕೊಯ್ಲು ಮಾಡಿದ ಬೆಳೆ",
+    soilType: "ಮಣ್ಣಿನ ಪ್ರಕಾರ",
+    nextSeason: "ಮುಂದಿನ ಹಂಗಾಮು",
+    chooseCrop: "ಈಗಷ್ಟೇ ಕೊಯ್ಲು ಮಾಡಿದ ಬೆಳೆಯನ್ನು ಆಯ್ಕೆಮಾಡಿ",
+    chooseSoil: "ಮಣ್ಣಿನ ಪ್ರಕಾರ ಆಯ್ಕೆಮಾಡಿ",
+    kharif: "ಖರೀಫ್",
+    rabi: "ರಬಿ",
+    zaid: "ಜೈದ್ / ಬೇಸಿಗೆ",
+    paddy: "ಭತ್ತ",
+    ragi: "ರಾಗಿ",
+    maize: "ಮೆಕ್ಕೆಜೋಳ",
+    cotton: "ಹತ್ತಿ",
+    pulses: "ಬೇಳೆಕಾಳು",
+    tomato: "ಟೊಮೇಟೊ",
+    chilli: "ಮೆಣಸಿನಕಾಯಿ",
+    red: "ಕೆಂಪು ಮಣ್ಣು",
+    black: "ಕಪ್ಪು ಮಣ್ಣು",
+    loamy: "ಲೋಮಿ ಮಣ್ಣು",
+    sandy: "ಮರಳು ಮಣ್ಣು",
+    greenGram: "ಹೆಸರುಕಾಳು",
+    cowpea: "ಅಲಸಂದೆ",
+    groundnut: "ಶೇಂಗಾ",
+    chickpea: "ಕಡಲೆ",
+    horseGram: "ಹುರಳಿ",
+    sunflower: "ಸೂರ್ಯಕಾಂತಿ",
+    rotationMaize: "ಮೆಕ್ಕೆಜೋಳ",
+    rotationRagi: "ರಾಗಿ",
+    familyCereal: "ಧಾನ್ಯ",
+    familyLegume: "ಬೇಳೆ / ದ್ವಿದಳ",
+    familyOilseed: "ಎಣ್ಣೆಕಾಳು",
+    familyFiber: "ನಾರಿನ ಬೆಳೆ",
+    familySolanaceous: "ತರಕಾರಿ ಕುಟುಂಬ",
+    recommendationTitle: "ಮುಂದಿನ ಹಂಗಾಮಿಗೆ ಸೂಚಿಸಿದ ಬೆಳೆಗಳು",
+    recommendationIntro: "ಬೆಳೆ ಕುಟುಂಬ ಪರಿವರ್ತನೆ ಮತ್ತು ಮಣ್ಣಿನ ಸಾಮಾನ್ಯ ಹೊಂದಾಣಿಕೆಯ ಆಧಾರದ ಕ್ರಮ; ಖಚಿತ ಇಳುವರಿ ಅಥವಾ ಸ್ಥಳೀಯ ತಳಿ ಸಲಹೆಯಲ್ಲ.",
+    soilMatch: "ಮಣ್ಣಿಗೆ ಸಾಮಾನ್ಯ ಹೊಂದಾಣಿಕೆ",
+    soilCheck: "ಸ್ಥಳೀಯ ಹೊಂದಾಣಿಕೆ ಪರಿಶೀಲಿಸಿ",
+    legumeReason: "{crop} ನಂತರ ಬೇಳೆ ಬೆಳೆ ಮಾಡಿದರೆ, ಹೊಂದುವ ಬೇರು ಬ್ಯಾಕ್ಟೀರಿಯಾಗಳು ಪರಿಣಾಮಕಾರಿ ಗಂಟುಗಳನ್ನು ರಚಿಸಿದಾಗ ವಾತಾವರಣದ ಸಾರಜನಕ ಸ್ಥಿರೀಕರಿಸಬಹುದು. ಆರೋಗ್ಯಕರ ಅವಶೇಷಗಳನ್ನು ಹೊಲದಲ್ಲಿ ಉಳಿಸುವುದರಿಂದ ಪೋಷಕಾಂಶಗಳು ಮರಳಬಹುದು.",
+    otherLegumeReason: "ಬೇಳೆ ಬೆಳೆ ಪರಿವರ್ತನೆಯಲ್ಲಿ ವೈವಿಧ್ಯ ತರಬಹುದು; ಆದರೆ ಸ್ಥಳೀಯ ಕೀಟ ಅಥವಾ ರೋಗದ ಒತ್ತಡ ಹೆಚ್ಚಿದ್ದರೆ ಅದೇ ಬೇಳೆ ಕುಟುಂಬವನ್ನು ಮರುಮರು ಬೆಳೆಯಬೇಡಿ. ಸಾರಜನಕ ಸ್ಥಿರೀಕರಣ ಪರಿಣಾಮಕಾರಿ ಗಂಟುಗಳ ಮೇಲೆ ಅವಲಂಬಿತ.",
+    diversityReason: "ಈ ಬೆಳೆ {crop} ಗಿಂತ ಬೇರೆ ಸಸ್ಯ ಕುಟುಂಬಕ್ಕೆ ಸೇರಿದೆ; ಪರಿವರ್ತನೆ ವೈವಿಧ್ಯ ಮತ್ತು ಸೂಕ್ತ ಅವಶೇಷಗಳನ್ನು ಮಣ್ಣಿಗೆ ಮರಳಿಸುವುದು ಮಣ್ಣಿನ ರಚನೆ ಹಾಗೂ ಪೋಷಕಾಂಶ ಚಕ್ರಕ್ಕೆ ನೆರವಾಗಬಹುದು.",
+    soilMatchNote: "ಆಯ್ಕೆ ಮಾಡಿದ ಮಣ್ಣಿಗೆ ಈ ಬೆಳೆ ಸಾಮಾನ್ಯವಾಗಿ ಹೊಂದುವ ಆಯ್ಕೆಯಾಗಿದೆ; ತಳಿ, ಒಳಚರಂಡಿ, ಮಳೆ ಮತ್ತು ನೀರಾವರಿ ಸೂಕ್ತತೆಯನ್ನು ನಿರ್ಧರಿಸುತ್ತವೆ.",
+    soilCheckNote: "ಈ ಸಾಮಾನ್ಯ ಮಾರ್ಗದರ್ಶಿಯಲ್ಲಿ ಮಣ್ಣಿನ ಹೊಂದಾಣಿಕೆ ಕಡಿಮೆ ಸ್ಪಷ್ಟವಾಗಿದೆ. ಬಿತ್ತುವ ಮೊದಲು ಸ್ಥಳೀಯ ಕೃಷಿ ಸಿಬ್ಬಂದಿಯಿಂದ ತಳಿ ಮತ್ತು ಹೊಲದ ಹೊಂದಾಣಿಕೆ ಪರಿಶೀಲಿಸಿ.",
+    selectInputs: "ಆಯ್ಕೆ ಮಾಡಿದ ಹಂಗಾಮಿಗೆ ಮೂರು ಬೆಳೆಗಳನ್ನು ನೋಡಲು ಕೊಯ್ಲು ಮಾಡಿದ ಬೆಳೆ ಮತ್ತು ಮಣ್ಣಿನ ಪ್ರಕಾರ ಆಯ್ಕೆಮಾಡಿ.",
+    companionTitle: "ಪರಿಗಣಿಸಬಹುದಾದ ಸಹಬೆಳೆಗಳು",
+    companionIntro: "ಈ ಉದಾಹರಣೆಗಳು ಕೆಲವು ಪದ್ಧತಿಗಳಲ್ಲಿ ಕೀಟ ನಿರ್ವಹಣೆ ಅಥವಾ ಉಪಕಾರಿ ಕೀಟಗಳಿಗೆ ನೆರವಾಗಬಹುದು; ಎಲ್ಲ ಕೀಟಗಳನ್ನು ಖಚಿತವಾಗಿ ಓಡಿಸುವುದಿಲ್ಲ, ಹೊಲ ಪರಿಶೀಲನೆ ಅಥವಾ ಸಮಗ್ರ ಕೀಟ ನಿರ್ವಹಣೆಗೆ ಪರ್ಯಾಯವಲ್ಲ.",
+    marigold: "ಚೆಂಡು ಹೂವು (ಟ್ಯಾಜೆಟಿಸ್)",
+    marigoldNote: "ಸರಿಯಾದ ಟ್ಯಾಜೆಟಿಸ್ ಪ್ರಭೇದ ಮತ್ತು ನೆಡುವ ವಿಧಾನ ಬಳಸಿದಾಗ ಕೆಲವು ತರಕಾರಿ ಪದ್ಧತಿಗಳಲ್ಲಿ ನೆಮಟೋಡ್ ನಿಯಂತ್ರಣಕ್ಕೆ ಬಳಸುತ್ತಾರೆ; ಜೊತೆಯಲ್ಲಿ ನೆಡುವುದರಿಂದ ಖಚಿತ ಚಿಕಿತ್ಸೆ ಸಿಗುವುದಿಲ್ಲ.",
+    coriander: "ಕೊತ್ತಂಬರಿ",
+    corianderNote: "ಕೆಲವು ಗಿಡಗಳನ್ನು ಹೂಬಿಡಲು ಬಿಡುವುದರಿಂದ ಉಪಕಾರಿ ಕೀಟಗಳು ಆಕರ್ಷಿತವಾಗಬಹುದು; ಇದು ಜೀವವೈವಿಧ್ಯಕ್ಕೆ ನೆರವು, ಖಚಿತ ಕೀಟ ನಿಯಂತ್ರಣವಲ್ಲ.",
+    allium: "ಈರುಳ್ಳಿ ಅಥವಾ ಬೆಳ್ಳುಳ್ಳಿ",
+    alliumNote: "ಕೆಲವು ಪರಿಸ್ಥಿತಿಯಲ್ಲಿ ಸುವಾಸನೆಯ ಅಲಿಯಂ ಗಿಡಗಳು ಕೆಲವು ಕೀಟಗಳನ್ನು ತಡೆಯಬಹುದು; ಫಲಿತಾಂಶ ಬದಲಾಗುತ್ತದೆ ಮತ್ತು ನೀರು/ಪೋಷಕಾಂಶಕ್ಕೆ ಸ್ಪರ್ಧಿಸಬಹುದು.",
+    soilBasisTitle: "ಮಣ್ಣಿನ ಆರೋಗ್ಯದ ಕ್ರಮ ಹೇಗೆ ನಿರ್ಧರಿಸಲಾಗುತ್ತದೆ",
+    soilBasis: "ಸೂಕ್ತ ರೈಜೋಬಿಯಾ ಬೇರುಗಳಲ್ಲಿ ಗಂಟು ರಚಿಸಿದಾಗ ಮಾತ್ರ ಬೇಳೆ ಬೆಳೆಗಳು ವಾತಾವರಣದ ಸಾರಜನಕ ಸ್ಥಿರೀಕರಿಸಬಹುದು; ಪ್ರಮಾಣ ಬದಲಾಗುತ್ತದೆ. ಬೆಳೆ ಪರಿವರ್ತನೆ ಮಣ್ಣಿನ ಪರೀಕ್ಷೆ, ಸಮತೋಲಿತ ಪೋಷಕಾಂಶ ನಿರ್ವಹಣೆ ಅಥವಾ ಸ್ಥಳೀಯ ಗೊಬ್ಬರ ಪ್ರಮಾಣಕ್ಕೆ ಪರ್ಯಾಯವಲ್ಲ.",
+    localNote: "ಇವು ಶಿಕ್ಷಣದ ಉದ್ದೇಶದ ಆಯ್ಕೆಗಳು, ಸ್ಥಳ ನಿರ್ದಿಷ್ಟ ಸಲಹೆಯಲ್ಲ. ಹಂಗಾಮು, ತಳಿ, ನೀರಿನ ಲಭ್ಯತೆ ಮತ್ತು ಪರಿವರ್ತನೆ ಅಪಾಯವನ್ನು ಸ್ಥಳೀಯ ಕೃಷಿ ವಿಜ್ಞಾನ ಕೇಂದ್ರ ಅಥವಾ ಕೃಷಿ ಅಧಿಕಾರಿಯಿಂದ ದೃಢಪಡಿಸಿ.",
+  },
+  hi: {
+    title: "फसल चक्र और मृदा स्वास्थ्य योजनाकार",
+    subtitle: "फसल विविधता और मिट्टी में पोषक तत्वों के चक्र को सहारा देने वाले अगले मौसम के सामान्य विकल्प देखें।",
+    label: "मृदा स्वास्थ्य की सामान्य मार्गदर्शिका",
+    currentCrop: "वर्तमान / काटी गई फसल",
+    soilType: "मिट्टी का प्रकार",
+    nextSeason: "अगला मौसम",
+    chooseCrop: "अभी काटी गई फसल चुनें",
+    chooseSoil: "मिट्टी का प्रकार चुनें",
+    kharif: "खरीफ",
+    rabi: "रबी",
+    zaid: "ज़ायद / गर्मी",
+    paddy: "धान",
+    ragi: "रागी",
+    maize: "मक्का",
+    cotton: "कपास",
+    pulses: "दलहन",
+    tomato: "टमाटर",
+    chilli: "मिर्च",
+    red: "लाल मिट्टी",
+    black: "काली मिट्टी",
+    loamy: "दोमट मिट्टी",
+    sandy: "रेतीली मिट्टी",
+    greenGram: "मूंग",
+    cowpea: "लोबिया",
+    groundnut: "मूंगफली",
+    chickpea: "चना",
+    horseGram: "कुल्थी",
+    sunflower: "सूरजमुखी",
+    rotationMaize: "मक्का",
+    rotationRagi: "रागी",
+    familyCereal: "अनाज",
+    familyLegume: "दलहन",
+    familyOilseed: "तिलहन",
+    familyFiber: "रेशे वाली फसल",
+    familySolanaceous: "सब्ज़ी परिवार",
+    recommendationTitle: "अगले मौसम के लिए सुझाई गई फसलें",
+    recommendationIntro: "फसल परिवार के चक्र और मिट्टी की सामान्य अनुकूलता के आधार पर क्रम; यह निश्चित उपज या स्थानीय किस्म की सलाह नहीं है।",
+    soilMatch: "मिट्टी से सामान्य मेल",
+    soilCheck: "स्थानीय अनुकूलता जाँचें",
+    legumeReason: "{crop} के बाद दलहन लगाने से, उपयुक्त जड़ जीवाणुओं द्वारा प्रभावी गांठें बनने पर, वायुमंडलीय नाइट्रोजन स्थिर हो सकती है। स्वस्थ अवशेष खेत में रखने से पोषक तत्व वापस मिट्टी में जा सकते हैं।",
+    otherLegumeReason: "दलहन फसल चक्र में विविधता ला सकती है; लेकिन स्थानीय कीट या रोग का दबाव अधिक हो तो लगातार उसी दलहन परिवार को न लगाएँ। नाइट्रोजन स्थिरीकरण प्रभावी गांठों पर निर्भर करता है।",
+    diversityReason: "यह फसल {crop} से अलग पौधा परिवार की है; फसल चक्र में विविधता और उपयुक्त अवशेष मिट्टी की संरचना व पोषक तत्वों के चक्र को सहारा दे सकते हैं।",
+    soilMatchNote: "चुनी गई मिट्टी के लिए इस फसल को सामान्य विकल्प के रूप में सूचीबद्ध किया गया है; उपयुक्तता किस्म, जल-निकासी, बारिश और सिंचाई पर भी निर्भर है।",
+    soilCheckNote: "इस सामान्य मार्गदर्शिका में मिट्टी का मेल कम स्पष्ट है। बुवाई से पहले स्थानीय कृषि कर्मचारियों से किस्म और खेत की उपयुक्तता जाँचें।",
+    selectInputs: "चुने हुए मौसम के लिए तीन विकल्प देखने हेतु काटी गई फसल और मिट्टी का प्रकार चुनें।",
+    companionTitle: "साथ में उगाने योग्य पौधे",
+    companionIntro: "ये उदाहरण कुछ प्रणालियों में कीट प्रबंधन या लाभकारी कीटों को सहारा दे सकते हैं; ये सभी कीटों को भरोसेमंद ढंग से नहीं भगाते और निगरानी या समेकित कीट प्रबंधन का विकल्प नहीं हैं।",
+    marigold: "गेंदा (Tagetes)",
+    marigoldNote: "सही Tagetes प्रकार और रोपण विधि के साथ कुछ सब्ज़ी प्रणालियों में सूत्रकृमि दबाव घटाने के लिए उपयोग होता है; केवल साथ लगाने से उपचार की गारंटी नहीं होती।",
+    coriander: "धनिया",
+    corianderNote: "कुछ पौधों को फूलने देने से लाभकारी कीट आकर्षित हो सकते हैं; यह जैव विविधता को सहारा देता है, कीट नियंत्रण की गारंटी नहीं।",
+    allium: "प्याज़ या लहसुन",
+    alliumNote: "कुछ परिस्थितियों में सुगंधित Allium पौधे कुछ कीटों को हतोत्साहित कर सकते हैं; परिणाम अलग-अलग होते हैं और पानी/पोषक तत्वों के लिए प्रतिस्पर्धा हो सकती है।",
+    soilBasisTitle: "मृदा स्वास्थ्य के लिए क्रम कैसे तय होता है",
+    soilBasis: "दलहन तभी वायुमंडलीय नाइट्रोजन स्थिर कर सकती है जब उपयुक्त राइज़ोबिया जड़ों पर गांठें बनाए; इसकी मात्रा बदलती है। फसल चक्र मिट्टी परीक्षण, संतुलित पोषण प्रबंधन या स्थानीय उर्वरक दरों का विकल्प नहीं है।",
+    localNote: "ये शैक्षिक विकल्प हैं, स्थान-विशिष्ट निर्देश नहीं। मौसम, किस्म, पानी की उपलब्धता और फसल चक्र के जोखिम की पुष्टि स्थानीय कृषि विज्ञान केंद्र या कृषि अधिकारी से करें।",
+  },
+} as const;
+
+const rotationCrops: { id: RotationCropId; family: RotationFamily }[] = [
+  { id: "paddy", family: "cereal" },
+  { id: "ragi", family: "cereal" },
+  { id: "maize", family: "cereal" },
+  { id: "cotton", family: "fiber" },
+  { id: "pulses", family: "legume" },
+  { id: "tomato", family: "solanaceous" },
+  { id: "chilli", family: "solanaceous" },
+];
+
+const rotationFamilyLabels: Record<RotationFamily, keyof typeof rotationCopy.en> = {
+  cereal: "familyCereal",
+  legume: "familyLegume",
+  oilseed: "familyOilseed",
+  fiber: "familyFiber",
+  solanaceous: "familySolanaceous",
+};
+
+const rotationCandidateData: {
+  id: CandidateCropId;
+  family: RotationFamily;
+  seasons: RotationSeason[];
+  soils: RotationSoil[];
+}[] = [
+  { id: "greenGram", family: "legume", seasons: ["kharif", "zaid"], soils: ["red", "black", "loamy", "sandy"] },
+  { id: "cowpea", family: "legume", seasons: ["kharif", "zaid", "rabi"], soils: ["red", "black", "loamy", "sandy"] },
+  { id: "groundnut", family: "legume", seasons: ["kharif"], soils: ["red", "loamy", "sandy"] },
+  { id: "chickpea", family: "legume", seasons: ["rabi"], soils: ["red", "black", "loamy"] },
+  { id: "horseGram", family: "legume", seasons: ["rabi"], soils: ["red", "black", "sandy", "loamy"] },
+  { id: "sunflower", family: "oilseed", seasons: ["kharif", "rabi", "zaid"], soils: ["red", "black", "loamy"] },
+  { id: "rotationMaize", family: "cereal", seasons: ["kharif", "rabi", "zaid"], soils: ["red", "black", "loamy"] },
+  { id: "rotationRagi", family: "cereal", seasons: ["kharif"], soils: ["red", "loamy", "sandy"] },
+];
+
+function soilFromRotationProfile(profileSoil: string): RotationSoil | "" {
+  if (profileSoil === "Red soil") return "red";
+  if (profileSoil === "Black soil") return "black";
+  if (profileSoil === "Loamy soil") return "loamy";
+  if (profileSoil === "Sandy soil") return "sandy";
+  return "";
+}
+
+function rankRotationCandidates(currentFamily: RotationFamily, soil: RotationSoil, season: RotationSeason) {
+  const ranked = rotationCandidateData
+    .filter((crop) => crop.seasons.includes(season))
+    .map((crop) => ({
+      ...crop,
+      soilMatch: crop.soils.includes(soil),
+      score: (crop.soils.includes(soil) ? 2 : 0) +
+        (crop.family === "legume" && currentFamily !== "legume" ? 4 : 0) +
+        (crop.family !== currentFamily ? 2 : 0) -
+        (crop.family === "legume" && currentFamily === "legume" ? 3 : 0),
+    }))
+    .sort((a, b) => b.score - a.score);
+  const selected: typeof ranked = [];
+  for (const candidate of ranked) {
+    if (selected.length === 3) break;
+    if (selected.filter((item) => item.family === candidate.family).length >= 2) continue;
+    selected.push(candidate);
+  }
+  return selected;
+}
+
+function CropRotationPlanner({ language, profileSoil }: { language: Language; profileSoil: string }) {
+  const [currentCrop, setCurrentCrop] = useState<RotationCropId | "">("");
+  const [soil, setSoil] = useState<RotationSoil | "">(() => soilFromRotationProfile(profileSoil));
+  const [season, setSeason] = useState<RotationSeason>("kharif");
+  const t = (key: keyof typeof rotationCopy.en) => rotationCopy[language][key];
+  const selectedCrop = rotationCrops.find((crop) => crop.id === currentCrop);
+  const recommendations = selectedCrop && soil
+    ? rankRotationCandidates(selectedCrop.family, soil, season)
+    : [];
+  const currentCropLabel = selectedCrop ? t(selectedCrop.id) : "";
+
+  function chooseCrop(value: string) {
+    setCurrentCrop(rotationCrops.find((crop) => crop.id === value)?.id ?? "");
+  }
+
+  function chooseSoil(value: string) {
+    setSoil(value === "red" || value === "black" || value === "loamy" || value === "sandy" ? value : "");
+  }
+
+  function chooseSeason(value: string) {
+    setSeason(value === "rabi" || value === "zaid" ? value : "kharif");
+  }
+
+  return <div className="rotation-planner">
+    <div className="page-heading rotation-page-heading">
+      <div><div className="eyebrow">{t("label")}</div><h1>{t("title")}</h1><p>{t("subtitle")}</p></div>
+      <span className="demo-badge"><i />{t("label")}</span>
+    </div>
+    <section className="panel rotation-inputs">
+      <label htmlFor="rotation-current-crop">{t("currentCrop")}<select id="rotation-current-crop" value={currentCrop} onChange={(event) => chooseCrop(event.target.value)}>
+        <option value="">{t("chooseCrop")}</option>{rotationCrops.map((crop) => <option value={crop.id} key={crop.id}>{t(crop.id)}</option>)}
+      </select></label>
+      <label htmlFor="rotation-soil">{t("soilType")}<select id="rotation-soil" value={soil} onChange={(event) => chooseSoil(event.target.value)}>
+        <option value="">{t("chooseSoil")}</option>{(["red", "black", "loamy", "sandy"] as const).map((soilType) => <option value={soilType} key={soilType}>{t(soilType)}</option>)}
+      </select></label>
+      <label htmlFor="rotation-season">{t("nextSeason")}<select id="rotation-season" value={season} onChange={(event) => chooseSeason(event.target.value)}>
+        {(["kharif", "rabi", "zaid"] as const).map((seasonOption) => <option value={seasonOption} key={seasonOption}>{t(seasonOption)}</option>)}
+      </select></label>
+    </section>
+
+    {recommendations.length > 0 ? <section className="rotation-recommendations">
+      <div className="rotation-section-heading"><div><div className="eyebrow">{t("nextSeason")}: {t(season)}</div><h2>{t("recommendationTitle")}</h2><p>{t("recommendationIntro")}</p></div></div>
+      <div className="rotation-crop-grid">{recommendations.map((crop, index) => {
+        const isLegume = crop.family === "legume";
+        const reason = isLegume && selectedCrop?.family !== "legume"
+          ? fillTemplate(t("legumeReason"), { "{crop}": currentCropLabel })
+          : isLegume
+            ? t("otherLegumeReason")
+            : fillTemplate(t("diversityReason"), { "{crop}": currentCropLabel });
+        return <article className="panel rotation-crop-card" key={crop.id}>
+          <div className="rotation-crop-card-top"><span className="rotation-rank">{index + 1}</span><span className={`rotation-family family-${crop.family}`}>{t(rotationFamilyLabels[crop.family])}</span></div>
+          <h3>{t(crop.id)}</h3>
+          <p>{reason}</p>
+          <div className={`rotation-soil-fit ${crop.soilMatch ? "fit-match" : "fit-check"}`}>
+            <strong>{crop.soilMatch ? t("soilMatch") : t("soilCheck")}</strong>
+            <span>{crop.soilMatch ? t("soilMatchNote") : t("soilCheckNote")}</span>
+          </div>
+        </article>;
+      })}</div>
+    </section> : <p className="rotation-empty panel">{t("selectInputs")}</p>}
+
+    <section className="panel rotation-companions">
+      <div className="rotation-section-heading"><div><div className="eyebrow">{t("label")}</div><h2>{t("companionTitle")}</h2><p>{t("companionIntro")}</p></div></div>
+      <div className="rotation-companion-grid">
+        <article><span>✿</span><div><h3>{t("marigold")}</h3><p>{t("marigoldNote")}</p></div></article>
+        <article><span>❋</span><div><h3>{t("coriander")}</h3><p>{t("corianderNote")}</p></div></article>
+        <article><span>♧</span><div><h3>{t("allium")}</h3><p>{t("alliumNote")}</p></div></article>
+      </div>
+    </section>
+    <aside className="rotation-disclaimer"><span>ⓘ</span><div><strong>{t("soilBasisTitle")}</strong><p>{t("soilBasis")}</p><p>{t("localNote")}</p></div></aside>
+  </div>;
+}
+
 function Crops({ t, navigate }: PageProps & { navigate: (screen: Screen) => void }) {
   const ideas = [
-    { key: "cropRagi" as const, desc: "ragiDesc" as const, icon: "❋", color: "ragi", water: t("waterLowMedium"), duration: `100–120 ${t("dayUnit")}`, tag: languageOf(t) === "en" ? "HARDY MILLET" : "ಸಿರಿಧಾನ್ಯ" },
-    { key: "cropPulses" as const, desc: "pulsesDesc" as const, icon: "◉", color: "pulse", water: t("waterLow"), duration: `80–100 ${t("dayUnit")}`, tag: languageOf(t) === "en" ? "SOIL FRIENDLY" : "ಮಣ್ಣಿನ ಗೆಳೆಯ" },
-    { key: "cropMaize" as const, desc: "maizeDesc" as const, icon: "✺", color: "maize", water: t("waterMedium"), duration: `90–110 ${t("dayUnit")}`, tag: languageOf(t) === "en" ? "VERSATILE" : "ಬಹುಮುಖ" },
-    { key: "cropRice" as const, desc: "riceDesc" as const, icon: "♧", color: "rice", water: t("waterHigh"), duration: `120–150 ${t("dayUnit")}`, tag: languageOf(t) === "en" ? "MONSOON CROP" : "ಮುಂಗಾರು ಬೆಳೆ" },
+    { key: "cropRagi" as const, desc: "ragiDesc" as const, icon: "❋", color: "ragi", water: t("waterLowMedium"), duration: `100–120 ${t("dayUnit")}`, tag: languageOf(t) === "kn" ? "ಸಿರಿಧಾನ್ಯ" : languageOf(t) === "hi" ? "मोटा अनाज" : "HARDY MILLET" },
+    { key: "cropPulses" as const, desc: "pulsesDesc" as const, icon: "◉", color: "pulse", water: t("waterLow"), duration: `80–100 ${t("dayUnit")}`, tag: languageOf(t) === "kn" ? "ಮಣ್ಣಿನ ಗೆಳೆಯ" : languageOf(t) === "hi" ? "मिट्टी के लिए उपयोगी" : "SOIL FRIENDLY" },
+    { key: "cropMaize" as const, desc: "maizeDesc" as const, icon: "✺", color: "maize", water: t("waterMedium"), duration: `90–110 ${t("dayUnit")}`, tag: languageOf(t) === "kn" ? "ಬಹುಮುಖ" : languageOf(t) === "hi" ? "बहुउपयोगी" : "VERSATILE" },
+    { key: "cropRice" as const, desc: "riceDesc" as const, icon: "♧", color: "rice", water: t("waterHigh"), duration: `120–150 ${t("dayUnit")}`, tag: languageOf(t) === "kn" ? "ಮುಂಗಾರು ಬೆಳೆ" : languageOf(t) === "hi" ? "खरीफ फसल" : "MONSOON CROP" },
   ];
   return <>
     <PageHeading eyebrow={t("recommended")} title={t("cropTitle")} description={t("cropSub")} t={t} />
@@ -1682,17 +2259,189 @@ function Crops({ t, navigate }: PageProps & { navigate: (screen: Screen) => void
   </>;
 }
 
+type CropDoctorCrop = "paddy" | "ragi" | "tomato" | "cotton" | "maize" | "chilli";
+type CropDoctorSymptom = "yellowing" | "brownSpots" | "leafCurling" | "wilting" | "whitePowder" | "borerHoles";
+type CropDoctorSeverity = "lowRisk" | "moderateRisk" | "highRisk";
+type CropDoctorTreatment = "none" | "fungicide" | "insecticide" | "vector" | "borer";
+type ExistingTranslationLanguage = "en" | "kn";
+type CropDoctorCondition = {
+  name: Record<ExistingTranslationLanguage, string>;
+  severity: CropDoctorSeverity;
+  treatment: CropDoctorTreatment;
+};
+
+const cropDoctorCrops: { id: CropDoctorCrop; label: keyof typeof text.en }[] = [
+  { id: "paddy", label: "cropRice" },
+  { id: "ragi", label: "cropRagi" },
+  { id: "tomato", label: "cropDoctorTomato" },
+  { id: "cotton", label: "cropDoctorCotton" },
+  { id: "maize", label: "cropMaize" },
+  { id: "chilli", label: "cropDoctorChilli" },
+];
+
+const cropDoctorSymptoms: { id: CropDoctorSymptom; label: keyof typeof text.en; icon: string }[] = [
+  { id: "yellowing", label: "cropDoctorYellowing", icon: "🍃" },
+  { id: "brownSpots", label: "cropDoctorBrownSpots", icon: "◉" },
+  { id: "leafCurling", label: "cropDoctorLeafCurling", icon: "〰" },
+  { id: "wilting", label: "cropDoctorWilting", icon: "🥀" },
+  { id: "whitePowder", label: "cropDoctorWhitePowder", icon: "☁" },
+  { id: "borerHoles", label: "cropDoctorBorerHoles", icon: "⊙" },
+];
+
+const cropDoctorAdvice: Record<CropDoctorSymptom, { organic: keyof typeof text.en; prevention: keyof typeof text.en }> = {
+  yellowing: { organic: "cropDoctorOrganicYellow", prevention: "cropDoctorPreventYellow" },
+  brownSpots: { organic: "cropDoctorOrganicSpots", prevention: "cropDoctorPreventSpots" },
+  leafCurling: { organic: "cropDoctorOrganicCurl", prevention: "cropDoctorPreventCurl" },
+  wilting: { organic: "cropDoctorOrganicWilt", prevention: "cropDoctorPreventWilt" },
+  whitePowder: { organic: "cropDoctorOrganicPowder", prevention: "cropDoctorPreventPowder" },
+  borerHoles: { organic: "cropDoctorOrganicBorer", prevention: "cropDoctorPreventBorer" },
+};
+
+function cropDoctorCondition(
+  en: string,
+  kn: string,
+  severity: CropDoctorSeverity,
+  treatment: CropDoctorTreatment,
+): CropDoctorCondition {
+  return { name: { en, kn }, severity, treatment };
+}
+
+const cropDoctorConditions: Record<CropDoctorCrop, Record<CropDoctorSymptom, CropDoctorCondition>> = {
+  paddy: {
+    yellowing: cropDoctorCondition("Nutrient or water stress (cause not confirmed)", "ಪೋಷಕಾಂಶ ಅಥವಾ ನೀರಿನ ಒತ್ತಡ (ಕಾರಣ ದೃಢಪಟ್ಟಿಲ್ಲ)", "moderateRisk", "none"),
+    brownSpots: cropDoctorCondition("Rice brown spot (possible)", "ಭತ್ತದ ಕಂದು ಚುಕ್ಕೆ ರೋಗ (ಸಾಧ್ಯತೆ)", "moderateRisk", "fungicide"),
+    leafCurling: cropDoctorCondition("Possible leaf-folder feeding if leaves are folded and scraped", "ಎಲೆ ಮಡಚಿ ಕೆರೆತವಿದ್ದರೆ ಎಲೆ ಸುರುಳಿ ಕೀಟದ ಹಾನಿ ಸಾಧ್ಯ", "moderateRisk", "insecticide"),
+    wilting: cropDoctorCondition("Water stress or a root problem (needs field check)", "ನೀರಿನ ಒತ್ತಡ ಅಥವಾ ಬೇರು ಸಮಸ್ಯೆ (ಹೊಲ ಪರಿಶೀಲನೆ ಅಗತ್ಯ)", "highRisk", "none"),
+    whitePowder: cropDoctorCondition("White growth not identified; powdery disease is not typical from this sign alone", "ಬಿಳಿ ಬೆಳವಣಿಗೆ ಗುರುತಿಸಲಾಗಿಲ್ಲ; ಈ ಲಕ್ಷಣದಿಂದ ಮಾತ್ರ ಪುಡಿ ರೋಗವೆಂದು ಹೇಳಲಾಗದು", "lowRisk", "none"),
+    borerHoles: cropDoctorCondition("Rice stem-borer damage (check for dead hearts or white ears)", "ಭತ್ತದ ಕಾಂಡ ಕೊರೆಯುವ ಕೀಟದ ಹಾನಿ (ಒಣಗಿದ ಮಧ್ಯ ಚಿಗುರು ಅಥವಾ ಬಿಳಿ ತೆನೆ ಪರಿಶೀಲಿಸಿ)", "highRisk", "borer"),
+  },
+  ragi: {
+    yellowing: cropDoctorCondition("Nutrient or water stress (cause not confirmed)", "ಪೋಷಕಾಂಶ ಅಥವಾ ನೀರಿನ ಒತ್ತಡ (ಕಾರಣ ದೃಢಪಟ್ಟಿಲ್ಲ)", "moderateRisk", "none"),
+    brownSpots: cropDoctorCondition("Finger-millet blast or another leaf spot (possible)", "ರಾಗಿ ಬೆಂಕಿ ರೋಗ ಅಥವಾ ಇತರೆ ಎಲೆ ಚುಕ್ಕೆ ರೋಗ (ಸಾಧ್ಯತೆ)", "highRisk", "fungicide"),
+    leafCurling: cropDoctorCondition("Possible aphid or mite injury if pests are visible", "ಕೀಟಗಳು ಕಂಡುಬಂದರೆ ಹೇನು ಅಥವಾ ಮೈಟ್ ಹಾನಿ ಸಾಧ್ಯ", "moderateRisk", "insecticide"),
+    wilting: cropDoctorCondition("Water stress or a root problem (needs field check)", "ನೀರಿನ ಒತ್ತಡ ಅಥವಾ ಬೇರು ಸಮಸ್ಯೆ (ಹೊಲ ಪರಿಶೀಲನೆ ಅಗತ್ಯ)", "highRisk", "none"),
+    whitePowder: cropDoctorCondition("Powdery mildew (possible)", "ಪುಡಿ ಶಿಲೀಂಧ್ರ ರೋಗ (ಸಾಧ್ಯತೆ)", "moderateRisk", "fungicide"),
+    borerHoles: cropDoctorCondition("Stem-borer damage (confirm the insect)", "ಕಾಂಡ ಕೊರೆಯುವ ಕೀಟದ ಹಾನಿ (ಕೀಟ ದೃಢಪಡಿಸಿ)", "highRisk", "borer"),
+  },
+  tomato: {
+    yellowing: cropDoctorCondition("Nutrient or water stress; also inspect for whiteflies", "ಪೋಷಕಾಂಶ ಅಥವಾ ನೀರಿನ ಒತ್ತಡ; ಬಿಳಿನೊಣಗಳನ್ನೂ ಪರಿಶೀಲಿಸಿ", "moderateRisk", "none"),
+    brownSpots: cropDoctorCondition("Early blight or another tomato leaf spot (possible)", "ಆರಂಭಿಕ ಅಂಗಮಾರಿ ಅಥವಾ ಇತರೆ ಟೊಮೇಟೊ ಎಲೆ ಚುಕ್ಕೆ ರೋಗ (ಸಾಧ್ಯತೆ)", "moderateRisk", "fungicide"),
+    leafCurling: cropDoctorCondition("Tomato leaf-curl virus is possible, often associated with whiteflies", "ಬಿಳಿನೊಣಗಳೊಂದಿಗೆ ಸಂಬಂಧಿಸಿದ ಟೊಮೇಟೊ ಎಲೆ ಮುದುಡು ವೈರಸ್ ಸಾಧ್ಯತೆ", "highRisk", "vector"),
+    wilting: cropDoctorCondition("Bacterial wilt, another root disease, or water stress", "ಬ್ಯಾಕ್ಟೀರಿಯಾ ಬಾಡುವಿಕೆ, ಬೇರು ರೋಗ ಅಥವಾ ನೀರಿನ ಒತ್ತಡ", "highRisk", "none"),
+    whitePowder: cropDoctorCondition("Powdery mildew (possible)", "ಪುಡಿ ಶಿಲೀಂಧ್ರ ರೋಗ (ಸಾಧ್ಯತೆ)", "moderateRisk", "fungicide"),
+    borerHoles: cropDoctorCondition("Fruit-borer injury if holes are on fruit; stem holes need confirmation", "ಹಣ್ಣಿನಲ್ಲಿ ರಂಧ್ರವಿದ್ದರೆ ಹಣ್ಣು ಕೊರೆಯುವ ಕೀಟ ಸಾಧ್ಯ; ಕಾಂಡದ ರಂಧ್ರ ದೃಢಪಡಿಸಿ", "highRisk", "borer"),
+  },
+  cotton: {
+    yellowing: cropDoctorCondition("Nutrient stress or sucking-pest injury (inspect leaf undersides)", "ಪೋಷಕಾಂಶದ ಒತ್ತಡ ಅಥವಾ ಹೀರುವ ಕೀಟದ ಹಾನಿ (ಎಲೆಯ ಕೆಳಭಾಗ ನೋಡಿ)", "moderateRisk", "none"),
+    brownSpots: cropDoctorCondition("Alternaria or another cotton leaf spot (possible)", "ಆಲ್ಟರ್ನೇರಿಯಾ ಅಥವಾ ಇತರೆ ಹತ್ತಿ ಎಲೆ ಚುಕ್ಕೆ ರೋಗ (ಸಾಧ್ಯತೆ)", "moderateRisk", "fungicide"),
+    leafCurling: cropDoctorCondition("Cotton leaf-curl disease is possible; check for whiteflies", "ಹತ್ತಿ ಎಲೆ ಮುದುಡು ರೋಗ ಸಾಧ್ಯತೆ; ಬಿಳಿನೊಣ ಪರಿಶೀಲಿಸಿ", "highRisk", "vector"),
+    wilting: cropDoctorCondition("Fusarium wilt, root disease, or water stress", "ಫ್ಯುಸೇರಿಯಂ ಬಾಡುವಿಕೆ, ಬೇರು ರೋಗ ಅಥವಾ ನೀರಿನ ಒತ್ತಡ", "highRisk", "none"),
+    whitePowder: cropDoctorCondition("Powdery mildew (possible)", "ಪುಡಿ ಶಿಲೀಂಧ್ರ ರೋಗ (ಸಾಧ್ಯತೆ)", "moderateRisk", "fungicide"),
+    borerHoles: cropDoctorCondition("Bollworm injury if holes are on bolls; stem damage needs confirmation", "ಕಾಯಿಯಲ್ಲಿ ರಂಧ್ರವಿದ್ದರೆ ಕಾಯಿಕೊರಕ ಕೀಟದ ಹಾನಿ ಸಾಧ್ಯ; ಕಾಂಡದ ಹಾನಿ ದೃಢಪಡಿಸಿ", "highRisk", "borer"),
+  },
+  maize: {
+    yellowing: cropDoctorCondition("Nutrient or water stress (cause not confirmed)", "ಪೋಷಕಾಂಶ ಅಥವಾ ನೀರಿನ ಒತ್ತಡ (ಕಾರಣ ದೃಢಪಟ್ಟಿಲ್ಲ)", "moderateRisk", "none"),
+    brownSpots: cropDoctorCondition("Turcicum leaf blight or another leaf spot (possible)", "ಟರ್ಸಿಕಂ ಎಲೆ ಅಂಗಮಾರಿ ಅಥವಾ ಇತರೆ ಎಲೆ ಚುಕ್ಕೆ ರೋಗ (ಸಾಧ್ಯತೆ)", "highRisk", "fungicide"),
+    leafCurling: cropDoctorCondition("Fall-armyworm feeding is possible if windowing or frass is present", "ಎಲೆ ಕಿಟಕಿ ಗುರುತು ಅಥವಾ ಮಲ ಕಂಡರೆ ಸೈನಿಕ ಹುಳುವಿನ ಹಾನಿ ಸಾಧ್ಯ", "highRisk", "insecticide"),
+    wilting: cropDoctorCondition("Stalk or root rot, or water stress (needs field check)", "ಕಾಂಡ ಅಥವಾ ಬೇರು ಕೊಳೆ, ಅಥವಾ ನೀರಿನ ಒತ್ತಡ (ಹೊಲ ಪರಿಶೀಲನೆ ಅಗತ್ಯ)", "highRisk", "none"),
+    whitePowder: cropDoctorCondition("Downy mildew is possible if pale growth is on leaf undersides", "ಎಲೆಯ ಕೆಳಭಾಗದಲ್ಲಿ ಬಿಳಿ ಬೆಳವಣಿಗೆಯಿದ್ದರೆ ಶಿಲೀಂಧ್ರ ರೋಗ ಸಾಧ್ಯ", "highRisk", "fungicide"),
+    borerHoles: cropDoctorCondition("Maize stem-borer damage (confirm the insect)", "ಮೆಕ್ಕೆಜೋಳದ ಕಾಂಡ ಕೊರೆಯುವ ಕೀಟದ ಹಾನಿ (ಕೀಟ ದೃಢಪಡಿಸಿ)", "highRisk", "borer"),
+  },
+  chilli: {
+    yellowing: cropDoctorCondition("Nutrient stress or thrips/mites (inspect leaf undersides)", "ಪೋಷಕಾಂಶದ ಒತ್ತಡ ಅಥವಾ ಥ್ರಿಪ್ಸ್/ಮೈಟ್ (ಎಲೆಯ ಕೆಳಭಾಗ ನೋಡಿ)", "moderateRisk", "none"),
+    brownSpots: cropDoctorCondition("Leaf spot or anthracnose (possible; check whether fruit is affected)", "ಎಲೆ ಚುಕ್ಕೆ ಅಥವಾ ಆಂಥ್ರಾಕ್ನೋಸ್ ರೋಗ (ಸಾಧ್ಯತೆ; ಹಣ್ಣು ಬಾಧಿತವೇ ನೋಡಿ)", "moderateRisk", "fungicide"),
+    leafCurling: cropDoctorCondition("Thrips/mites or viral leaf-curl disease (inspect for pests)", "ಥ್ರಿಪ್ಸ್/ಮೈಟ್ ಅಥವಾ ವೈರಸ್ ಎಲೆ ಮುದುಡು ರೋಗ (ಕೀಟ ಪರಿಶೀಲಿಸಿ)", "highRisk", "vector"),
+    wilting: cropDoctorCondition("Bacterial wilt, root disease, or water stress", "ಬ್ಯಾಕ್ಟೀರಿಯಾ ಬಾಡುವಿಕೆ, ಬೇರು ರೋಗ ಅಥವಾ ನೀರಿನ ಒತ್ತಡ", "highRisk", "none"),
+    whitePowder: cropDoctorCondition("Powdery mildew (possible)", "ಪುಡಿ ಶಿಲೀಂಧ್ರ ರೋಗ (ಸಾಧ್ಯತೆ)", "moderateRisk", "fungicide"),
+    borerHoles: cropDoctorCondition("Fruit-borer injury if holes are on fruit; stem holes need confirmation", "ಹಣ್ಣಿನಲ್ಲಿ ರಂಧ್ರವಿದ್ದರೆ ಹಣ್ಣು ಕೊರೆಯುವ ಕೀಟದ ಹಾನಿ ಸಾಧ್ಯ; ಕಾಂಡದ ರಂಧ್ರ ದೃಢಪಡಿಸಿ", "highRisk", "borer"),
+  },
+};
+
+const cropDoctorTreatmentLabels: Record<CropDoctorTreatment, keyof typeof text.en> = {
+  none: "cropDoctorChemicalNone",
+  fungicide: "cropDoctorChemicalFungicide",
+  insecticide: "cropDoctorChemicalInsecticide",
+  vector: "cropDoctorChemicalVector",
+  borer: "cropDoctorChemicalBorer",
+};
+
+function CropDoctor({ t }: PageProps) {
+  const [crop, setCrop] = useState<CropDoctorCrop | "">("");
+  const [symptoms, setSymptoms] = useState<CropDoctorSymptom[]>([]);
+  const selectedLanguage = languageOf(t);
+  const language = selectedLanguage === "hi" ? "en" : selectedLanguage;
+
+  function toggleSymptom(symptom: CropDoctorSymptom) {
+    setSymptoms((current) => current.includes(symptom)
+      ? current.filter((selected) => selected !== symptom)
+      : [...current, symptom]);
+  }
+
+  return <>
+    <PageHeading eyebrow={t("cropDoctorGuide")} title={t("cropDoctorTitle")} description={t("cropDoctorSub")} t={t} badge={t("demo")} />
+    <section className="crop-doctor-intro panel">
+      <label htmlFor="crop-doctor-crop">{t("cropDoctorCrop")}
+        <select id="crop-doctor-crop" value={crop} onChange={(event) => {
+          setCrop(cropDoctorCrops.find((option) => option.id === event.target.value)?.id ?? "");
+          setSymptoms([]);
+        }}>
+          <option value="">{t("cropDoctorChooseCrop")}</option>
+          {cropDoctorCrops.map((option) => <option value={option.id} key={option.id}>{t(option.label)}</option>)}
+        </select>
+      </label>
+      <div className="crop-doctor-symptom-area">
+        <div className="crop-doctor-symptom-heading"><strong>{t("cropDoctorSymptoms")}</strong><span>{t("cropDoctorChooseSymptoms")}</span></div>
+        <div className="crop-doctor-tags">{cropDoctorSymptoms.map((symptom) =>
+          <button type="button" className={`crop-doctor-tag ${symptoms.includes(symptom.id) ? "selected" : ""}`}
+            key={symptom.id} disabled={!crop} aria-pressed={symptoms.includes(symptom.id)}
+            onClick={() => toggleSymptom(symptom.id)}>
+            <span aria-hidden="true">{symptom.icon}</span>{t(symptom.label)}
+          </button>)}</div>
+      </div>
+      {symptoms.length > 0 && <button className="text-link crop-doctor-clear" onClick={() => setSymptoms([])}>{t("cropDoctorClearSymptoms")}</button>}
+    </section>
+
+    {crop && symptoms.length > 0
+      ? <section className="crop-doctor-results" aria-live="polite">
+        {symptoms.map((symptom) => {
+          const diagnosis = cropDoctorConditions[crop][symptom];
+          const advice = cropDoctorAdvice[symptom];
+          return <article className="panel crop-doctor-result" key={`${crop}-${symptom}`}>
+            <div className="crop-doctor-result-heading">
+              <span className="crop-doctor-result-icon">{cropDoctorSymptoms.find((option) => option.id === symptom)?.icon}</span>
+              <div><div className="eyebrow">{t("cropDoctorPossibleIssue")}</div><h2>{diagnosis.name[language]}</h2></div>
+              <span className={`crop-doctor-severity severity-${diagnosis.severity}`}><small>{t("cropDoctorSeverity")}</small><strong>{t(diagnosis.severity)}</strong></span>
+            </div>
+            <div className="crop-doctor-advice-grid">
+              <section><h3><span>✿</span>{t("cropDoctorOrganic")}</h3><p>{t(advice.organic)}</p></section>
+              <section><h3><span>⚕</span>{t("cropDoctorChemical")}</h3><p>{t(cropDoctorTreatmentLabels[diagnosis.treatment])}</p></section>
+              <section><h3><span>✓</span>{t("cropDoctorPrevention")}</h3><p>{t(advice.prevention)}</p></section>
+            </div>
+          </article>;
+        })}
+      </section>
+      : <p className="crop-doctor-empty panel">{t("cropDoctorNoSelection")}</p>}
+
+    <aside className="crop-doctor-disclaimer"><span>ⓘ</span><div><strong>{t("cropDoctorDisclaimer")}</strong><p>{t("cropDoctorSafety")}</p></div></aside>
+  </>;
+}
+
 function Advisory({ t, messages, input, setInput, send }: PageProps & { messages: ChatMessage[]; input: string; setInput: (value: string) => void; send: (message?: string) => void }) {
-  const prompts = languageOf(t) === "en" ? ["How can I care for my soil?", "What should I check before sowing?", "How do I find local mandi rates?"] : ["ಮಣ್ಣಿನ ಆರೈಕೆ ಹೇಗೆ ಮಾಡಲಿ?", "ಬಿತ್ತನೆಗೂ ಮುನ್ನ ಏನು ಪರಿಶೀಲಿಸಲಿ?", "ಸ್ಥಳೀಯ ಮಾರುಕಟ್ಟೆ ದರ ಹೇಗೆ ತಿಳಿಯಲಿ?"];
+  const promptLanguage = languageOf(t);
+  const prompts = promptLanguage === "kn"
+    ? ["ಮಣ್ಣಿನ ಆರೈಕೆ ಹೇಗೆ ಮಾಡಲಿ?", "ಬಿತ್ತನೆಗೂ ಮುನ್ನ ಏನು ಪರಿಶೀಲಿಸಲಿ?", "ಸ್ಥಳೀಯ ಮಾರುಕಟ್ಟೆ ದರ ಹೇಗೆ ತಿಳಿಯಲಿ?"]
+    : promptLanguage === "hi"
+      ? ["मिट्टी की देखभाल कैसे करें?", "बुवाई से पहले क्या जाँचें?", "स्थानीय मंडी भाव कैसे देखें?"]
+      : ["How can I care for my soil?", "What should I check before sowing?", "How do I find local mandi rates?"];
   return <>
     <PageHeading eyebrow={t("demoChat")} title={t("advisoryTitle")} description={t("advisorySub")} t={t} />
     <div className="chat-layout">
-      <section className="chat-window panel"><div className="chat-top"><div className="chat-avatar">✳</div><div><strong>KrishiMitra</strong><small><i /> {languageOf(t) === "en" ? "Demo assistant · offline" : "ಡೆಮೋ ಸಹಾಯಕ · ಆಫ್‌ಲೈನ್"}</small></div><span className="demo-badge"><i />{t("demo")}</span></div>
+      <section className="chat-window panel"><div className="chat-top"><div className="chat-avatar">✳</div><div><strong>KrishiMitra</strong><small><i /> {promptLanguage === "kn" ? "ಡೆಮೋ ಸಹಾಯಕ · ಆಫ್‌ಲೈನ್" : promptLanguage === "hi" ? "डेमो सहायक · ऑफ़लाइन" : "Demo assistant · offline"}</small></div><span className="demo-badge"><i />{t("demo")}</span></div>
         <div className="chat-messages"><div className="message mitra-message"><span className="message-avatar">✳</span><p>{t("chatWelcome")}</p></div>{messages.map((message, index) => <div className={`message ${message.from === "farmer" ? "farmer-message" : "mitra-message"}`} key={`${index}-${message.text}`}>{message.from === "mitra" && <span className="message-avatar">✳</span>}<p>{message.text}</p></div>)}</div>
         <div className="chat-prompts"><span>{t("prompts")}</span><div>{prompts.map((prompt) => <button key={prompt} onClick={() => send(prompt)}>{prompt} <b>↗</b></button>)}</div></div>
         <form className="chat-compose" onSubmit={(event: FormEvent) => { event.preventDefault(); send(); }}><input value={input} onChange={(event) => setInput(event.target.value)} placeholder={t("chatPlaceholder")} aria-label={t("chatPlaceholder")} /><button type="submit" disabled={!input.trim()}>{t("send")} <span>↑</span></button></form>
       </section>
-      <aside className="chat-side panel"><span className="side-spark">✳</span><div className="eyebrow">{languageOf(t) === "en" ? "A NOTE FROM US" : "ನಮ್ಮಿಂದ ಒಂದು ಮಾತು"}</div><h2>{languageOf(t) === "en" ? "Good advice grows locally." : "ಉತ್ತಮ ಸಲಹೆ ಸ್ಥಳೀಯವಾಗಿ ಬೆಳೆಯುತ್ತದೆ."}</h2><p>{t("reply")}</p><div className="chat-side-bottom"><span>☘</span>{languageOf(t) === "en" ? "Your local experts are your best guide." : "ಸ್ಥಳೀಯ ತಜ್ಞರೇ ನಿಮ್ಮ ಉತ್ತಮ ಮಾರ್ಗದರ್ಶಕರು."}</div></aside>
+      <aside className="chat-side panel"><span className="side-spark">✳</span><div className="eyebrow">{promptLanguage === "kn" ? "ನಮ್ಮಿಂದ ಒಂದು ಮಾತು" : promptLanguage === "hi" ? "हमारी ओर से एक बात" : "A NOTE FROM US"}</div><h2>{promptLanguage === "kn" ? "ಉತ್ತಮ ಸಲಹೆ ಸ್ಥಳೀಯವಾಗಿ ಬೆಳೆಯುತ್ತದೆ." : promptLanguage === "hi" ? "अच्छी सलाह स्थानीय अनुभव से मिलती है।" : "Good advice grows locally."}</h2><p>{t("reply")}</p><div className="chat-side-bottom"><span>☘</span>{promptLanguage === "kn" ? "ಸ್ಥಳೀಯ ತಜ್ಞರೇ ನಿಮ್ಮ ಉತ್ತಮ ಮಾರ್ಗದರ್ಶಕರು." : promptLanguage === "hi" ? "स्थानीय कृषि विशेषज्ञ आपके सबसे अच्छे मार्गदर्शक हैं।" : "Your local experts are your best guide."}</div></aside>
     </div>
   </>;
 }
@@ -1701,7 +2450,7 @@ function Settings({ t, language, setLanguage, profile, clearProfile, navigate }:
   return <>
     <PageHeading eyebrow={t("settingsTitle")} title={t("settingsTitle")} description={t("settingsSub")} t={t} />
     <div className="settings-layout">
-      <section className="panel settings-card"><div className="settings-icon">文</div><div className="settings-card-main"><h2>{t("language")}</h2><p>{t("chooseLanguage")}</p><div className="language-options"><button className={language === "en" ? "chosen" : ""} onClick={() => setLanguage("en")}><span>EN</span>English {language === "en" && <b>✓</b>}</button><button className={language === "kn" ? "chosen" : ""} onClick={() => setLanguage("kn")}><span>ಕ</span>ಕನ್ನಡ {language === "kn" && <b>✓</b>}</button></div></div></section>
+      <section className="panel settings-card"><div className="settings-icon">文</div><div className="settings-card-main"><h2>{t("language")}</h2><p>{t("chooseLanguage")}</p><div className="language-options"><button className={language === "en" ? "chosen" : ""} onClick={() => setLanguage("en")}><span>EN</span>English {language === "en" && <b>✓</b>}</button><button className={language === "kn" ? "chosen" : ""} onClick={() => setLanguage("kn")}><span>ಕ</span>ಕನ್ನಡ {language === "kn" && <b>✓</b>}</button><button className={language === "hi" ? "chosen" : ""} onClick={() => setLanguage("hi")}><span>हि</span>हिंदी {language === "hi" && <b>✓</b>}</button></div></div></section>
       <section className="panel settings-card"><div className="settings-icon">♙</div><div className="settings-card-main"><h2>{t("profileSection")}</h2><p>{profile ? `${profile.name} · ${profile.village}, ${profile.district}` : t("noProfile")}</p><small className="muted">{t("savedLocally")}</small><div className="settings-actions"><button className="button button-outline" onClick={() => document.getElementById("profile-form")?.scrollIntoView({ behavior: "smooth" })}>{profile ? t("editProfile") : t("completeProfile")} <span>→</span></button>{profile && <button className="danger-link" onClick={clearProfile}>{t("clearProfile")}</button>}</div></div></section>
       <section className="panel about-card"><div className="about-mark">K✳</div><div><h2>{t("about")}</h2><p>{t("aboutCopy")}</p><button className="text-link" onClick={() => navigate("dashboard")}>{t("dashboard")} <span>→</span></button></div></section>
     </div>
@@ -1717,9 +2466,9 @@ function ProfileForm({ t, profile, saveProfile }: PageProps & { profile: FarmerP
   const waterOptions = [{ value: "Canal", label: t("waterCanal") }, { value: "Borewell", label: t("waterBorewell") }, { value: "Rainfed", label: t("waterRainfed") }, { value: "Other", label: t("waterOther") }];
   return <section className="panel profile-form-panel" id="profile-form"><div className="profile-form-heading"><div className="profile-icon">♧</div><div><div className="eyebrow">{t("profileBadge")}</div><h2>{t("profileTitle")}</h2><p>{t("profileSub")}</p></div></div>
     <form className="profile-form" onSubmit={(event: FormEvent) => { event.preventDefault(); saveProfile(form); }}>
-      <label>{t("fullName")} *<input value={form.name} onChange={(event) => update("name", event.target.value)} placeholder={languageOf(t) === "en" ? "e.g. Lakshmi" : "ಉದಾ. ಲಕ್ಷ್ಮಿ"} required /></label>
-      <label>{t("village")} *<input value={form.village} onChange={(event) => update("village", event.target.value)} placeholder={languageOf(t) === "en" ? "Your village" : "ನಿಮ್ಮ ಗ್ರಾಮ"} required /></label>
-      <label>{t("district")} *<input value={form.district} onChange={(event) => update("district", event.target.value)} placeholder={languageOf(t) === "en" ? "Your district" : "ನಿಮ್ಮ ಜಿಲ್ಲೆ"} required /></label>
+      <label>{t("fullName")} *<input value={form.name} onChange={(event) => update("name", event.target.value)} placeholder={languageOf(t) === "kn" ? "ಉದಾ. ಲಕ್ಷ್ಮಿ" : languageOf(t) === "hi" ? "उदा. लक्ष्मी" : "e.g. Lakshmi"} required /></label>
+      <label>{t("village")} *<input value={form.village} onChange={(event) => update("village", event.target.value)} placeholder={languageOf(t) === "kn" ? "ನಿಮ್ಮ ಗ್ರಾಮ" : languageOf(t) === "hi" ? "आपका गाँव" : "Your village"} required /></label>
+      <label>{t("district")} *<input value={form.district} onChange={(event) => update("district", event.target.value)} placeholder={languageOf(t) === "kn" ? "ನಿಮ್ಮ ಜಿಲ್ಲೆ" : languageOf(t) === "hi" ? "आपका जिला" : "Your district"} required /></label>
       <label>{t("land")}<input type="number" min="0" step="0.1" value={form.land} onChange={(event) => update("land", event.target.value)} placeholder="e.g. 2.5" /></label>
       <label>{t("soilChoice")}<select value={form.soil} onChange={(event) => update("soil", event.target.value)}><option value="">{t("chooseOne")}</option>{soilOptions.map((option) => <option value={option.value} key={option.value}>{option.label}</option>)}</select></label>
       <label>{t("irrigation")}<select value={form.irrigation} onChange={(event) => update("irrigation", event.target.value)}><option value="">{t("chooseOne")}</option>{waterOptions.map((option) => <option value={option.value} key={option.value}>{option.label}</option>)}</select></label>

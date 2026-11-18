@@ -1,5 +1,5 @@
 :root {
-  font-family: "DM Sans", "Noto Sans Kannada", "Segoe UI", sans-serif;
+  font-family: "DM Sans", "Noto Sans Kannada", "Noto Sans Devanagari", "Segoe UI", sans-serif;
   color: #23392d;
   background: #f7f7f0;
   font-synthesis: none;
@@ -52,8 +52,8 @@ button:focus-visible, input:focus-visible, select:focus-visible { outline: 3px s
 .offline-pill { color: #65796b; display: inline-flex; align-items: center; gap: 6px; border: 1px solid #e6e9e1; border-radius: 20px; padding: 6px 10px; font-size: 9px; }
 .offline-pill i, .demo-badge i { width: 6px; height: 6px; background: #d29b4d; border-radius: 50%; }
 .language-toggle { display: flex; align-items: center; gap: 2px; padding: 3px; border: 1px solid #e5e9e1; border-radius: 20px; background: #fff; color: #77847a; font-size: 9px; }
-.language-toggle span { padding: 5px 8px; border-radius: 15px; }
-.language-toggle .selected { color: #fff; background: var(--forest); }
+.language-toggle button { padding: 5px 7px; border: 0; border-radius: 15px; color: inherit; background: transparent; font-size: inherit; white-space: nowrap; }
+.language-toggle button.selected { color: #fff; background: var(--forest); }
 .avatar-button { width: 32px; height: 32px; border-radius: 50%; border: 0; background: #e5efdc; color: var(--forest); font-weight: 700; }
 .mobile-brand { display: none; }
 .page-content { width: 100%; max-width: 1200px; margin: 0 auto; padding: 28px 0 36px; flex: 1; }
@@ -138,6 +138,41 @@ h1, h2, p { margin-top: 0; }
 .page-heading .eyebrow { margin-bottom: 8px; }
 .page-heading h1 { margin: 0; color: #284332; font: 700 26px "Manrope", sans-serif; letter-spacing: -.7px; }
 .page-heading p { max-width: 590px; margin: 6px 0 0; color: #829087; font-size: 11px; line-height: 1.5; }
+.irrigation-scheduler { display: grid; gap: 14px; }
+.irrigation-page-heading .demo-badge { flex: 0 0 auto; }
+.irrigation-inputs { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; padding: 18px; }
+.irrigation-inputs label { display: grid; gap: 7px; color: #627267; font-size: 10px; font-weight: 700; }
+.irrigation-inputs select { width: 100%; min-height: 39px; padding: 0 11px; border: 1px solid #e3e8df; border-radius: 8px; outline: none; color: #455e4b; background: #fff; font: 500 11px "DM Sans", sans-serif; }
+.irrigation-inputs select:focus { border-color: #83a47b; box-shadow: 0 0 0 3px #83a47b20; }
+.irrigation-inputs small { color: #89958b; font-size: 9px; font-weight: 400; line-height: 1.5; }
+.irrigation-weather, .irrigation-result { padding: 18px; }
+.irrigation-section-heading, .irrigation-result-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.irrigation-section-heading .eyebrow, .irrigation-result-heading .eyebrow { margin-bottom: 5px; }
+.irrigation-section-heading h2, .irrigation-result-heading h2 { margin: 0; color: #35523d; font: 700 15px "Manrope", sans-serif; }
+.irrigation-weather-facts { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 9px; margin-top: 16px; }
+.irrigation-weather-facts > div { min-width: 0; padding: 11px; border-radius: 9px; background: #f5f7f1; }
+.irrigation-weather-facts span, .irrigation-weather-facts strong { display: block; }
+.irrigation-weather-facts span { margin-bottom: 6px; color: #89968c; font-size: 9px; }
+.irrigation-weather-facts strong { overflow: hidden; color: #425b48; font-size: 11px; text-overflow: ellipsis; white-space: nowrap; }
+.irrigation-empty { margin: 13px 0 0; color: #829087; font-size: 10px; line-height: 1.6; }
+.irrigation-result { background: #fbfcf9; }
+.irrigation-status-icon { width: 35px; height: 35px; flex: 0 0 35px; display: grid; place-items: center; border-radius: 50%; color: #78877b; background: #edf1e9; font-size: 18px; font-weight: 700; }
+.irrigation-status-icon.status-go { color: #47764b; background: #e7f1e4; }
+.irrigation-status-icon.status-warn { color: #a56d38; background: #f8efdf; }
+.irrigation-result-message { margin: 12px 0 0; color: #69786d; font-size: 10px; line-height: 1.65; }
+.irrigation-metrics { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-top: 14px; }
+.irrigation-metrics > div { min-width: 0; padding: 13px; border: 1px solid #e9eee5; border-radius: 9px; background: #fff; }
+.irrigation-metrics span, .irrigation-metrics strong, .irrigation-metrics small { display: block; }
+.irrigation-metrics span { margin-bottom: 7px; color: #89968c; font-size: 9px; }
+.irrigation-metrics strong { color: #35523d; font: 700 15px "Manrope", sans-serif; line-height: 1.45; }
+.irrigation-metrics small { margin-top: 5px; color: #849087; font-size: 9px; }
+.irrigation-soil-note, .irrigation-crop-note { margin-top: 12px; padding: 11px 12px; border-radius: 8px; color: #68796d; background: #f1f5ec; font-size: 9px; line-height: 1.6; }
+.irrigation-soil-note strong { color: #49624e; font-size: 10px; }
+.irrigation-soil-note p { margin: 4px 0 0; }
+.irrigation-crop-note { background: #f8f2e5; }
+.irrigation-disclaimer { display: flex; align-items: flex-start; gap: 9px; padding: 12px 14px; border: 1px solid #ece8d7; border-radius: 9px; color: #7d7868; background: #fbf9f1; }
+.irrigation-disclaimer > span { flex: 0 0 auto; color: #a48a50; font-size: 14px; }
+.irrigation-disclaimer p { margin: 0; font-size: 9px; line-height: 1.65; }
 .weather-hero { position: relative; min-height: 273px; overflow: hidden; display: grid; grid-template-columns: 1fr 1fr; border-radius: 14px; background: #e9f0e2; }
 .weather-hero-copy { z-index: 2; padding: 23px 27px; }
 .weather-location { color: #728271; font-size: 10px; }
@@ -256,6 +291,7 @@ h1, h2, p { margin-top: 0; }
 .forecast-rain { width: 100%; display: flex; justify-content: space-between; gap: 4px; padding-top: 7px; border-top: 1px solid #ebefe8; color: #89978b; font-size: 7px; }
 .farming-advisory { margin-top: 14px; padding: 16px 18px; background: #f3f5eb; border-color: #e8edde; }
 .advisory-heading { display: flex; align-items: center; gap: 10px; }
+.advisory-heading .speech-control { margin-left: auto; }
 .advisory-heading > span { color: #79956e; font-size: 20px; }
 .advisory-heading .eyebrow { font-size: 7px; }
 .advisory-heading h2 { margin: 4px 0 0; color: #435a43; font: 700 13px "Manrope", sans-serif; }
@@ -413,6 +449,105 @@ td:first-child { color: #455b49; font-weight: 600; }
 .crop-facts span > * { display: block; }.crop-facts small { color: #9ba49b; font-size: 8px; }.crop-facts strong { margin-top: 4px; color: #536a56; font-size: 9px; }
 .crop-content .button { width: 100%; margin-top: 4px; text-align: center; }
 .crop-disclaimer { display: flex; gap: 8px; margin-top: 14px; color: #988960; font-size: 9px; line-height: 1.5; }.crop-disclaimer span { color: #ba9c59; }
+.rotation-planner { display: grid; gap: 14px; }
+.rotation-page-heading .demo-badge { flex: 0 0 auto; max-width: 220px; white-space: normal; text-align: center; }
+.rotation-inputs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 13px; padding: 17px; }
+.rotation-inputs label { display: grid; gap: 7px; color: #607065; font-size: 10px; font-weight: 700; }
+.rotation-inputs select { width: 100%; min-height: 39px; padding: 0 10px; border: 1px solid #e5e9e1; border-radius: 7px; color: #4c6251; background: #fff; font-size: 10px; }
+.rotation-section-heading h2 { margin: 0; color: #35523d; font: 700 15px "Manrope", sans-serif; }
+.rotation-section-heading p { max-width: 760px; margin: 5px 0 0; color: #849087; font-size: 9px; line-height: 1.6; }
+.rotation-crop-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-top: 11px; }
+.rotation-crop-card { min-width: 0; padding: 15px; }
+.rotation-crop-card-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.rotation-rank { width: 25px; height: 25px; display: grid; place-items: center; border-radius: 8px; color: #47764b; background: #eaf2e5; font: 700 11px "Manrope", sans-serif; }
+.rotation-family { padding: 5px 8px; border-radius: 15px; color: #65796b; background: #f0f3ed; font-size: 8px; font-weight: 700; }
+.rotation-family.family-legume { color: #5b7a4c; background: #edf4e5; }
+.rotation-family.family-cereal { color: #97733c; background: #f8f2e5; }
+.rotation-family.family-oilseed { color: #647d76; background: #eaf1ef; }
+.rotation-crop-card h3 { margin: 12px 0 7px; color: #35523d; font: 700 14px "Manrope", sans-serif; }
+.rotation-crop-card > p { min-height: 82px; margin: 0; color: #728075; font-size: 9px; line-height: 1.65; }
+.rotation-soil-fit { display: grid; gap: 4px; margin-top: 12px; padding: 9px; border-radius: 8px; background: #f4f7f0; }
+.rotation-soil-fit strong { color: #53744f; font-size: 8px; }
+.rotation-soil-fit span { color: #849087; font-size: 8px; line-height: 1.5; }
+.rotation-soil-fit.fit-check { background: #faf5ea; }
+.rotation-soil-fit.fit-check strong { color: #9a773d; }
+.rotation-empty { margin: 0; padding: 16px; color: #829087; font-size: 10px; line-height: 1.6; }
+.rotation-companions { padding: 17px; }
+.rotation-companion-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-top: 13px; }
+.rotation-companion-grid article { display: flex; align-items: flex-start; gap: 9px; min-width: 0; padding: 11px; border-radius: 9px; background: #f5f7f1; }
+.rotation-companion-grid article > span { flex: 0 0 auto; color: #6d8b63; font-size: 17px; }
+.rotation-companion-grid h3 { margin: 0; color: #465e4a; font-size: 10px; }
+.rotation-companion-grid p { margin: 5px 0 0; color: #849087; font-size: 8px; line-height: 1.55; }
+.rotation-disclaimer { display: flex; align-items: flex-start; gap: 9px; padding: 12px 14px; border: 1px solid #ece8d7; border-radius: 9px; color: #7d7868; background: #fbf9f1; }
+.rotation-disclaimer > span { flex: 0 0 auto; color: #a48a50; font-size: 14px; }
+.rotation-disclaimer strong { color: #716b57; font-size: 9px; }
+.rotation-disclaimer p { margin: 5px 0 0; font-size: 8px; line-height: 1.6; }
+.crop-doctor-intro { display: grid; gap: 17px; padding: 18px; background: #f2f5ed; }
+.crop-doctor-intro > label { display: grid; gap: 7px; color: #687968; font-size: 10px; font-weight: 700; }
+.crop-doctor-intro select { width: min(100%, 360px); height: 39px; padding: 0 11px; border: 1px solid #dfe7d9; border-radius: 8px; color: #405b45; background: #fff; font-size: 11px; }
+.crop-doctor-symptom-area { display: grid; gap: 10px; }
+.crop-doctor-symptom-heading strong, .crop-doctor-symptom-heading span { display: block; }
+.crop-doctor-symptom-heading strong { color: #4b624e; font-size: 10px; }
+.crop-doctor-symptom-heading span { margin-top: 4px; color: #879287; font-size: 9px; }
+.crop-doctor-tags { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.crop-doctor-tag { min-height: 43px; display: flex; align-items: center; gap: 8px; padding: 8px 10px; border: 1px solid #e1e8dc; border-radius: 9px; color: #647567; background: #fff; font-size: 9px; text-align: left; transition: background .15s, border-color .15s, color .15s; }
+.crop-doctor-tag > span { flex: 0 0 auto; color: #73916d; font-size: 15px; }
+.crop-doctor-tag:hover:not(:disabled) { border-color: #b6c9ae; background: #f9fbf7; }
+.crop-doctor-tag.selected { border-color: #6f986b; color: #315a3b; background: #e8f1e3; box-shadow: inset 0 0 0 1px #6f986b; }
+.crop-doctor-tag:disabled { cursor: not-allowed; opacity: .53; }
+.crop-doctor-clear { justify-self: start; margin: -7px 0 0; }
+.crop-doctor-results { display: grid; gap: 12px; margin-top: 14px; }
+.crop-doctor-result { min-width: 0; padding: 17px; }
+.crop-doctor-result-heading { display: flex; align-items: center; gap: 11px; }
+.crop-doctor-result-icon { display: grid; place-items: center; width: 38px; height: 38px; flex: 0 0 38px; border-radius: 11px; color: #698562; background: #eaf1e5; font-size: 19px; }
+.crop-doctor-result-heading > div { min-width: 0; flex: 1; }
+.crop-doctor-result-heading .eyebrow { font-size: 7px; }
+.crop-doctor-result-heading h2 { margin: 4px 0 0; color: #344d39; font: 700 14px "Manrope", sans-serif; line-height: 1.45; }
+.crop-doctor-severity { display: grid; gap: 3px; flex: 0 0 auto; min-width: 78px; padding: 7px 9px; border-radius: 8px; color: #64825e; background: #edf4e9; text-align: center; }
+.crop-doctor-severity small { font-size: 6px; }
+.crop-doctor-severity strong { font-size: 9px; }
+.crop-doctor-severity.severity-moderateRisk { color: #98733e; background: #f7f0df; }
+.crop-doctor-severity.severity-highRisk { color: #a45e49; background: #f7e9e3; }
+.crop-doctor-advice-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 9px; margin-top: 14px; }
+.crop-doctor-advice-grid > section { min-width: 0; padding: 11px; border-radius: 9px; background: #f8f9f5; }
+.crop-doctor-advice-grid > section:nth-child(2) { background: #fbf7ed; }
+.crop-doctor-advice-grid h3 { display: flex; align-items: center; gap: 6px; margin: 0; color: #566a57; font-size: 9px; line-height: 1.45; }
+.crop-doctor-advice-grid h3 span { color: #749169; font-size: 13px; }
+.crop-doctor-advice-grid > section:nth-child(2) h3 { color: #836d45; }
+.crop-doctor-advice-grid > section:nth-child(2) h3 span { color: #a1844e; }
+.crop-doctor-advice-grid p { margin: 7px 0 0; color: #7f8a80; font-size: 8px; line-height: 1.55; }
+.crop-doctor-empty { margin: 14px 0 0; padding: 16px; color: #7e8a7f; background: #fafbf8; font-size: 10px; line-height: 1.5; }
+.crop-doctor-disclaimer { display: flex; align-items: flex-start; gap: 9px; padding: 12px 14px; margin-top: 14px; border-radius: 9px; color: #82744e; background: #f8f3e7; }
+.crop-doctor-disclaimer > span { flex: 0 0 auto; color: #b49353; }
+.crop-doctor-disclaimer strong { display: block; font-size: 8px; line-height: 1.55; font-weight: 600; }
+.crop-doctor-disclaimer p { margin: 6px 0 0; color: #918367; font-size: 8px; line-height: 1.5; }
+.schemes-filters { padding: 17px; margin-bottom: 14px; background: #f2f5ed; }
+.schemes-filters-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.schemes-filters-heading h2 { margin: 0; color: #344d39; font: 700 14px "Manrope", sans-serif; }
+.schemes-filters-heading > span { color: #738373; font-size: 8px; }
+.schemes-filter-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 11px; margin-top: 13px; }
+.schemes-filter-grid label { display: grid; gap: 6px; min-width: 0; color: #718071; font-size: 8px; font-weight: 600; }
+.schemes-filter-grid select { width: 100%; min-width: 0; height: 37px; padding: 0 9px; border: 1px solid #dfe7d9; border-radius: 7px; color: #435b47; background: #fff; font-size: 9px; }
+.schemes-filter-note { margin: 10px 0 0; color: #909b91; font-size: 7px; line-height: 1.5; }
+.schemes-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 13px; align-items: stretch; }
+.scheme-card { min-width: 0; display: flex; flex-direction: column; padding: 16px; }
+.scheme-card-meta { display: flex; align-items: center; justify-content: space-between; gap: 7px; }
+.scheme-region, .scheme-need { max-width: 60%; padding: 5px 7px; border-radius: 20px; font-size: 7px; font-weight: 700; line-height: 1.3; }
+.scheme-region.india { color: #53744f; background: #eaf1e5; }
+.scheme-region.karnataka { color: #97733e; background: #f7f0df; }
+.scheme-need { overflow: hidden; color: #6d7f70; background: #f1f3ee; text-overflow: ellipsis; white-space: nowrap; }
+.scheme-card h2 { margin: 11px 0 0; color: #344d39; font: 700 14px "Manrope", sans-serif; line-height: 1.4; }
+.scheme-summary { margin: 6px 0 0; color: #7f8b80; font-size: 8px; line-height: 1.55; }
+.scheme-benefit { padding: 10px; margin-top: 11px; border-radius: 8px; background: #f0f5eb; }
+.scheme-benefit > strong, .scheme-detail h3 { display: block; margin: 0; color: #556b55; font-size: 8px; font-weight: 700; }
+.scheme-benefit p, .scheme-detail p { margin: 5px 0 0; color: #718071; font-size: 8px; line-height: 1.55; }
+.scheme-detail { margin-top: 10px; }
+.scheme-detail ul { display: flex; flex-wrap: wrap; gap: 5px; margin: 7px 0 0; padding: 0; list-style: none; }
+.scheme-detail li { padding: 4px 6px; border: 1px solid #e8ede4; border-radius: 5px; color: #718071; background: #fff; font-size: 7px; }
+.scheme-detail small { display: block; margin-top: 5px; color: #989f97; font-size: 7px; line-height: 1.45; }
+.scheme-link { width: 100%; display: flex; align-items: center; justify-content: center; gap: 5px; margin-top: auto; padding: 8px; text-align: center; text-decoration: none; font-size: 8px; }
+.scheme-link span { padding-left: 3px; }
+.schemes-empty { padding: 17px; color: #7e8a7f; font-size: 10px; line-height: 1.5; }
 
 .chat-layout { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(205px, .75fr); gap: 15px; align-items: stretch; }
 .chat-window { min-height: 475px; display: flex; flex-direction: column; overflow: hidden; }
@@ -444,6 +579,12 @@ td:first-child { color: #455b49; font-weight: 600; }
 .profit-input-panel, .profit-results-panel { min-width: 0; padding: 18px; }
 .profit-input-panel .panel-heading h2, .profit-results-panel .panel-heading h2 { font-size: 14px; }
 .profit-result-icon { display: grid; place-items: center; width: 34px; height: 34px; border-radius: 10px; color: #5e8059; background: #eaf1e5; font-size: 17px; }
+.profit-results-actions, .farm-alert-actions, .farm-finance-actions { display: flex; align-items: center; gap: 8px; }
+.speech-control { display: flex; align-items: center; gap: 6px; }
+.speech-button { display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 31px; padding: 0 9px; border: 1px solid #dfe8da; border-radius: 7px; color: #47764b; background: #f7faf4; font-size: 8px; font-weight: 700; white-space: nowrap; }
+.speech-button:hover:not(:disabled) { background: #edf4e9; }
+.speech-button:disabled { cursor: not-allowed; opacity: .58; }
+.speech-control small { max-width: 180px; color: #879287; font-size: 8px; line-height: 1.4; }
 .profit-input-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 11px; margin-top: 15px; }
 .profit-input-grid label { min-width: 0; display: grid; align-content: start; gap: 6px; color: #607065; font-size: 9px; font-weight: 600; line-height: 1.4; }
 .profit-input-grid input, .profit-input-grid select { width: 100%; min-width: 0; min-height: 38px; padding: 0 10px; border: 1px solid #e5e9e1; border-radius: 7px; color: #4c6251; background: #fff; font-size: 10px; }
@@ -567,7 +708,7 @@ td:first-child { color: #455b49; font-weight: 600; }
 @media (max-width: 760px) {
   .sidebar { display: none; }.main-area { width: 100%; margin-left: 0; padding: 0 17px 69px; }
   .topbar { height: 60px; flex-basis: 60px; }.mobile-brand { display: flex; align-items: center; gap: 8px; color: #31543a; font: 800 13px "Manrope", sans-serif; }.mobile-brand .brand-mark { width: 30px; height: 30px; border-radius: 10px; font-size: 18px; }.mobile-brand .brand-mark span { font-size: 9px; }
-  .breadcrumb { display: none; }.top-actions { gap: 8px; }.offline-pill { padding: 5px 7px; font-size: 8px; }.language-toggle { font-size: 8px; }.language-toggle span { padding: 4px 6px; }.avatar-button { width: 29px; height: 29px; }
+  .breadcrumb { display: none; }.top-actions { gap: 5px; }.offline-pill { display: none; }.language-toggle { gap: 1px; font-size: 7px; }.language-toggle button { padding: 4px 5px; }.avatar-button { width: 29px; height: 29px; }
   .page-content { padding: 19px 0 22px; }.page-footer { padding-bottom: 8px; font-size: 8px; }.page-footer span:last-child { max-width: 67%; text-align: right; }
   .welcome-row { min-height: 145px; padding: 18px 17px; margin-bottom: 18px; }.welcome-row h1 { max-width: 64%; font-size: 21px; line-height: 1.28; }.welcome-row p { max-width: 60%; font-size: 9px; line-height: 1.5; }.welcome-art { min-width: 150px; width: 40%; }.art-sun { width: 42px; height: 42px; top: 20px; }.art-hill { width: 170px; }.hill-two { width: 155px; right: 27px; }.art-leaf { right: 24%; font-size: 27px; }
   .section-title { align-items: center; }.section-title h2 { font-size: 13px; }.section-title p { max-width: 230px; line-height: 1.4; }
@@ -586,9 +727,14 @@ td:first-child { color: #455b49; font-weight: 600; }
   .soil-summary { padding: 14px; gap: 11px; }.soil-emblem { width: 46px; height: 46px; flex-basis: 46px; font-size: 28px; }.soil-summary-main h2 { font-size: 14px; }.soil-summary .demo-badge { font-size: 7px; }.soil-metrics { grid-template-columns: repeat(2, 1fr); gap: 9px; }.soil-metric { min-height: 111px; padding: 13px 12px; }.soil-metric:last-child { grid-column: span 2; min-height: 102px; }.soil-metric > strong { margin: 9px 0; font-size: 16px; }
   .crop-grid { gap: 9px; }.crop-art { height: 84px; }.crop-art > span { font-size: 47px; }.crop-art > small { left: 8px; top: 9px; font-size: 6px; }.crop-content { padding: 11px 10px; }.crop-content h2 { font-size: 13px; }.crop-content > p { min-height: 55px; font-size: 8px; }.crop-facts { grid-template-columns: 1fr; gap: 7px; }.crop-facts strong { font-size: 8px; }.crop-content .button { min-height: 34px; padding: 0 5px; font-size: 8px; }
   .chat-layout { grid-template-columns: 1fr; }.chat-window { min-height: 420px; }.chat-side { min-height: 210px; padding: 17px; }.side-spark { margin-bottom: 12px; }.chat-side-bottom { padding: 11px 17px; }
-  .settings-card { padding: 14px; gap: 10px; }.settings-icon { width: 32px; height: 32px; flex-basis: 32px; }.settings-card h2, .about-card h2 { font-size: 12px; }.language-options button { min-width: 103px; }.about-card { padding: 14px; }
+  .settings-card { padding: 14px; gap: 10px; }.settings-icon { width: 32px; height: 32px; flex-basis: 32px; }.settings-card h2, .about-card h2 { font-size: 12px; }.language-options { flex-wrap: wrap; }.language-options button { min-width: 90px; flex: 1; }.about-card { padding: 14px; }
   .profit-layout { grid-template-columns: 1fr; gap: 10px; }.profit-input-panel, .profit-results-panel { padding: 14px; }.profit-input-grid { gap: 9px; }.profit-metric > strong { font-size: 14px; }
   .smart-farm-context { grid-template-columns: 1fr; gap: 10px; padding: 13px; }.smart-farm-grid { grid-template-columns: 1fr; gap: 10px; }.smart-farm-grid > .panel { padding: 13px; }.smart-farm-panel-heading h2 { font-size: 12px; }.farm-alert-list li { grid-template-columns: 22px minmax(0, 1fr) auto; gap: 6px; }.smart-farm-panel-heading > .demo-badge { max-width: 52%; font-size: 6px; }
+  .crop-doctor-intro { gap: 14px; padding: 13px; }.crop-doctor-tags { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; }.crop-doctor-tag { min-height: 41px; padding: 7px; font-size: 8px; }.crop-doctor-result { padding: 12px; }.crop-doctor-result-heading { gap: 7px; }.crop-doctor-result-heading h2 { font-size: 12px; }.crop-doctor-severity { min-width: 65px; padding: 6px; }.crop-doctor-advice-grid { grid-template-columns: 1fr; gap: 7px; }.crop-doctor-advice-grid > section { padding: 9px; }.crop-doctor-disclaimer { padding: 10px; }
+  .irrigation-page-heading .demo-badge { max-width: 44%; padding: 6px 7px; font-size: 7px; white-space: normal; text-align: center; }.irrigation-inputs, .irrigation-weather, .irrigation-result { padding: 13px; }.irrigation-inputs { grid-template-columns: 1fr; gap: 11px; }.irrigation-inputs label { font-size: 9px; }.irrigation-inputs select { min-height: 38px; font-size: 10px; }.irrigation-weather-facts { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 7px; margin-top: 12px; }.irrigation-weather-facts > div { padding: 9px; }.irrigation-weather-facts span { font-size: 8px; }.irrigation-weather-facts strong { font-size: 10px; }.irrigation-section-heading h2, .irrigation-result-heading h2 { font-size: 12px; }.irrigation-metrics { grid-template-columns: 1fr; gap: 7px; }.irrigation-metrics > div { padding: 10px; }.irrigation-metrics strong { font-size: 13px; }.irrigation-result-message, .irrigation-disclaimer p { font-size: 8px; }.irrigation-disclaimer { padding: 10px; }
+  .advisory-heading { flex-wrap: wrap; }.advisory-heading .speech-control { margin-left: auto; }.speech-control { flex-wrap: wrap; justify-content: flex-end; }.speech-button { min-height: 29px; padding: 0 7px; font-size: 7px; }.speech-control small { max-width: 125px; }.farm-alert-actions, .farm-finance-actions, .profit-results-actions { flex-wrap: wrap; justify-content: flex-end; gap: 5px; }
+  .schemes-grid { grid-template-columns: 1fr; gap: 9px; }.schemes-filters { padding: 13px; }.schemes-filter-grid { grid-template-columns: 1fr; gap: 8px; }.scheme-card { padding: 13px; }.schemes-page-heading .demo-badge { white-space: normal; text-align: center; }
+  .rotation-inputs { grid-template-columns: 1fr; gap: 10px; padding: 13px; }.rotation-crop-grid, .rotation-companion-grid { grid-template-columns: 1fr; gap: 8px; }.rotation-crop-card, .rotation-companions { padding: 13px; }.rotation-crop-card > p { min-height: 0; }.rotation-section-heading h2 { font-size: 12px; }.rotation-disclaimer { padding: 10px; }
   .profile-form-panel { padding: 14px; }.profile-form { gap: 11px; }.profile-form label { font-size: 8px; }.profile-form input, .profile-form select { font-size: 9px; }.profile-form-heading h2 { font-size: 13px; }.form-footer { align-items: start; flex-direction: column; }.form-footer .button { align-self: stretch; }
   .mobile-nav { position: fixed; z-index: 40; display: grid; grid-template-columns: repeat(5, 1fr); height: 59px; left: 0; right: 0; bottom: 0; padding: 4px 5px max(4px, env(safe-area-inset-bottom)); border-top: 1px solid #e5e9e0; background: #fff; box-shadow: 0 -4px 15px #2138220a; }
   .mobile-nav > button { display: grid; align-content: center; justify-items: center; gap: 2px; border: 0; border-radius: 9px; color: #859187; background: transparent; }.mobile-nav > button > span { height: 19px; font-size: 19px; line-height: 1; }.mobile-nav > button small { max-width: 100%; overflow: hidden; font-size: 7px; white-space: nowrap; text-overflow: ellipsis; }.mobile-nav > button.selected { color: #47764b; background: #f1f5ec; }.mobile-more-menu { position: absolute; right: 8px; bottom: 66px; width: min(220px, calc(100vw - 24px)); padding: 7px; border: 1px solid #e7ebe3; border-radius: 12px; background: #fff; box-shadow: 0 8px 30px #1f38201c; }.mobile-more-menu button { width: 100%; display: flex; align-items: center; gap: 10px; padding: 11px; border: 0; border-radius: 8px; color: #536a56; background: #fff; text-align: left; font-size: 11px; }.mobile-more-menu button:hover { background: #f3f6ef; }
@@ -596,7 +742,9 @@ td:first-child { color: #455b49; font-weight: 600; }
 @media (max-width: 380px) {
   .main-area { padding-right: 12px; padding-left: 12px; }.mobile-brand { font-size: 11px; }.offline-pill { display: none; }
   .overview-card { padding-right: 9px; padding-left: 9px; }.market-price { font-size: 19px; }.mini-stats { font-size: 7px; }.weather-facts div { display: block; padding-left: 6px; }.weather-facts div > span { display: none; }.weather-facts small { display: block; line-height: 1.4; }.weather-facts strong { display: block; }
-  .soil-summary .demo-badge { padding: 5px; letter-spacing: 0; }.crop-grid { grid-template-columns: 1fr; }.crop-art { height: 94px; }.crop-content > p { min-height: 0; }.crop-facts { grid-template-columns: 1fr 1fr; }.crop-content .button { font-size: 9px; }.profit-input-grid { grid-template-columns: 1fr; }.profit-crop-field { grid-column: auto; }.profit-metrics { grid-template-columns: 1fr 1fr; }.profit-metric:last-child { grid-column: 1 / -1; }.profile-form { grid-template-columns: 1fr; }.form-footer { grid-column: 1; }
+  .soil-summary .demo-badge { padding: 5px; letter-spacing: 0; }.crop-grid { grid-template-columns: 1fr; }.crop-art { height: 94px; }.crop-content > p { min-height: 0; }.crop-facts { grid-template-columns: 1fr 1fr; }.crop-content .button { font-size: 9px; }.profit-input-grid { grid-template-columns: 1fr; }.profit-crop-field { grid-column: auto; }.profit-metrics { grid-template-columns: 1fr 1fr; }.profit-metric:last-child { grid-column: 1 / -1; }.profile-form { grid-template-columns: 1fr; }.form-footer { grid-column: 1; }.language-options button { min-width: 84px; padding: 8px 7px; font-size: 8px; }
+  .crop-doctor-tags { grid-template-columns: 1fr; }.crop-doctor-result-heading { align-items: flex-start; flex-wrap: wrap; }.crop-doctor-result-heading > div { min-width: calc(100% - 55px); }.crop-doctor-severity { margin-left: 45px; }
+  .schemes-filters-heading { align-items: flex-start; }.scheme-card-meta { align-items: flex-start; flex-direction: column; }.scheme-region, .scheme-need { max-width: 100%; }
   .weather-search-row .button { padding: 0 7px; }.weather-search-row .spinner { display: none; }.weather-live-location { max-width: 72%; }.weather-live-facts { grid-template-columns: repeat(2, 1fr); row-gap: 9px; }.weather-live-facts > div:nth-child(3) { border-left: 0; padding-left: 0; }.weather-live-hero { min-height: 320px; }.seven-day-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }.forecast-rain { font-size: 6px; }
 }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; } }
