@@ -38,9 +38,14 @@ type ProfitInputs = {
 };
 type MandiSnapshot = { commodity: string; records: MandiRecord[]; fetchedAt: string };
 type ChatMessage = { from: "farmer" | "mitra"; text: string };
+type CachedWeather = { locationId: string; forecast: WeatherForecast; timestamp: string };
+type CachedMandiPrices = { records: MandiRecord[]; timestamp: string };
 
 const PROFILE_KEY = "krishimitra-farmer-profile";
 const WEATHER_LOCATION_KEY = "krishimitra-weather-location";
+const WEATHER_CACHE_KEY = "krishimitra-weather-cache";
+const MANDI_CACHE_KEY = "krishimitra-mandi-cache";
+const CROP_DOCTOR_CACHE_KEY = "krishimitra-crop-doctor-cache";
 const initialProfitInputs: ProfitInputs = {
   crop: "",
   area: "",
@@ -235,8 +240,13 @@ const text = {
     waterRainfed: "Rainfed", waterOther: "Other", clearConfirm: "Clear the farmer profile saved on this device?",
     chartLabel: "Sample rainfall trend", marketItems: "Showing fictional sample prices", noProfile: "No profile saved yet",
     close: "Close", menu: "Open menu", more: "More", prototype: "Prototype", percent: "percent", acres: "acres",
+    liveDataStatus: "🟢 Live Data", offlineDataStatus: "🟡 Offline Mode • Cached", cachedData: "CACHED",
+    shareWhatsapp: "Share on WhatsApp",
     listenToSummary: "Listen / Read Aloud", stopReading: "Stop reading", speechUnavailable: "Speech is not available in this browser.", speechError: "Speech playback failed. Check browser audio settings and try again.",
     profitSpeechSummary: "{crop}. Total expected yield: {yield} quintals. Revenue: {revenue}. Expenses: {expenses}. Estimated profit: {profit}. Profit per acre: {perAcre}. This is an estimate, not a guaranteed return.",
+    profitShareMessage: "KrishiMitra farmer profit estimate\nCrop: {crop}\nExpected yield: {yield} quintals\nExpected revenue: {revenue}\nTotal expenses: {expenses}\nEstimated profit: {profit}\nProfit per acre: {perAcre}\nThis is an estimate based on entered values, not a guaranteed return.",
+    mandiShareMessage: "KrishiMitra mandi summary\nCrop: {crop}\nLatest reported modal price: {current}\nPrevious reported modal price: {previous}\nPrice change: {change}\nRecent trend: {trend}\nGuidance: {recommendation}\nPast reported prices are not a forecast or guarantee.",
+    cropDoctorShareMessage: "KrishiMitra crop screening\nCrop: {crop}\nObserved symptom: {symptom}\nPossible issue: {diagnosis}\nInitial severity: {severity}\nImmediate action: {organic}\nChemical option: {chemical}\nPrevention: {prevention}\nThis is a screening possibility, not a confirmed diagnosis. Confirm locally before treatment.",
     turDal: "Tur dal", sampleMarket: "Mysuru sample market", nearNeutral: "Near neutral",
     sampleLevel: "Sample level", medium: "Medium", good: "Good", dayUnit: "days",
     waterLowMedium: "Low–medium", waterLow: "Low", waterMedium: "Medium", waterHigh: "High",
@@ -451,8 +461,13 @@ const text = {
     waterRainfed: "ಮಳೆ ಆಧಾರಿತ", waterOther: "ಇತರೆ", clearConfirm: "ಈ ಸಾಧನದಲ್ಲಿ ಉಳಿಸಿದ ರೈತರ ಪ್ರೊಫೈಲ್ ಅಳಿಸಬೇಕೆ?",
     chartLabel: "ಮಾದರಿ ಮಳೆಯ ಪ್ರವೃತ್ತಿ", marketItems: "ಕಾಲ್ಪನಿಕ ಮಾದರಿ ದರಗಳು", noProfile: "ಇನ್ನೂ ಪ್ರೊಫೈಲ್ ಉಳಿಸಿಲ್ಲ",
     close: "ಮುಚ್ಚಿ", menu: "ಮೆನು ತೆರೆಯಿರಿ", more: "ಇನ್ನಷ್ಟು", prototype: "ಮಾದರಿ", percent: "ಶೇಕಡಾ", acres: "ಎಕರೆ",
+    liveDataStatus: "🟢 Live Data", offlineDataStatus: "🟡 Offline Mode • Cached", cachedData: "ಸಂಗ್ರಹಿತ",
+    shareWhatsapp: "WhatsApp ನಲ್ಲಿ ಹಂಚಿಕೊಳ್ಳಿ",
     listenToSummary: "ಕೇಳಿ / ಓದಿ", stopReading: "ಓದುವುದನ್ನು ನಿಲ್ಲಿಸಿ", speechUnavailable: "ಈ ಬ್ರೌಸರ್‌ನಲ್ಲಿ ಧ್ವನಿ ಸೌಲಭ್ಯ ಲಭ್ಯವಿಲ್ಲ.", speechError: "ಧ್ವನಿ ಪ್ಲೇ ಆಗಲಿಲ್ಲ. ಬ್ರೌಸರ್ ಆಡಿಯೊ ಸೆಟ್ಟಿಂಗ್ ಪರಿಶೀಲಿಸಿ ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ.",
     profitSpeechSummary: "{crop}. ಒಟ್ಟು ನಿರೀಕ್ಷಿತ ಇಳುವರಿ: {yield} ಕ್ವಿಂಟಾಲ್. ಆದಾಯ: {revenue}. ವೆಚ್ಚ: {expenses}. ಅಂದಾಜು ಲಾಭ: {profit}. ಪ್ರತಿ ಎಕರೆಗೆ ಲಾಭ: {perAcre}. ಇದು ಅಂದಾಜು ಮಾತ್ರ, ಖಚಿತ ಆದಾಯವಲ್ಲ.",
+    profitShareMessage: "ಕೃಷಿಮಿತ್ರ ರೈತರ ಲಾಭದ ಅಂದಾಜು\nಬೆಳೆ: {crop}\nನಿರೀಕ್ಷಿತ ಇಳುವರಿ: {yield} ಕ್ವಿಂಟಾಲ್\nನಿರೀಕ್ಷಿತ ಆದಾಯ: {revenue}\nಒಟ್ಟು ವೆಚ್ಚ: {expenses}\nಅಂದಾಜು ಲಾಭ: {profit}\nಪ್ರತಿ ಎಕರೆಗೆ ಲಾಭ: {perAcre}\nಇದು ನಮೂದಿಸಿದ ಮೌಲ್ಯಗಳ ಅಂದಾಜು ಮಾತ್ರ; ಖಚಿತ ಆದಾಯವಲ್ಲ.",
+    mandiShareMessage: "ಕೃಷಿಮಿತ್ರ ಮಾರುಕಟ್ಟೆ ಸಾರಾಂಶ\nಬೆಳೆ: {crop}\nಇತ್ತೀಚಿನ ವರದಿಯಾದ ಮಾದರಿ ಬೆಲೆ: {current}\nಹಿಂದಿನ ವರದಿಯಾದ ಮಾದರಿ ಬೆಲೆ: {previous}\nಬೆಲೆ ಬದಲಾವಣೆ: {change}\nಇತ್ತೀಚಿನ ಪ್ರವೃತ್ತಿ: {trend}\nಮಾರ್ಗದರ್ಶನ: {recommendation}\nಹಿಂದಿನ ವರದಿಯಾದ ಬೆಲೆಗಳು ಮುನ್ಸೂಚನೆ ಅಥವಾ ಖಾತರಿಯಲ್ಲ.",
+    cropDoctorShareMessage: "ಕೃಷಿಮಿತ್ರ ಬೆಳೆ ಪರಿಶೀಲನೆ\nಬೆಳೆ: {crop}\nಕಂಡ ಲಕ್ಷಣ: {symptom}\nಸಾಧ್ಯ ಸಮಸ್ಯೆ: {diagnosis}\nಆರಂಭಿಕ ತೀವ್ರತೆ: {severity}\nತಕ್ಷಣದ ಕ್ರಮ: {organic}\nರಾಸಾಯನಿಕ ಆಯ್ಕೆ: {chemical}\nತಡೆಗಟ್ಟುವಿಕೆ: {prevention}\nಇದು ಸಾಧ್ಯತೆಯ ಪರಿಶೀಲನೆ ಮಾತ್ರ, ದೃಢಪಟ್ಟ ರೋಗನಿರ್ಣಯವಲ್ಲ. ಚಿಕಿತ್ಸೆಗೆ ಮೊದಲು ಸ್ಥಳೀಯವಾಗಿ ದೃಢಪಡಿಸಿ.",
     turDal: "ತೊಗರಿ ಬೇಳೆ", sampleMarket: "ಮೈಸೂರು ಮಾದರಿ ಮಾರುಕಟ್ಟೆ", nearNeutral: "ತಟಸ್ಥದ ಹತ್ತಿರ",
     sampleLevel: "ಮಾದರಿ ಮಟ್ಟ", medium: "ಮಧ್ಯಮ", good: "ಉತ್ತಮ", dayUnit: "ದಿನಗಳು",
     waterLowMedium: "ಕಡಿಮೆ–ಮಧ್ಯಮ", waterLow: "ಕಡಿಮೆ", waterMedium: "ಮಧ್ಯಮ", waterHigh: "ಹೆಚ್ಚು",
@@ -540,6 +555,103 @@ function readSavedWeatherLocation(): WeatherLocation | null {
     console.error("Could not read the saved weather location.", error);
     return null;
   }
+}
+
+function validTimestamp(value: unknown): value is string {
+  return typeof value === "string" && Number.isFinite(Date.parse(value));
+}
+
+function isNullableFiniteNumber(value: unknown): value is number | null {
+  return value === null || (typeof value === "number" && Number.isFinite(value));
+}
+
+function isWeatherForecast(value: unknown): value is WeatherForecast {
+  if (!value || typeof value !== "object" || !("current" in value) || !("daily" in value) || !("timezone" in value)) return false;
+  const forecast = value as Record<string, unknown>;
+  const current = forecast.current;
+  if (!current || typeof current !== "object" || !("time" in current)) return false;
+  const currentRecord = current as Record<string, unknown>;
+  if (
+    typeof currentRecord.time !== "string" ||
+    !["temperature", "relativeHumidity", "precipitation", "rain", "weatherCode", "windSpeed"]
+      .every((key) => key in currentRecord && isNullableFiniteNumber(currentRecord[key]))
+  ) return false;
+  return typeof forecast.timezone === "string" &&
+    Array.isArray(forecast.daily) &&
+    forecast.daily.every((day: unknown) => {
+      if (!day || typeof day !== "object") return false;
+      const daily = day as Record<string, unknown>;
+      return typeof daily.date === "string" &&
+        ["weatherCode", "temperatureMax", "temperatureMin", "precipitation", "precipitationProbability"]
+          .every((key) => key in daily && isNullableFiniteNumber(daily[key]));
+    });
+}
+
+function readCachedWeather(locationId: string): CachedWeather | null {
+  try {
+    const saved = localStorage.getItem(WEATHER_CACHE_KEY);
+    if (!saved) return null;
+    const value: unknown = JSON.parse(saved);
+    if (
+      !value || typeof value !== "object" ||
+      !("locationId" in value) || !("forecast" in value) || !("timestamp" in value) ||
+      typeof value.locationId !== "string" || !validTimestamp(value.timestamp) ||
+      !isWeatherForecast(value.forecast)
+    ) throw new Error("Cached weather has an invalid format.");
+    if (value.locationId !== locationId) return null;
+    return { locationId: value.locationId, forecast: value.forecast, timestamp: value.timestamp };
+  } catch (error) {
+    console.error("Could not read cached weather.", error);
+    return null;
+  }
+}
+
+function writeCachedWeather(locationId: string, forecast: WeatherForecast, timestamp: string) {
+  try {
+    localStorage.setItem(WEATHER_CACHE_KEY, JSON.stringify({ locationId, forecast, timestamp }));
+  } catch (error) {
+    console.error("Could not cache weather.", error);
+  }
+}
+
+function isMandiRecord(value: unknown): value is MandiRecord {
+  if (!value || typeof value !== "object") return false;
+  const record = value as Record<string, unknown>;
+  return ["state", "district", "market", "commodity", "arrivalDate"].every((key) => typeof record[key] === "string") &&
+    (typeof record.variety === "string" || record.variety === null) &&
+    ["minPrice", "maxPrice", "modalPrice"].every((key) => isNullableFiniteNumber(record[key]));
+}
+
+function readCachedMandiPrices(): CachedMandiPrices | null {
+  try {
+    const saved = localStorage.getItem(MANDI_CACHE_KEY);
+    if (!saved) return null;
+    const value: unknown = JSON.parse(saved);
+    if (!value || typeof value !== "object" || !("records" in value) || !("timestamp" in value) ||
+      !Array.isArray(value.records) || !value.records.every(isMandiRecord) || !validTimestamp(value.timestamp)) {
+      throw new Error("Cached mandi prices have an invalid format.");
+    }
+    return { records: value.records, timestamp: value.timestamp };
+  } catch (error) {
+    console.error("Could not read cached mandi prices.", error);
+    return null;
+  }
+}
+
+function cacheMandiPrices(records: MandiRecord[]): CachedMandiPrices {
+  const previous = readCachedMandiPrices();
+  const merged = new Map<string, MandiRecord>();
+  for (const record of [...(previous?.records ?? []), ...records]) {
+    const key = [record.state, record.district, record.market, record.commodity, record.variety ?? "", record.arrivalDate].join("|");
+    merged.set(key, record);
+  }
+  const cached = { records: Array.from(merged.values()), timestamp: new Date().toISOString() };
+  try {
+    localStorage.setItem(MANDI_CACHE_KEY, JSON.stringify(cached));
+  } catch (error) {
+    console.error("Could not cache mandi prices.", error);
+  }
+  return cached;
 }
 
 const hindiText: Partial<Record<keyof typeof text.en, string>> = {
@@ -634,15 +746,21 @@ const hindiText: Partial<Record<keyof typeof text.en, string>> = {
   settingsTitle: "सेटिंग्स", settingsSub: "कृषिमित्र को अपनी जरूरत के अनुसार बनाएँ।",
   language: "भाषा", chooseLanguage: "अपनी पसंद की भाषा चुनें",
   prototype: "प्रोटोटाइप", more: "और",
+  liveDataStatus: "🟢 Live Data", offlineDataStatus: "🟡 Offline Mode • Cached", cachedData: "कैश किया हुआ",
+  shareWhatsapp: "WhatsApp पर साझा करें",
   listenToSummary: "सुनें / पढ़कर सुनाएँ", stopReading: "सुनना रोकें",
   speechUnavailable: "इस ब्राउज़र में वाक् सुविधा उपलब्ध नहीं है।",
   speechError: "आवाज़ नहीं चल सकी। ब्राउज़र की ऑडियो सेटिंग जाँचकर फिर कोशिश करें।",
   profitSpeechSummary: "{crop}. कुल अनुमानित उपज: {yield} क्विंटल। आय: {revenue}। खर्च: {expenses}। अनुमानित लाभ: {profit}। प्रति एकड़ लाभ: {perAcre}। यह अनुमान है, निश्चित आय नहीं।",
+  profitShareMessage: "कृषिमित्र किसान लाभ अनुमान\nफसल: {crop}\nअनुमानित उपज: {yield} क्विंटल\nअनुमानित आय: {revenue}\nकुल खर्च: {expenses}\nअनुमानित लाभ: {profit}\nप्रति एकड़ लाभ: {perAcre}\nयह दर्ज मानों पर आधारित अनुमान है, निश्चित आय नहीं।",
+  mandiShareMessage: "कृषिमित्र मंडी सारांश\nफसल: {crop}\nनवीनतम रिपोर्ट किया गया मॉडल भाव: {current}\nपिछला रिपोर्ट किया गया मॉडल भाव: {previous}\nभाव में बदलाव: {change}\nहाल का रुझान: {trend}\nमार्गदर्शन: {recommendation}\nपुराने रिपोर्ट किए गए भाव पूर्वानुमान या गारंटी नहीं हैं।",
+  cropDoctorShareMessage: "कृषिमित्र फसल जाँच\nफसल: {crop}\nदिखा लक्षण: {symptom}\nसंभावित समस्या: {diagnosis}\nप्रारंभिक गंभीरता: {severity}\nतत्काल कदम: {organic}\nरासायनिक विकल्प: {chemical}\nरोकथाम: {prevention}\nयह केवल प्रारंभिक संभावना है, पुष्टि किया गया निदान नहीं। उपचार से पहले स्थानीय पुष्टि लें।",
 };
 
 function App() {
   const [language, setLanguage] = useState<Language>("en");
   const [screen, setScreen] = useState<Screen>("dashboard");
+  const [isOnline, setIsOnline] = useState(() => navigator.onLine);
   const [profile, setProfile] = useState<FarmerProfile | null>(() => {
     try {
       const saved = localStorage.getItem(PROFILE_KEY);
@@ -661,6 +779,7 @@ function App() {
   const [weatherLoading, setWeatherLoading] = useState(false);
   const [weatherError, setWeatherError] = useState("");
   const [weatherUpdatedAt, setWeatherUpdatedAt] = useState<Date | null>(null);
+  const [weatherCacheUsed, setWeatherCacheUsed] = useState(false);
   const [weatherRefresh, setWeatherRefresh] = useState(0);
   const [profitInputs, setProfitInputs] = useState<ProfitInputs>(initialProfitInputs);
   const [mandiSnapshot, setMandiSnapshot] = useState<MandiSnapshot | null>(null);
@@ -669,34 +788,72 @@ function App() {
     : text[language][key];
 
   useEffect(() => {
+    const updateConnection = () => setIsOnline(navigator.onLine);
+    window.addEventListener("online", updateConnection);
+    window.addEventListener("offline", updateConnection);
+    return () => {
+      window.removeEventListener("online", updateConnection);
+      window.removeEventListener("offline", updateConnection);
+    };
+  }, []);
+
+  useEffect(() => {
     if (weatherLocation === null) {
       setWeatherForecast(null);
       setWeatherLoading(false);
       setWeatherError("");
       setWeatherUpdatedAt(null);
+      setWeatherCacheUsed(false);
       return;
     }
 
     const selectedLocation = weatherLocation;
+    const cached = readCachedWeather(selectedLocation.id);
+    if (cached) {
+      setWeatherForecast(cached.forecast);
+      setWeatherUpdatedAt(new Date(cached.timestamp));
+      setWeatherCacheUsed(true);
+    } else {
+      setWeatherForecast(null);
+      setWeatherUpdatedAt(null);
+      setWeatherCacheUsed(false);
+    }
+    if (!isOnline) {
+      setWeatherError(cached ? "" : "network");
+      setWeatherLoading(false);
+      return;
+    }
+
     const controller = new AbortController();
     async function loadWeather() {
       setWeatherLoading(true);
       setWeatherError("");
       try {
         const forecast = await fetchWeatherForecast(selectedLocation, controller.signal);
+        const updatedAt = new Date();
         setWeatherForecast(forecast);
-        setWeatherUpdatedAt(new Date());
+        setWeatherUpdatedAt(updatedAt);
+        setWeatherCacheUsed(false);
+        writeCachedWeather(selectedLocation.id, forecast, updatedAt.toISOString());
       } catch (error) {
         if (controller.signal.aborted) return;
         console.error("Could not fetch Open-Meteo weather.", error);
-        setWeatherError(error instanceof WeatherServiceError ? error.message : "invalid-response");
+        const fallback = readCachedWeather(selectedLocation.id);
+        if (fallback) {
+          setWeatherForecast(fallback.forecast);
+          setWeatherUpdatedAt(new Date(fallback.timestamp));
+          setWeatherCacheUsed(true);
+          setWeatherError("");
+        } else {
+          setWeatherError(error instanceof WeatherServiceError ? error.message : "invalid-response");
+        }
       } finally {
         if (!controller.signal.aborted) setWeatherLoading(false);
       }
     }
     void loadWeather();
     return () => controller.abort();
-  }, [weatherLocation, weatherRefresh]);
+  }, [weatherLocation, weatherRefresh, isOnline]);
 
   function navigate(next: Screen) {
     setScreen(next);
@@ -797,7 +954,9 @@ function App() {
           <div className="mobile-brand"><span className="brand-mark">K<span>✳</span></span><strong>KrishiMitra</strong></div>
           <div className="breadcrumb"><span>{t("yourFarm")}</span><b>/</b>{headerTitle}</div>
           <div className="top-actions">
-            <span className="offline-pill"><i /> {t("prototype")}</span>
+            <span className={`offline-pill ${isOnline ? "connection-online" : "connection-offline"}`} role="status" aria-live="polite">
+              {t(isOnline ? "liveDataStatus" : "offlineDataStatus")}
+            </span>
             <div className="language-toggle" role="group" aria-label={t("chooseLanguage")}>
               <button type="button" className={language === "en" ? "selected" : ""} onClick={() => setLanguage("en")} aria-pressed={language === "en"} aria-label="English">EN</button>
               <button type="button" className={language === "kn" ? "selected" : ""} onClick={() => setLanguage("kn")} aria-pressed={language === "kn"} aria-label="ಕನ್ನಡ">ಕನ್ನಡ</button>
@@ -812,8 +971,8 @@ function App() {
         <div className="page-content">
           {notice && <div className="toast" role="status"><span>✓</span>{notice}<button onClick={() => setNotice("")} aria-label={t("close")}>×</button></div>}
           {screen === "dashboard" && <Dashboard t={t} profile={profile} navigate={navigate} weatherLocation={weatherLocation} weatherForecast={weatherForecast} weatherLoading={weatherLoading} />}
-          {screen === "weather" && <Weather t={t} language={language} location={weatherLocation} forecast={weatherForecast} loading={weatherLoading} error={weatherError} updatedAt={weatherUpdatedAt} onSelectLocation={chooseWeatherLocation} onClearLocation={clearWeatherLocation} onRefresh={() => setWeatherRefresh((count) => count + 1)} />}
-          {screen === "mandi" && <Mandi t={t} onSnapshot={setMandiSnapshot} />}
+          {screen === "weather" && <Weather t={t} language={language} location={weatherLocation} forecast={weatherForecast} loading={weatherLoading} error={weatherError} updatedAt={weatherUpdatedAt} isCached={weatherCacheUsed} onSelectLocation={chooseWeatherLocation} onClearLocation={clearWeatherLocation} onRefresh={() => setWeatherRefresh((count) => count + 1)} />}
+          {screen === "mandi" && <Mandi t={t} isOnline={isOnline} onSnapshot={setMandiSnapshot} />}
           {screen === "profit" && <ProfitCalculator t={t} language={language} form={profitInputs} onChange={updateProfitInput} />}
           {screen === "smartFarm" && <SmartFarm t={t} language={language} profile={profile} location={weatherLocation} forecast={weatherForecast} profitInputs={profitInputs} onProfitInputChange={updateProfitInput} mandiSnapshot={mandiSnapshot} navigate={navigate} />}
           {screen === "irrigation" && <SmartIrrigationScheduler language={language === "kn" ? "kn" : "en"} forecast={weatherForecast} location={weatherLocation} profileSoil={profile?.soil ?? ""} />}
@@ -1084,13 +1243,14 @@ function farmWeatherAlertCopy(alert: FarmWeatherAlert, t: Translate, language: L
   return { title: t(titleKey[alert.kind]), body };
 }
 
-function Weather({ t, language, location, forecast, loading, error, updatedAt, onSelectLocation, onClearLocation, onRefresh }: PageProps & {
+function Weather({ t, language, location, forecast, loading, error, updatedAt, isCached, onSelectLocation, onClearLocation, onRefresh }: PageProps & {
   language: Language;
   location: WeatherLocation | null;
   forecast: WeatherForecast | null;
   loading: boolean;
   error: string;
   updatedAt: Date | null;
+  isCached: boolean;
   onSelectLocation: (location: WeatherLocation) => void;
   onClearLocation: () => void;
   onRefresh: () => void;
@@ -1156,7 +1316,7 @@ function Weather({ t, language, location, forecast, loading, error, updatedAt, o
     {forecast && location && <>
       <section className="weather-live-hero">
         <div className="weather-live-main">
-          <div className="weather-live-location"><span>⌖</span>{location.name}, {location.admin1 ?? location.country}<span className="live-tag"><i />{t("live")}</span></div>
+          <div className="weather-live-location"><span>⌖</span>{location.name}, {location.admin1 ?? location.country}<span className={isCached ? "offline-tag" : "live-tag"}><i />{isCached ? t("cachedData") : t("live")}</span></div>
           <div className="live-temperature">{forecast.current.temperature ?? "—"}<span>°C</span></div>
           <div className="live-condition"><span>{weatherIcon(forecast.current.weatherCode)}</span>{weatherCondition(forecast.current.weatherCode, t)}</div>
           <p>{t("currentConditions")} · {forecast.current.time.replace("T", " ")}</p>
@@ -1172,7 +1332,7 @@ function Weather({ t, language, location, forecast, loading, error, updatedAt, o
       <div className="weather-data-meta"><span>{t("dataSource")}: <a href="https://open-meteo.com/" target="_blank" rel="noreferrer">Open-Meteo</a> · {forecast.timezone}</span><span>{t("lastUpdated")}: {updatedLabel}</span><button className="button button-outline" onClick={onRefresh} disabled={loading}>{loading ? <><span className="spinner" />{t("refreshing")}</> : <>↻ &nbsp;{t("refreshWeather")}</>}</button></div>
       {loading && <div className="weather-refresh-status" role="status"><span className="spinner" />{t("refreshing")}</div>}
       <section className="panel forecast-panel live-forecast-panel">
-        <div className="panel-heading"><div><div className="eyebrow">{location.name}</div><h2>{t("forecastTitle")}</h2></div><span className="live-tag"><i />{t("live")}</span></div>
+        <div className="panel-heading"><div><div className="eyebrow">{location.name}</div><h2>{t("forecastTitle")}</h2></div><span className={isCached ? "offline-tag" : "live-tag"}><i />{isCached ? t("cachedData") : t("live")}</span></div>
         <div className="seven-day-grid">{forecast.daily.map((day) => {
           const date = new Date(`${day.date}T12:00:00`);
           const dateLabel = date.toLocaleDateString(locale, { weekday: "short", day: "numeric", month: "short" });
@@ -1333,11 +1493,19 @@ function SellWaitAdvisor({ t, records, commodity }: PageProps & { records: Mandi
     : `${new Intl.NumberFormat(locale, { signDisplay: "exceptZero", minimumFractionDigits: 1, maximumFractionDigits: 1 }).format(change)}%`;
   const visibleHistory = history.slice(-5);
   const maximumPrice = Math.max(1, ...visibleHistory.map((point) => point.modalPrice));
+  const shareMessage = history.length ? fillTemplate(t("mandiShareMessage"), {
+    "{crop}": commodity,
+    "{current}": formatPrice(current?.modalPrice ?? null),
+    "{previous}": formatPrice(previous?.modalPrice ?? null),
+    "{change}": changeLabel,
+    "{trend}": t(trend),
+    "{recommendation}": t(recommendation),
+  }) : "";
 
   return <section className="panel sell-wait-advisor">
     <div className="sell-wait-heading">
       <div><div className="eyebrow">{t("priceAdvisory")}</div><h2>{t("sellWaitTitle")}{commodity ? ` · ${commodity}` : ""}</h2><p>{t("sellWaitSub")}</p></div>
-      <span className="sell-wait-icon" aria-hidden="true">↗</span>
+      <div className="sell-wait-heading-actions">{shareMessage && <button type="button" className="button button-outline whatsapp-share" onClick={() => shareOnWhatsApp(shareMessage)}><span aria-hidden="true">◉</span>{t("shareWhatsapp")}</button>}<span className="sell-wait-icon" aria-hidden="true">↗</span></div>
     </div>
     {!commodity
       ? <p className="sell-wait-message">{t("selectCropForAdvisor")}</p>
@@ -1368,11 +1536,26 @@ function SellWaitAdvisor({ t, records, commodity }: PageProps & { records: Mandi
   </section>;
 }
 
-function Mandi({ t, onSnapshot }: PageProps & { onSnapshot: (snapshot: MandiSnapshot | null) => void }) {
-  const [records, setRecords] = useState<MandiRecord[]>([]);
-  const [catalogRecords, setCatalogRecords] = useState<MandiRecord[]>([]);
-  const [stateOptions, setStateOptions] = useState<string[]>([]);
-  const [selectedState, setSelectedState] = useState("");
+function preferredMandiState(records: MandiRecord[]) {
+  return records.find((record) => record.state.toLocaleLowerCase() === "karnataka")?.state ??
+    uniqueSorted(records.map((record) => record.state))[0] ?? "";
+}
+
+function filterCachedMandiRecords(records: MandiRecord[], state: string, district: string, market: string, commodity: string) {
+  return records.filter((record) =>
+    record.state === state &&
+    (!district || record.district === district) &&
+    (!market || record.market === market) &&
+    (!commodity || record.commodity === commodity),
+  );
+}
+
+function Mandi({ t, isOnline, onSnapshot }: PageProps & { isOnline: boolean; onSnapshot: (snapshot: MandiSnapshot | null) => void }) {
+  const [cachedPrices] = useState(readCachedMandiPrices);
+  const [records, setRecords] = useState<MandiRecord[]>(cachedPrices?.records ?? []);
+  const [catalogRecords, setCatalogRecords] = useState<MandiRecord[]>(cachedPrices?.records ?? []);
+  const [stateOptions, setStateOptions] = useState<string[]>(uniqueSorted((cachedPrices?.records ?? []).map((record) => record.state)));
+  const [selectedState, setSelectedState] = useState(() => preferredMandiState(cachedPrices?.records ?? []));
   const [selectedDistrict, setSelectedDistrict] = useState("");
   const [selectedMarket, setSelectedMarket] = useState("");
   const [selectedCommodity, setSelectedCommodity] = useState("");
@@ -1385,10 +1568,28 @@ function Mandi({ t, onSnapshot }: PageProps & { onSnapshot: (snapshot: MandiSnap
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [total, setTotal] = useState(0);
-  const [fetchedAt, setFetchedAt] = useState("");
+  const [fetchedAt, setFetchedAt] = useState(cachedPrices?.timestamp ?? "");
   const [refreshCount, setRefreshCount] = useState(0);
 
   useEffect(() => {
+    if (!isOnline) {
+      const cached = readCachedMandiPrices() ?? cachedPrices;
+      if (cached) {
+        setRecords(cached.records);
+        setCatalogRecords(cached.records);
+        setStateOptions(uniqueSorted(cached.records.map((record) => record.state)));
+        setSelectedState((current) => current || preferredMandiState(cached.records));
+        setTotal(cached.records.length);
+        setFetchedAt(cached.timestamp);
+        setError("");
+      } else {
+        setError("network_error");
+      }
+      setLoading(false);
+      setLoaded(true);
+      return;
+    }
+
     const controller = new AbortController();
     async function loadRecords() {
       setLoading(true);
@@ -1396,19 +1597,28 @@ function Mandi({ t, onSnapshot }: PageProps & { onSnapshot: (snapshot: MandiSnap
       try {
         const response = await fetchMandiRecords({}, controller.signal);
         if (controller.signal.aborted) return;
-        setRecords(response.records);
-        setCatalogRecords(response.records);
-        setStateOptions(uniqueSorted(response.records.map((record) => record.state)));
+        const cached = cacheMandiPrices(response.records);
+        setRecords(cached.records);
+        setCatalogRecords(cached.records);
+        setStateOptions(uniqueSorted(cached.records.map((record) => record.state)));
         setTotal(response.total);
-        setFetchedAt(response.fetchedAt);
-        const preferredState = response.records.some((record) => record.state.toLocaleLowerCase() === "karnataka")
-          ? response.records.find((record) => record.state.toLocaleLowerCase() === "karnataka")?.state ?? ""
-          : uniqueSorted(response.records.map((record) => record.state))[0] ?? "";
-        setSelectedState(preferredState);
+        setFetchedAt(cached.timestamp);
+        setSelectedState(preferredMandiState(cached.records));
       } catch (caught) {
         if (controller.signal.aborted) return;
         console.error("Could not load AGMARKNET market options.", caught);
-        setError(caught instanceof MandiServiceError ? caught.code : "invalid_response");
+        const cached = readCachedMandiPrices() ?? cachedPrices;
+        if (cached) {
+          setRecords(cached.records);
+          setCatalogRecords(cached.records);
+          setStateOptions(uniqueSorted(cached.records.map((record) => record.state)));
+          setTotal(cached.records.length);
+          setFetchedAt(cached.timestamp);
+          setSelectedState(preferredMandiState(cached.records));
+          setError("");
+        } else {
+          setError(caught instanceof MandiServiceError ? caught.code : "invalid_response");
+        }
       } finally {
         if (!controller.signal.aborted) {
           setLoading(false);
@@ -1418,11 +1628,26 @@ function Mandi({ t, onSnapshot }: PageProps & { onSnapshot: (snapshot: MandiSnap
     }
     void loadRecords();
     return () => controller.abort();
-  }, []);
+  }, [isOnline, cachedPrices]);
 
   useEffect(() => {
-    if (!loaded || !selectedState) return;
+    if (!loaded) return;
+    if (!selectedState) {
+      setLoading(false);
+      return;
+    }
     onSnapshot(null);
+    if (!isOnline) {
+      const cached = readCachedMandiPrices() ?? cachedPrices;
+      const offlineRecords = filterCachedMandiRecords(cached?.records ?? catalogRecords, selectedState, selectedDistrict, selectedMarket, selectedCommodity);
+      setRecords(offlineRecords);
+      setTotal(offlineRecords.length);
+      setFetchedAt(cached?.timestamp ?? fetchedAt);
+      setError(cached || catalogRecords.length ? "" : "network_error");
+      if (selectedCommodity) onSnapshot({ commodity: selectedCommodity, records: offlineRecords, fetchedAt: cached?.timestamp ?? fetchedAt });
+      setLoading(false);
+      return;
+    }
     const controller = new AbortController();
     async function loadFilteredRecords() {
       setLoading(true);
@@ -1438,20 +1663,31 @@ function Mandi({ t, onSnapshot }: PageProps & { onSnapshot: (snapshot: MandiSnap
         if (controller.signal.aborted) return;
         setRecords(response.records);
         setTotal(response.total);
-        setFetchedAt(response.fetchedAt);
-        setCatalogRecords((current) => [...current, ...response.records]);
+        const cached = cacheMandiPrices(response.records);
+        setFetchedAt(cached.timestamp);
+        setCatalogRecords(cached.records);
         if (selectedCommodity) onSnapshot({ commodity: selectedCommodity, records: response.records, fetchedAt: response.fetchedAt });
       } catch (caught) {
         if (controller.signal.aborted) return;
         console.error("Could not load filtered AGMARKNET prices.", caught);
-        setError(caught instanceof MandiServiceError ? caught.code : "invalid_response");
+        const cached = readCachedMandiPrices() ?? cachedPrices;
+        if (cached) {
+          const offlineRecords = filterCachedMandiRecords(cached.records, selectedState, selectedDistrict, selectedMarket, selectedCommodity);
+          setRecords(offlineRecords);
+          setTotal(offlineRecords.length);
+          setFetchedAt(cached.timestamp);
+          setError("");
+          if (selectedCommodity) onSnapshot({ commodity: selectedCommodity, records: offlineRecords, fetchedAt: cached.timestamp });
+        } else {
+          setError(caught instanceof MandiServiceError ? caught.code : "invalid_response");
+        }
       } finally {
         if (!controller.signal.aborted) setLoading(false);
       }
     }
     void loadFilteredRecords();
     return () => controller.abort();
-  }, [loaded, selectedState, selectedDistrict, selectedMarket, selectedCommodity, refreshCount, onSnapshot]);
+  }, [loaded, selectedState, selectedDistrict, selectedMarket, selectedCommodity, refreshCount, onSnapshot, isOnline, cachedPrices]);
 
   const knownRecords = [...catalogRecords, ...records];
   const districts = uniqueSorted(knownRecords.filter((record) => record.state === selectedState).map((record) => record.district));
@@ -1573,6 +1809,11 @@ function formatRupees(value: number) {
   return `₹${new Intl.NumberFormat("en-IN", { maximumFractionDigits: 2 }).format(value)}`;
 }
 
+function shareOnWhatsApp(message: string) {
+  const url = `https://wa.me/?text=${encodeURIComponent(message)}`;
+  window.open(url, "_blank", "noopener,noreferrer");
+}
+
 const expenseFields: { field: Exclude<keyof ProfitInputs, "crop" | "area" | "yieldPerAcre" | "salePrice">; label: keyof typeof text.en }[] = [
   { field: "seedExpense", label: "seedExpense" },
   { field: "fertilizerExpense", label: "fertilizerExpense" },
@@ -1654,6 +1895,14 @@ function ProfitCalculator({ t, language, form, onChange }: PageProps & {
     "{profit}": formatRupees(profit),
     "{perAcre}": formatRupees(perAcreProfit),
   }) : "";
+  const profitShare = validInputs ? fillTemplate(t("profitShareMessage"), {
+    "{crop}": cropOptions.find((crop) => crop.value === form.crop)?.label ?? t("chooseCrop"),
+    "{yield}": new Intl.NumberFormat(localeForLanguage(language), { maximumFractionDigits: 2 }).format(totalYield),
+    "{revenue}": formatRupees(revenue),
+    "{expenses}": formatRupees(expenses),
+    "{profit}": formatRupees(profit),
+    "{perAcre}": formatRupees(perAcreProfit),
+  }) : "";
 
   return <>
     <PageHeading eyebrow={t("profitCalculatorEyebrow")} title={t("profitCalculatorTitle")} description={t("profitCalculatorSub")} t={t} badge={t("estimateBadge")} badgeKind="source" />
@@ -1673,7 +1922,7 @@ function ProfitCalculator({ t, language, form, onChange }: PageProps & {
       </section>
 
       <section className="panel profit-results-panel">
-        <div className="panel-heading"><div><div className="eyebrow">{t("estimateBadge")}</div><h2>{t("calculatorResults")}</h2></div><div className="profit-results-actions">{validInputs && <SpeakButton textToSpeak={profitSpeech} language={language} t={t} />}<span className="profit-result-icon">✳</span></div></div>
+        <div className="panel-heading"><div><div className="eyebrow">{t("estimateBadge")}</div><h2>{t("calculatorResults")}</h2></div><div className="profit-results-actions">{validInputs && <><SpeakButton textToSpeak={profitSpeech} language={language} t={t} /><button type="button" className="button button-outline whatsapp-share" onClick={() => shareOnWhatsApp(profitShare)}><span aria-hidden="true">◉</span>{t("shareWhatsapp")}</button></>}<span className="profit-result-icon">✳</span></div></div>
         {!validInputs && <p className="profit-prompt">{t("calculatorPrompt")}</p>}
         <div className="profit-metrics">{metrics.map((metric) => <article className="profit-metric" key={metric.label}>
           <span>{t(metric.label)}</span><strong className={metric.negative ? "profit-negative" : ""}>{metric.value}</strong>{metric.unit && <small>{metric.unit}</small>}
@@ -2264,11 +2513,33 @@ type CropDoctorSymptom = "yellowing" | "brownSpots" | "leafCurling" | "wilting" 
 type CropDoctorSeverity = "lowRisk" | "moderateRisk" | "highRisk";
 type CropDoctorTreatment = "none" | "fungicide" | "insecticide" | "vector" | "borer";
 type ExistingTranslationLanguage = "en" | "kn";
+type CachedCropDoctorSelection = { crop: CropDoctorCrop; symptoms: CropDoctorSymptom[]; timestamp: string };
 type CropDoctorCondition = {
   name: Record<ExistingTranslationLanguage, string>;
   severity: CropDoctorSeverity;
   treatment: CropDoctorTreatment;
 };
+
+function readCachedCropDoctorSelection(): CachedCropDoctorSelection | null {
+  try {
+    const saved = localStorage.getItem(CROP_DOCTOR_CACHE_KEY);
+    if (!saved) return null;
+    const value: unknown = JSON.parse(saved);
+    const cropIds: CropDoctorCrop[] = ["paddy", "ragi", "tomato", "cotton", "maize", "chilli"];
+    const symptomIds: CropDoctorSymptom[] = ["yellowing", "brownSpots", "leafCurling", "wilting", "whitePowder", "borerHoles"];
+    if (
+      !value || typeof value !== "object" || !("crop" in value) || !("symptoms" in value) || !("timestamp" in value) ||
+      typeof value.crop !== "string" || !cropIds.includes(value.crop as CropDoctorCrop) ||
+      !Array.isArray(value.symptoms) || !value.symptoms.length ||
+      !value.symptoms.every((symptom: unknown) => typeof symptom === "string" && symptomIds.includes(symptom as CropDoctorSymptom)) ||
+      !validTimestamp(value.timestamp)
+    ) throw new Error("Cached crop advisory has an invalid format.");
+    return { crop: value.crop as CropDoctorCrop, symptoms: value.symptoms as CropDoctorSymptom[], timestamp: value.timestamp };
+  } catch (error) {
+    console.error("Could not read the cached crop advisory.", error);
+    return null;
+  }
+}
 
 const cropDoctorCrops: { id: CropDoctorCrop; label: keyof typeof text.en }[] = [
   { id: "paddy", label: "cropRice" },
@@ -2366,10 +2637,23 @@ const cropDoctorTreatmentLabels: Record<CropDoctorTreatment, keyof typeof text.e
 };
 
 function CropDoctor({ t }: PageProps) {
-  const [crop, setCrop] = useState<CropDoctorCrop | "">("");
-  const [symptoms, setSymptoms] = useState<CropDoctorSymptom[]>([]);
+  const [cachedSelection] = useState(readCachedCropDoctorSelection);
+  const [crop, setCrop] = useState<CropDoctorCrop | "">(cachedSelection?.crop ?? "");
+  const [symptoms, setSymptoms] = useState<CropDoctorSymptom[]>(cachedSelection?.symptoms ?? []);
   const selectedLanguage = languageOf(t);
   const language = selectedLanguage === "hi" ? "en" : selectedLanguage;
+
+  useEffect(() => {
+    try {
+      if (crop && symptoms.length) {
+        localStorage.setItem(CROP_DOCTOR_CACHE_KEY, JSON.stringify({ crop, symptoms, timestamp: new Date().toISOString() }));
+      } else {
+        localStorage.removeItem(CROP_DOCTOR_CACHE_KEY);
+      }
+    } catch (error) {
+      console.error("Could not cache the active crop advisory.", error);
+    }
+  }, [crop, symptoms]);
 
   function toggleSymptom(symptom: CropDoctorSymptom) {
     setSymptoms((current) => current.includes(symptom)
@@ -2406,6 +2690,20 @@ function CropDoctor({ t }: PageProps) {
         {symptoms.map((symptom) => {
           const diagnosis = cropDoctorConditions[crop][symptom];
           const advice = cropDoctorAdvice[symptom];
+          const cropLabel = t(cropDoctorCrops.find((option) => option.id === crop)?.label ?? "cropDoctorCrop");
+          const symptomLabel = t(cropDoctorSymptoms.find((option) => option.id === symptom)?.label ?? "cropDoctorSymptoms");
+          const organic = t(advice.organic);
+          const chemical = t(cropDoctorTreatmentLabels[diagnosis.treatment]);
+          const prevention = t(advice.prevention);
+          const shareMessage = fillTemplate(t("cropDoctorShareMessage"), {
+            "{crop}": cropLabel,
+            "{symptom}": symptomLabel,
+            "{diagnosis}": diagnosis.name[language],
+            "{severity}": t(diagnosis.severity),
+            "{organic}": organic,
+            "{chemical}": chemical,
+            "{prevention}": prevention,
+          });
           return <article className="panel crop-doctor-result" key={`${crop}-${symptom}`}>
             <div className="crop-doctor-result-heading">
               <span className="crop-doctor-result-icon">{cropDoctorSymptoms.find((option) => option.id === symptom)?.icon}</span>
@@ -2413,10 +2711,11 @@ function CropDoctor({ t }: PageProps) {
               <span className={`crop-doctor-severity severity-${diagnosis.severity}`}><small>{t("cropDoctorSeverity")}</small><strong>{t(diagnosis.severity)}</strong></span>
             </div>
             <div className="crop-doctor-advice-grid">
-              <section><h3><span>✿</span>{t("cropDoctorOrganic")}</h3><p>{t(advice.organic)}</p></section>
-              <section><h3><span>⚕</span>{t("cropDoctorChemical")}</h3><p>{t(cropDoctorTreatmentLabels[diagnosis.treatment])}</p></section>
-              <section><h3><span>✓</span>{t("cropDoctorPrevention")}</h3><p>{t(advice.prevention)}</p></section>
+              <section><h3><span>✿</span>{t("cropDoctorOrganic")}</h3><p>{organic}</p></section>
+              <section><h3><span>⚕</span>{t("cropDoctorChemical")}</h3><p>{chemical}</p></section>
+              <section><h3><span>✓</span>{t("cropDoctorPrevention")}</h3><p>{prevention}</p></section>
             </div>
+            <div className="crop-doctor-share-row"><button type="button" className="button button-outline whatsapp-share" onClick={() => shareOnWhatsApp(shareMessage)}><span aria-hidden="true">◉</span>{t("shareWhatsapp")}</button></div>
           </article>;
         })}
       </section>
