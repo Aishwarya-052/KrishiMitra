@@ -12,7 +12,7 @@ import {
   type MandiRecord,
 } from "./mandiService";
 
-type Screen = "dashboard" | "weather" | "mandi" | "profit" | "soil" | "crops" | "advisory" | "settings";
+type Screen = "dashboard" | "weather" | "mandi" | "profit" | "smartFarm" | "soil" | "crops" | "advisory" | "settings";
 type Language = "en" | "kn";
 type FarmerProfile = {
   name: string;
@@ -34,14 +34,27 @@ type ProfitInputs = {
   transportExpense: string;
   otherExpense: string;
 };
+type MandiSnapshot = { commodity: string; records: MandiRecord[]; fetchedAt: string };
 type ChatMessage = { from: "farmer" | "mitra"; text: string };
 
 const PROFILE_KEY = "krishimitra-farmer-profile";
 const WEATHER_LOCATION_KEY = "krishimitra-weather-location";
+const initialProfitInputs: ProfitInputs = {
+  crop: "",
+  area: "",
+  yieldPerAcre: "",
+  salePrice: "",
+  seedExpense: "0",
+  fertilizerExpense: "0",
+  labourExpense: "0",
+  irrigationExpense: "0",
+  transportExpense: "0",
+  otherExpense: "0",
+};
 
 const text = {
   en: {
-    dashboard: "Dashboard", weather: "Weather", mandi: "Mandi prices", profit: "Profit calculator", soil: "Soil profile",
+    dashboard: "Dashboard", weather: "Weather", mandi: "Mandi prices", profit: "Profit calculator", smartFarm: "Smart Farm", soil: "Soil profile",
     crops: "Crop suggestions", advisory: "Advisory chat", settings: "Settings",
     greeting: "Good morning", welcome: "Your farm, one step ahead.", demo: "DEMO DATA",
     demoNote: "Sample information for this prototype — not live or location-specific.",
@@ -127,6 +140,50 @@ const text = {
     noAdvisorPrices: "No usable modal prices are available for this crop and filter selection, so historical analysis is not available.",
     reportedPriceHistory: "Recent reported prices",
     reportedPriceMethod: "Daily values are the average of available modal prices for the selected crop and filters. These are past reports, not a forecast or a guarantee.",
+    smartFarmTitle: "Smart Farm Decision Center", smartFarmSub: "A practical snapshot that brings your farm profile, forecast, market reports, and cost estimate together.",
+    smartFarmEyebrow: "YOUR FARM DECISION CENTER", smartFarmOverview: "Farm snapshot", todayForecast: "Forecast outlook",
+    noForecastForFarm: "Choose a location on the Weather screen to load a live forecast.",
+    noFarmSoil: "No soil type saved in your farmer profile.", profileSoilNote: "Soil type from your saved farmer profile; not a laboratory soil test.",
+    latestMandiAverage: "Latest reported mandi average", demoPriceLabel: "DEMO SAMPLE · NOT A LIVE MARKET PRICE",
+    samplePriceExplanation: "Illustrative values for demonstration only. Visit Mandi prices to load reported records for this crop.",
+    noMarketHistory: "No matching reported market records are available for this crop yet.",
+    trendIncreasing: "Increasing", trendDecreasing: "Decreasing", trendStable: "Stable",
+    samplePeriodOne: "Sample 1", samplePeriodTwo: "Sample 2", samplePeriodThree: "Sample 3",
+    sellNow: "Sell now", waitMarket: "Wait and review", monitorMarket: "Monitor market",
+    sellNowReason: "The last three reported daily averages decreased consecutively. Consider today's local offer and your costs; this does not predict future prices.",
+    waitMarketReason: "The last three reported daily averages increased consecutively. Review the next report before deciding; future prices are not guaranteed.",
+    monitorMarketReason: "The recent reports do not show a consistent three-date direction, so monitor the market and compare local offers.",
+    marketSampleReason: "This recommendation is generated from illustrative demo prices only. It is not a real market signal or selling advice.",
+    marketInsufficientReason: "Fewer than three reported dates are available. Monitor current local offers; a reliable direction cannot be inferred.",
+    openMandi: "Explore mandi prices",
+    farmAlertsTitle: "Weather-based farm alerts", forecastVerified: "FORECAST BASED",
+    generalAdviceLabel: "GENERAL GUIDANCE · NOT VERIFIED FOR YOUR LOCATION",
+    noActiveFarmAlerts: "No alert thresholds were reached in the available forecast. Continue checking local conditions.",
+    alertHeavyRainTitle: "Heavy rainfall expected", alertHeavyRainBody: "Forecast: {amount} mm on {date}. Consider postponing irrigation and check field drainage.",
+    alertRainTitle: "Rain expected", alertRainBody: "Rain chance: {chance}% on {date}. Check soil moisture before irrigation to avoid unnecessary watering.",
+    alertRainAmountBody: "Forecast: {amount} mm on {date}. Check soil moisture before irrigation to avoid unnecessary watering.",
+    alertHeatTitle: "High temperature expected", alertHeatBody: "Forecast high: {temperature}°C on {date}. Monitor the crop's water needs.",
+    alertWindTitle: "Strong winds now", alertWindBody: "Reported wind: {speed} km/h. Inspect crops and support structures.",
+    generalWeatherAdviceTitle: "General weather reminder",
+    generalWeatherAdviceBody: "Check local forecasts before irrigation, harvest, or field work. No live forecast is loaded for this farm.",
+    cropRiskTitle: "Weather-linked crop risk", lowRisk: "Low risk", moderateRisk: "Moderate risk", highRisk: "High risk",
+    riskUnavailable: "Risk indicator unavailable", riskMethod: "This general indicator counts forecast alert types: none = low, one = moderate, two or more = high. It is not a yield or crop-loss prediction.",
+    riskContextNote: "The indicator requires a selected crop, saved soil type, and live forecast. Its level counts general weather alerts; no validated crop-specific or soil-test thresholds are available for additional weighting.",
+    riskWeatherUnavailable: "Select a crop, save a soil type in your profile, and load a live forecast to calculate this indicator.",
+    riskFactorWeather: "Forecast alert: {title}",
+    farmCostsTitle: "Farm expense insights", totalInvestment: "Total investment", largestExpense: "Largest expense category",
+    expenseBreakdown: "Expense breakdown", noExpensesEntered: "Add estimated expenses in Profit calculator to see the cost breakdown.",
+    largestExpenseInsight: "{category} is the largest estimated expense at {share}% of your total costs.",
+    noLargestExpense: "No expenses have been entered yet.",
+    personalizedTitle: "Personalized recommendations", priorityHigh: "High", priorityMedium: "Medium", priorityLow: "Low",
+    weatherRecommendationTitle: "Weather check for {crop}", weatherRecommendationBody: "{alert} Use the forecast details above to plan field work.",
+    weatherRecommendationNoAlert: "No configured weather alert was reached. Keep checking updated forecasts before field work.",
+    weatherRecommendationNoData: "Add a weather location to receive forecast-based guidance.",
+    marketRecommendationTitle: "Market review for {crop}", marketRecommendationBody: "{recommendation}: {reason}",
+    expenseRecommendationTitle: "Review {category} costs", expenseRecommendationBody: "{category} is {share}% of your entered costs. Compare local rates and keep receipts.",
+    expenseRecommendationNoData: "Enter area, yield, selling price, and expenses in Profit calculator to get a farm-specific cost insight.",
+    expenseRecommendationNoCosts: "Add expense estimates in Profit calculator to identify the largest cost category.",
+    selectCropForSmartFarm: "Choose a crop to personalize the farm snapshot.",
     noVariety: "Not reported", noPrice: "—", searchStateHelp: "Locations and crop choices come from returned dataset records.",
     selectedRows: "matching records", allKarnataka: "All Karnataka",
     soilTitle: "Soil profile", soilSub: "A simple guide to understanding what is beneath your field.",
@@ -180,7 +237,7 @@ const text = {
     waterLowMedium: "Low–medium", waterLow: "Low", waterMedium: "Medium", waterHigh: "High",
   },
   kn: {
-    dashboard: "ಡ್ಯಾಶ್‌ಬೋರ್ಡ್", weather: "ಹವಾಮಾನ", mandi: "ಮಾರುಕಟ್ಟೆ ದರ", profit: "ಲಾಭದ ಲೆಕ್ಕಾಚಾರ", soil: "ಮಣ್ಣಿನ ವಿವರ",
+    dashboard: "ಡ್ಯಾಶ್‌ಬೋರ್ಡ್", weather: "ಹವಾಮಾನ", mandi: "ಮಾರುಕಟ್ಟೆ ದರ", profit: "ಲಾಭದ ಲೆಕ್ಕಾಚಾರ", smartFarm: "ಸ್ಮಾರ್ಟ್ ಕೃಷಿ", soil: "ಮಣ್ಣಿನ ವಿವರ",
     crops: "ಬೆಳೆ ಸಲಹೆಗಳು", advisory: "ಸಲಹೆ ಚಾಟ್", settings: "ಸೆಟ್ಟಿಂಗ್‌ಗಳು",
     greeting: "ಶುಭೋದಯ", welcome: "ನಿಮ್ಮ ಕೃಷಿ, ಒಂದು ಹೆಜ್ಜೆ ಮುಂದೆ.", demo: "ಡೆಮೋ ಮಾಹಿತಿ",
     demoNote: "ಈ ಮಾದರಿಯ ಮಾಹಿತಿಯು ಪ್ರಾತ್ಯಕ್ಷಿಕೆಗಾಗಿ ಮಾತ್ರ — ನೈಜ ಅಥವಾ ಸ್ಥಳಾಧಾರಿತವಲ್ಲ.",
@@ -266,6 +323,50 @@ const text = {
     noAdvisorPrices: "ಈ ಬೆಳೆ ಮತ್ತು ಫಿಲ್ಟರ್‌ಗಳಿಗೆ ಬಳಸಬಹುದಾದ ಮಾದರಿ ದರಗಳು ಲಭ್ಯವಿಲ್ಲ; ಆದ್ದರಿಂದ ಹಿಂದಿನ ದರದ ವಿಶ್ಲೇಷಣೆ ಲಭ್ಯವಿಲ್ಲ.",
     reportedPriceHistory: "ಇತ್ತೀಚಿನ ವರದಿಯಾದ ದರಗಳು",
     reportedPriceMethod: "ದೈನಂದಿನ ದರವು ಆಯ್ಕೆ ಮಾಡಿದ ಬೆಳೆ ಮತ್ತು ಫಿಲ್ಟರ್‌ಗಳಿಗೆ ಲಭ್ಯವಿರುವ ಮಾದರಿ ದರಗಳ ಸರಾಸರಿ. ಇವು ಹಿಂದಿನ ವರದಿಗಳು ಮಾತ್ರ; ಮುನ್ಸೂಚನೆ ಅಥವಾ ಖಾತರಿಯಲ್ಲ.",
+    smartFarmTitle: "ಸ್ಮಾರ್ಟ್ ಕೃಷಿ ನಿರ್ಧಾರ ಕೇಂದ್ರ", smartFarmSub: "ನಿಮ್ಮ ಕೃಷಿ ವಿವರ, ಮುನ್ಸೂಚನೆ, ಮಾರುಕಟ್ಟೆ ವರದಿ ಮತ್ತು ವೆಚ್ಚದ ಅಂದಾಜನ್ನು ಒಟ್ಟಿಗೆ ತೋರಿಸುವ ಪ್ರಾಯೋಗಿಕ ನೋಟ.",
+    smartFarmEyebrow: "ನಿಮ್ಮ ಕೃಷಿ ನಿರ್ಧಾರ ಕೇಂದ್ರ", smartFarmOverview: "ಕೃಷಿ ಸಾರಾಂಶ", todayForecast: "ಹವಾಮಾನ ಮುನ್ಸೂಚನೆ",
+    noForecastForFarm: "ನೈಜ ಮುನ್ಸೂಚನೆ ಪಡೆಯಲು ಹವಾಮಾನ ಪರದೆಯಲ್ಲಿ ಸ್ಥಳ ಆಯ್ಕೆಮಾಡಿ.",
+    noFarmSoil: "ರೈತರ ಪ್ರೊಫೈಲ್‌ನಲ್ಲಿ ಮಣ್ಣಿನ ಪ್ರಕಾರ ಉಳಿಸಿಲ್ಲ.", profileSoilNote: "ನಿಮ್ಮ ರೈತರ ಪ್ರೊಫೈಲ್‌ನ ಮಣ್ಣಿನ ಪ್ರಕಾರ; ಪ್ರಯೋಗಾಲಯದ ಮಣ್ಣಿನ ಪರೀಕ್ಷೆಯಲ್ಲ.",
+    latestMandiAverage: "ಇತ್ತೀಚಿನ ವರದಿಯಾದ ಮಾರುಕಟ್ಟೆ ಸರಾಸರಿ", demoPriceLabel: "ಡೆಮೋ ಮಾದರಿ · ನೈಜ ಮಾರುಕಟ್ಟೆ ದರವಲ್ಲ",
+    samplePriceExplanation: "ಪ್ರಾತ್ಯಕ್ಷಿಕೆಗಾಗಿ ಮಾತ್ರದ ಉದಾಹರಣೆ ದರಗಳು. ಈ ಬೆಳೆಯ ವರದಿಯಾದ ದರಗಳಿಗಾಗಿ ಮಾರುಕಟ್ಟೆ ದರ ಪರದೆ ನೋಡಿ.",
+    noMarketHistory: "ಈ ಬೆಳೆಗೆ ಹೊಂದುವ ವರದಿಯಾದ ಮಾರುಕಟ್ಟೆ ದಾಖಲೆಗಳು ಇನ್ನೂ ಲಭ್ಯವಿಲ್ಲ.",
+    trendIncreasing: "ಏರಿಕೆ", trendDecreasing: "ಇಳಿಕೆ", trendStable: "ಸ್ಥಿರ",
+    samplePeriodOne: "ಮಾದರಿ 1", samplePeriodTwo: "ಮಾದರಿ 2", samplePeriodThree: "ಮಾದರಿ 3",
+    sellNow: "ಈಗ ಮಾರಾಟ ಪರಿಗಣಿಸಿ", waitMarket: "ಕಾಯ್ದು ಪರಿಶೀಲಿಸಿ", monitorMarket: "ಮಾರುಕಟ್ಟೆ ಗಮನಿಸಿ",
+    sellNowReason: "ಕೊನೆಯ ಮೂರು ವರದಿಯಾದ ದೈನಂದಿನ ಸರಾಸರಿಗಳು ಸತತವಾಗಿ ಇಳಿದಿವೆ. ಇಂದಿನ ಸ್ಥಳೀಯ ದರ ಮತ್ತು ವೆಚ್ಚಗಳನ್ನು ಪರಿಗಣಿಸಿ; ಇದು ಭವಿಷ್ಯದ ದರದ ಮುನ್ಸೂಚನೆಯಲ್ಲ.",
+    waitMarketReason: "ಕೊನೆಯ ಮೂರು ವರದಿಯಾದ ದೈನಂದಿನ ಸರಾಸರಿಗಳು ಸತತವಾಗಿ ಏರಿವೆ. ನಿರ್ಧಾರಕ್ಕೂ ಮೊದಲು ಮುಂದಿನ ವರದಿ ಪರಿಶೀಲಿಸಿ; ಭವಿಷ್ಯದ ದರ ಖಚಿತವಲ್ಲ.",
+    monitorMarketReason: "ಇತ್ತೀಚಿನ ವರದಿಗಳಲ್ಲಿ ಸತತ ಮೂರು ದಿನಗಳ ಸ್ಪಷ್ಟ ದಿಕ್ಕಿಲ್ಲ. ಮಾರುಕಟ್ಟೆ ಗಮನಿಸಿ ಸ್ಥಳೀಯ ದರಗಳನ್ನು ಹೋಲಿಸಿ.",
+    marketSampleReason: "ಈ ಸಲಹೆ ಉದಾಹರಣೆಯ ಡೆಮೋ ದರಗಳಿಂದ ಮಾತ್ರ ಬಂದಿದೆ. ಇದು ನೈಜ ಮಾರುಕಟ್ಟೆ ಸೂಚನೆ ಅಥವಾ ಮಾರಾಟ ಸಲಹೆಯಲ್ಲ.",
+    marketInsufficientReason: "ಮೂರುಗಿಂತ ಕಡಿಮೆ ವರದಿಯಾದ ದಿನಗಳಿವೆ. ಸ್ಥಳೀಯ ದರಗಳನ್ನು ಗಮನಿಸಿ; ವಿಶ್ವಾಸಾರ್ಹ ಪ್ರವೃತ್ತಿ ನಿರ್ಧರಿಸಲಾಗುವುದಿಲ್ಲ.",
+    openMandi: "ಮಾರುಕಟ್ಟೆ ದರಗಳನ್ನು ನೋಡಿ",
+    farmAlertsTitle: "ಹವಾಮಾನ ಆಧಾರಿತ ಕೃಷಿ ಎಚ್ಚರಿಕೆಗಳು", forecastVerified: "ಮುನ್ಸೂಚನೆ ಆಧಾರಿತ",
+    generalAdviceLabel: "ಸಾಮಾನ್ಯ ಮಾರ್ಗದರ್ಶನ · ನಿಮ್ಮ ಸ್ಥಳಕ್ಕೆ ಪರಿಶೀಲಿತವಲ್ಲ",
+    noActiveFarmAlerts: "ಲಭ್ಯ ಮುನ್ಸೂಚನೆಯಲ್ಲಿ ಎಚ್ಚರಿಕೆ ಮಿತಿ ತಲುಪಿಲ್ಲ. ಸ್ಥಳೀಯ ಸ್ಥಿತಿಗಳನ್ನು ಗಮನಿಸುತ್ತಿರಿ.",
+    alertHeavyRainTitle: "ಭಾರಿ ಮಳೆ ನಿರೀಕ್ಷೆ", alertHeavyRainBody: "ಮುನ್ಸೂಚನೆ: {date}ರಂದು {amount} ಮಿಮೀ. ನೀರಾವರಿ ಮುಂದೂಡುವುದನ್ನು ಪರಿಗಣಿಸಿ ಮತ್ತು ಹೊಲದ ಒಳಚರಂಡಿ ಪರಿಶೀಲಿಸಿ.",
+    alertRainTitle: "ಮಳೆ ನಿರೀಕ್ಷೆ", alertRainBody: "{date}ರಂದು ಮಳೆಯ ಸಾಧ್ಯತೆ {chance}%. ಅನಗತ್ಯ ನೀರಾವರಿ ತಪ್ಪಿಸಲು ಮೊದಲು ಮಣ್ಣಿನ ತೇವಾಂಶ ಪರಿಶೀಲಿಸಿ.",
+    alertRainAmountBody: "{date}ರಂದು ಮುನ್ಸೂಚನೆ: {amount} ಮಿಮೀ. ಅನಗತ್ಯ ನೀರಾವರಿ ತಪ್ಪಿಸಲು ಮೊದಲು ಮಣ್ಣಿನ ತೇವಾಂಶ ಪರಿಶೀಲಿಸಿ.",
+    alertHeatTitle: "ಹೆಚ್ಚಿನ ತಾಪಮಾನ ನಿರೀಕ್ಷೆ", alertHeatBody: "{date}ರಂದು ಗರಿಷ್ಠ ತಾಪಮಾನ {temperature}°C. ಬೆಳೆಯ ನೀರಿನ ಅಗತ್ಯ ಗಮನಿಸಿ.",
+    alertWindTitle: "ಈಗ ಬಲವಾದ ಗಾಳಿ", alertWindBody: "ವರದಿಯಾದ ಗಾಳಿ {speed} ಕಿಮೀ/ಗಂ. ಬೆಳೆ ಮತ್ತು ಆಸರೆ ರಚನೆಗಳನ್ನು ಪರಿಶೀಲಿಸಿ.",
+    generalWeatherAdviceTitle: "ಸಾಮಾನ್ಯ ಹವಾಮಾನ ನೆನಪು",
+    generalWeatherAdviceBody: "ನೀರಾವರಿ, ಕೊಯ್ಲು ಅಥವಾ ಹೊಲದ ಕೆಲಸಕ್ಕೂ ಮೊದಲು ಸ್ಥಳೀಯ ಮುನ್ಸೂಚನೆ ಪರಿಶೀಲಿಸಿ. ಈ ಕೃಷಿಗೆ ನೈಜ ಮುನ್ಸೂಚನೆ ಲೋಡ್ ಆಗಿಲ್ಲ.",
+    cropRiskTitle: "ಹವಾಮಾನ ಆಧಾರಿತ ಬೆಳೆ ಅಪಾಯ", lowRisk: "ಕಡಿಮೆ ಅಪಾಯ", moderateRisk: "ಮಧ್ಯಮ ಅಪಾಯ", highRisk: "ಹೆಚ್ಚಿನ ಅಪಾಯ",
+    riskUnavailable: "ಅಪಾಯ ಸೂಚಕ ಲಭ್ಯವಿಲ್ಲ", riskMethod: "ಈ ಸಾಮಾನ್ಯ ಸೂಚಕವು ಮುನ್ಸೂಚನೆ ಎಚ್ಚರಿಕೆಗಳ ಪ್ರಕಾರಗಳನ್ನು ಎಣಿಸುತ್ತದೆ: ಯಾವುದೂ ಇಲ್ಲ = ಕಡಿಮೆ, ಒಂದು = ಮಧ್ಯಮ, ಎರಡು ಅಥವಾ ಹೆಚ್ಚು = ಹೆಚ್ಚು. ಇದು ಇಳುವರಿ ಅಥವಾ ಬೆಳೆ ನಷ್ಟದ ಮುನ್ಸೂಚನೆಯಲ್ಲ.",
+    riskContextNote: "ಸೂಚಕಕ್ಕೆ ಆಯ್ಕೆ ಮಾಡಿದ ಬೆಳೆ, ಉಳಿಸಿದ ಮಣ್ಣಿನ ಪ್ರಕಾರ ಮತ್ತು ನೈಜ ಮುನ್ಸೂಚನೆ ಅಗತ್ಯ. ಇದರ ಮಟ್ಟವು ಸಾಮಾನ್ಯ ಹವಾಮಾನ ಎಚ್ಚರಿಕೆಗಳನ್ನು ಎಣಿಸುತ್ತದೆ; ಹೆಚ್ಚುವರಿ ತೂಕಕ್ಕೆ ಮಾನ್ಯ ಬೆಳೆ-ನಿರ್ದಿಷ್ಟ ಅಥವಾ ಮಣ್ಣಿನ ಪರೀಕ್ಷೆಯ ಮಿತಿಗಳಿಲ್ಲ.",
+    riskWeatherUnavailable: "ಈ ಸೂಚಕ ಲೆಕ್ಕಿಸಲು ಬೆಳೆ ಆಯ್ಕೆಮಾಡಿ, ಪ್ರೊಫೈಲ್‌ನಲ್ಲಿ ಮಣ್ಣಿನ ಪ್ರಕಾರ ಉಳಿಸಿ ಮತ್ತು ನೈಜ ಮುನ್ಸೂಚನೆ ಲೋಡ್ ಮಾಡಿ.",
+    riskFactorWeather: "ಮುನ್ಸೂಚನೆ ಎಚ್ಚರಿಕೆ: {title}",
+    farmCostsTitle: "ಕೃಷಿ ವೆಚ್ಚದ ವಿಶ್ಲೇಷಣೆ", totalInvestment: "ಒಟ್ಟು ಹೂಡಿಕೆ", largestExpense: "ಅತಿದೊಡ್ಡ ವೆಚ್ಚದ ವಿಭಾಗ",
+    expenseBreakdown: "ವೆಚ್ಚದ ವಿಭಜನೆ", noExpensesEntered: "ವೆಚ್ಚದ ವಿಭಜನೆ ನೋಡಲು ಲಾಭದ ಲೆಕ್ಕಾಚಾರದಲ್ಲಿ ಅಂದಾಜು ವೆಚ್ಚ ಸೇರಿಸಿ.",
+    largestExpenseInsight: "ಒಟ್ಟು ವೆಚ್ಚದಲ್ಲಿ {category} ಅತಿದೊಡ್ಡದು ({share}%).",
+    noLargestExpense: "ಇನ್ನೂ ವೆಚ್ಚ ನಮೂದಿಸಿಲ್ಲ.",
+    personalizedTitle: "ವೈಯಕ್ತಿಕ ಸಲಹೆಗಳು", priorityHigh: "ಹೆಚ್ಚು", priorityMedium: "ಮಧ್ಯಮ", priorityLow: "ಕಡಿಮೆ",
+    weatherRecommendationTitle: "{crop} ಬೆಳೆಗೆ ಹವಾಮಾನ ಪರಿಶೀಲನೆ", weatherRecommendationBody: "{alert} ಹೊಲದ ಕೆಲಸ ಯೋಜಿಸಲು ಮೇಲಿನ ಮುನ್ಸೂಚನೆ ವಿವರ ಬಳಸಿ.",
+    weatherRecommendationNoAlert: "ನಿಗದಿತ ಹವಾಮಾನ ಎಚ್ಚರಿಕೆ ಮಿತಿ ತಲುಪಿಲ್ಲ. ಹೊಲದ ಕೆಲಸಕ್ಕೂ ಮೊದಲು ನವೀಕರಿಸಿದ ಮುನ್ಸೂಚನೆ ಗಮನಿಸಿ.",
+    weatherRecommendationNoData: "ಮುನ್ಸೂಚನೆ ಆಧಾರಿತ ಮಾರ್ಗದರ್ಶನಕ್ಕಾಗಿ ಹವಾಮಾನ ಸ್ಥಳ ಸೇರಿಸಿ.",
+    marketRecommendationTitle: "{crop} ಮಾರುಕಟ್ಟೆ ಪರಿಶೀಲನೆ", marketRecommendationBody: "{recommendation}: {reason}",
+    expenseRecommendationTitle: "{category} ವೆಚ್ಚ ಪರಿಶೀಲಿಸಿ", expenseRecommendationBody: "ನಮೂದಿಸಿದ ವೆಚ್ಚದಲ್ಲಿ {category} {share}%. ಸ್ಥಳೀಯ ದರ ಹೋಲಿಸಿ ರಸೀದಿಗಳನ್ನು ಉಳಿಸಿ.",
+    expenseRecommendationNoData: "ಕೃಷಿ ವೆಚ್ಚದ ಸಲಹೆಗಾಗಿ ಲಾಭದ ಲೆಕ್ಕಾಚಾರದಲ್ಲಿ ಭೂಮಿ, ಇಳುವರಿ, ಮಾರಾಟ ದರ ಮತ್ತು ವೆಚ್ಚ ನಮೂದಿಸಿ.",
+    expenseRecommendationNoCosts: "ಅತಿದೊಡ್ಡ ವೆಚ್ಚ ಗುರುತಿಸಲು ಲಾಭದ ಲೆಕ್ಕಾಚಾರದಲ್ಲಿ ವೆಚ್ಚ ಸೇರಿಸಿ.",
+    selectCropForSmartFarm: "ಕೃಷಿ ಸಾರಾಂಶವನ್ನು ವೈಯಕ್ತಿಕಗೊಳಿಸಲು ಬೆಳೆ ಆಯ್ಕೆಮಾಡಿ.",
     noVariety: "ವರದಿಯಾಗಿಲ್ಲ", noPrice: "—", searchStateHelp: "ಸ್ಥಳ ಮತ್ತು ಬೆಳೆ ಆಯ್ಕೆಗಳು ಪಡೆದ ದಾಖಲೆಗಳಿಂದ ಬರುತ್ತವೆ.",
     selectedRows: "ಹೊಂದಿದ ದಾಖಲೆಗಳು", allKarnataka: "ಎಲ್ಲ ಕರ್ನಾಟಕ",
     soilTitle: "ಮಣ್ಣಿನ ವಿವರ", soilSub: "ನಿಮ್ಮ ಹೊಲದ ಮಣ್ಣನ್ನು ಅರ್ಥಮಾಡಿಕೊಳ್ಳಲು ಸರಳ ಮಾರ್ಗದರ್ಶಿ.",
@@ -325,6 +426,7 @@ const navItems: { id: Screen; icon: string; key: keyof typeof text.en }[] = [
   { id: "weather", icon: "☼", key: "weather" },
   { id: "mandi", icon: "↗", key: "mandi" },
   { id: "profit", icon: "₹", key: "profit" },
+  { id: "smartFarm", icon: "✳", key: "smartFarm" },
   { id: "soil", icon: "◉", key: "soil" },
   { id: "crops", icon: "❋", key: "crops" },
   { id: "advisory", icon: "✳", key: "advisory" },
@@ -389,6 +491,8 @@ function App() {
   const [weatherError, setWeatherError] = useState("");
   const [weatherUpdatedAt, setWeatherUpdatedAt] = useState<Date | null>(null);
   const [weatherRefresh, setWeatherRefresh] = useState(0);
+  const [profitInputs, setProfitInputs] = useState<ProfitInputs>(initialProfitInputs);
+  const [mandiSnapshot, setMandiSnapshot] = useState<MandiSnapshot | null>(null);
   const t = (key: keyof typeof text.en) => text[language][key];
 
   useEffect(() => {
@@ -480,6 +584,10 @@ function App() {
     }
   }
 
+  function updateProfitInput(field: keyof ProfitInputs, value: string) {
+    setProfitInputs((current) => ({ ...current, [field]: value }));
+  }
+
   function sendMessage(message = chatInput) {
     const trimmed = message.trim();
     if (!trimmed) return;
@@ -530,8 +638,9 @@ function App() {
           {notice && <div className="toast" role="status"><span>✓</span>{notice}<button onClick={() => setNotice("")} aria-label={t("close")}>×</button></div>}
           {screen === "dashboard" && <Dashboard t={t} profile={profile} navigate={navigate} weatherLocation={weatherLocation} weatherForecast={weatherForecast} weatherLoading={weatherLoading} />}
           {screen === "weather" && <Weather t={t} language={language} location={weatherLocation} forecast={weatherForecast} loading={weatherLoading} error={weatherError} updatedAt={weatherUpdatedAt} onSelectLocation={chooseWeatherLocation} onClearLocation={clearWeatherLocation} onRefresh={() => setWeatherRefresh((count) => count + 1)} />}
-          {screen === "mandi" && <Mandi t={t} />}
-          {screen === "profit" && <ProfitCalculator t={t} />}
+          {screen === "mandi" && <Mandi t={t} onSnapshot={setMandiSnapshot} />}
+          {screen === "profit" && <ProfitCalculator t={t} form={profitInputs} onChange={updateProfitInput} />}
+          {screen === "smartFarm" && <SmartFarm t={t} language={language} profile={profile} location={weatherLocation} forecast={weatherForecast} profitInputs={profitInputs} onProfitInputChange={updateProfitInput} mandiSnapshot={mandiSnapshot} navigate={navigate} />}
           {screen === "soil" && <Soil t={t} profile={profile} />}
           {screen === "crops" && <Crops t={t} navigate={navigate} />}
           {screen === "advisory" && <Advisory t={t} messages={chatMessages} input={chatInput} setInput={setChatInput} send={sendMessage} />}
@@ -563,6 +672,10 @@ type PageProps = { t: Translate };
 
 function PageHeading({ eyebrow, title, description, t, badge = t("demo"), badgeKind = "demo" }: PageProps & { eyebrow: string; title: string; description: string; badge?: string; badgeKind?: "demo" | "source" }) {
   return <div className="page-heading"><div><div className="eyebrow">{eyebrow}</div><h1>{title}</h1><p>{description}</p></div><span className={`demo-badge ${badgeKind === "source" ? "source-badge" : ""}`}><i />{badge}</span></div>;
+}
+
+function fillTemplate(template: string, values: Record<string, string>) {
+  return Object.entries(values).reduce((message, [key, value]) => message.replace(key, value), template);
 }
 
 function Dashboard({ t, profile, navigate, weatherLocation, weatherForecast, weatherLoading }: PageProps & {
@@ -668,6 +781,71 @@ function weatherAdvisories(forecast: WeatherForecast, t: Translate) {
   if (forecast.daily.some((day) => (day.temperatureMax ?? 0) >= 35)) advisories.push(t("advisoryHeat"));
   if ((forecast.current.windSpeed ?? 0) >= 35) advisories.push(t("advisoryWind"));
   return advisories;
+}
+
+type FarmWeatherAlert = {
+  kind: "heavyRain" | "rain" | "heat" | "wind";
+  date: string | null;
+  value: number;
+  metric: "amount" | "chance" | "temperature" | "speed";
+};
+
+function farmWeatherAlerts(forecast: WeatherForecast): FarmWeatherAlert[] {
+  const alerts: FarmWeatherAlert[] = [];
+  const heavyRainDay = forecast.daily.find((day) => day.precipitation !== null && day.precipitation >= 20);
+  if (heavyRainDay?.precipitation !== null && heavyRainDay?.precipitation !== undefined) {
+    alerts.push({ kind: "heavyRain", date: heavyRainDay.date, value: heavyRainDay.precipitation, metric: "amount" });
+  } else {
+    const rainyDay = forecast.daily.find((day) =>
+      (day.precipitationProbability ?? 0) >= 30 || (day.precipitation ?? 0) > 0);
+    if (rainyDay) {
+      const hasRainProbability = rainyDay.precipitationProbability !== null && rainyDay.precipitationProbability >= 30;
+      const amount = rainyDay.precipitation ?? 0;
+      alerts.push({
+        kind: "rain",
+        date: rainyDay.date,
+        value: hasRainProbability ? rainyDay.precipitationProbability ?? 0 : amount,
+        metric: hasRainProbability ? "chance" : "amount",
+      });
+    }
+  }
+  const hotDay = forecast.daily.find((day) => day.temperatureMax !== null && day.temperatureMax >= 35);
+  if (hotDay?.temperatureMax !== null && hotDay?.temperatureMax !== undefined) {
+    alerts.push({ kind: "heat", date: hotDay.date, value: hotDay.temperatureMax, metric: "temperature" });
+  }
+  if (forecast.current.windSpeed !== null && forecast.current.windSpeed >= 35) {
+    alerts.push({ kind: "wind", date: null, value: forecast.current.windSpeed, metric: "speed" });
+  }
+  return alerts;
+}
+
+function farmWeatherAlertCopy(alert: FarmWeatherAlert, t: Translate, language: Language) {
+  const titleKey = {
+    heavyRain: "alertHeavyRainTitle",
+    rain: "alertRainTitle",
+    heat: "alertHeatTitle",
+    wind: "alertWindTitle",
+  } as const;
+  const bodyKey: Record<FarmWeatherAlert["kind"], keyof typeof text.en> = {
+    heavyRain: "alertHeavyRainBody",
+    rain: "alertRainBody",
+    heat: "alertHeatBody",
+    wind: "alertWindBody",
+  } as const;
+  const value = new Intl.NumberFormat(language === "en" ? "en-IN" : "kn-IN", { maximumFractionDigits: 1 }).format(alert.value);
+  const date = alert.date ? formatMandiDate(alert.date, language) : "";
+  const selectedBodyKey = alert.kind === "rain" && alert.metric === "amount"
+    ? "alertRainAmountBody"
+    : bodyKey[alert.kind];
+  const replacements = {
+    "{amount}": value,
+    "{chance}": value,
+    "{temperature}": value,
+    "{speed}": value,
+    "{date}": date,
+  };
+  const body = fillTemplate(t(selectedBodyKey), replacements);
+  return { title: t(titleKey[alert.kind]), body };
 }
 
 function Weather({ t, language, location, forecast, loading, error, updatedAt, onSelectLocation, onClearLocation, onRefresh }: PageProps & {
@@ -824,6 +1002,64 @@ function dailyModalPrices(records: MandiRecord[], commodity: string) {
   })).sort((a, b) => a.date.localeCompare(b.date));
 }
 
+type FarmPricePoint = { date: string; modalPrice: number };
+type FarmPriceAnalysis = {
+  current: FarmPricePoint | null;
+  previous: FarmPricePoint | null;
+  percentageChange: number | null;
+  trend: "trendInsufficient" | "trendIncreasing" | "trendDecreasing" | "trendStable";
+  recommendation: "monitorMarket" | "waitMarket" | "sellNow";
+  reason: "marketInsufficientReason" | "waitMarketReason" | "sellNowReason" | "monitorMarketReason";
+};
+
+function farmCropMatchesCommodity(crop: string, commodity: string) {
+  const aliases: Record<string, string[]> = {
+    cropRice: ["paddy", "rice"],
+    cropRagi: ["ragi"],
+    cropMaize: ["maize"],
+    cropPulses: ["pulses"],
+  };
+  const normalizedCommodity = commodity.toLocaleLowerCase();
+  return (aliases[crop] ?? []).some((alias) => normalizedCommodity.includes(alias));
+}
+
+function analyzeFarmPrices(history: FarmPricePoint[]): FarmPriceAnalysis {
+  const current = history.at(-1) ?? null;
+  const previous = history.at(-2) ?? null;
+  const percentageChange = current && previous && previous.modalPrice !== 0
+    ? ((current.modalPrice - previous.modalPrice) / previous.modalPrice) * 100
+    : null;
+  const trend = percentageChange === null
+    ? "trendInsufficient"
+    : percentageChange > 1 ? "trendIncreasing"
+      : percentageChange < -1 ? "trendDecreasing"
+        : "trendStable";
+  const latestThree = history.slice(-3);
+  const consistentlyIncreasing = latestThree.length === 3 &&
+    latestThree[0].modalPrice < latestThree[1].modalPrice &&
+    latestThree[1].modalPrice < latestThree[2].modalPrice;
+  const consistentlyDecreasing = latestThree.length === 3 &&
+    latestThree[0].modalPrice > latestThree[1].modalPrice &&
+    latestThree[1].modalPrice > latestThree[2].modalPrice;
+  const recommendation = history.length < 3
+    ? "monitorMarket"
+    : consistentlyIncreasing ? "waitMarket"
+      : consistentlyDecreasing ? "sellNow"
+        : "monitorMarket";
+  const reason = history.length < 3
+    ? "marketInsufficientReason"
+    : consistentlyIncreasing ? "waitMarketReason"
+      : consistentlyDecreasing ? "sellNowReason"
+        : "monitorMarketReason";
+  return { current, previous, percentageChange, trend, recommendation, reason };
+}
+
+const demoFarmPriceHistory: FarmPricePoint[] = [
+  { date: "demo-1", modalPrice: 2050 },
+  { date: "demo-2", modalPrice: 2115 },
+  { date: "demo-3", modalPrice: 2180 },
+];
+
 function SellWaitAdvisor({ t, records, commodity }: PageProps & { records: MandiRecord[]; commodity: string }) {
   const history = commodity ? dailyModalPrices(records, commodity) : [];
   const current = history.at(-1);
@@ -894,7 +1130,7 @@ function SellWaitAdvisor({ t, records, commodity }: PageProps & { records: Mandi
   </section>;
 }
 
-function Mandi({ t }: PageProps) {
+function Mandi({ t, onSnapshot }: PageProps & { onSnapshot: (snapshot: MandiSnapshot | null) => void }) {
   const [records, setRecords] = useState<MandiRecord[]>([]);
   const [catalogRecords, setCatalogRecords] = useState<MandiRecord[]>([]);
   const [stateOptions, setStateOptions] = useState<string[]>([]);
@@ -948,6 +1184,7 @@ function Mandi({ t }: PageProps) {
 
   useEffect(() => {
     if (!loaded || !selectedState) return;
+    onSnapshot(null);
     const controller = new AbortController();
     async function loadFilteredRecords() {
       setLoading(true);
@@ -965,6 +1202,7 @@ function Mandi({ t }: PageProps) {
         setTotal(response.total);
         setFetchedAt(response.fetchedAt);
         setCatalogRecords((current) => [...current, ...response.records]);
+        if (selectedCommodity) onSnapshot({ commodity: selectedCommodity, records: response.records, fetchedAt: response.fetchedAt });
       } catch (caught) {
         if (controller.signal.aborted) return;
         console.error("Could not load filtered AGMARKNET prices.", caught);
@@ -975,7 +1213,7 @@ function Mandi({ t }: PageProps) {
     }
     void loadFilteredRecords();
     return () => controller.abort();
-  }, [loaded, selectedState, selectedDistrict, selectedMarket, selectedCommodity, refreshCount]);
+  }, [loaded, selectedState, selectedDistrict, selectedMarket, selectedCommodity, refreshCount, onSnapshot]);
 
   const knownRecords = [...catalogRecords, ...records];
   const districts = uniqueSorted(knownRecords.filter((record) => record.state === selectedState).map((record) => record.district));
@@ -1097,27 +1335,51 @@ function formatRupees(value: number) {
   return `₹${new Intl.NumberFormat("en-IN", { maximumFractionDigits: 2 }).format(value)}`;
 }
 
-function ProfitCalculator({ t }: PageProps) {
-  const [form, setForm] = useState<ProfitInputs>({
-    crop: "",
-    area: "",
-    yieldPerAcre: "",
-    salePrice: "",
-    seedExpense: "0",
-    fertilizerExpense: "0",
-    labourExpense: "0",
-    irrigationExpense: "0",
-    transportExpense: "0",
-    otherExpense: "0",
+const expenseFields: { field: Exclude<keyof ProfitInputs, "crop" | "area" | "yieldPerAcre" | "salePrice">; label: keyof typeof text.en }[] = [
+  { field: "seedExpense", label: "seedExpense" },
+  { field: "fertilizerExpense", label: "fertilizerExpense" },
+  { field: "labourExpense", label: "labourExpense" },
+  { field: "irrigationExpense", label: "irrigationExpense" },
+  { field: "transportExpense", label: "transportExpense" },
+  { field: "otherExpense", label: "otherExpense" },
+];
+
+function calculateFarmProfit(inputs: ProfitInputs) {
+  const area = Number(inputs.area);
+  const yieldPerAcre = Number(inputs.yieldPerAcre);
+  const salePrice = Number(inputs.salePrice);
+  const expenseValues = expenseFields.map(({ field }) => {
+    const value = inputs[field].trim();
+    return value ? Number(value) : 0;
   });
-  const expenseFields = [
-    { field: "seedExpense", label: "seedExpense" },
-    { field: "fertilizerExpense", label: "fertilizerExpense" },
-    { field: "labourExpense", label: "labourExpense" },
-    { field: "irrigationExpense", label: "irrigationExpense" },
-    { field: "transportExpense", label: "transportExpense" },
-    { field: "otherExpense", label: "otherExpense" },
-  ] as const;
+  const inputsPresent = Boolean(inputs.crop && inputs.area.trim() && inputs.yieldPerAcre.trim() && inputs.salePrice.trim());
+  const expenseTotal = expenseValues.reduce((total, value) => total + value, 0);
+  const totalYield = area * yieldPerAcre;
+  const revenue = totalYield * salePrice;
+  const profit = revenue - expenseTotal;
+  const perAcreProfit = profit / area;
+  const valid = inputsPresent &&
+    Number.isFinite(area) && area > 0 &&
+    [yieldPerAcre, salePrice, ...expenseValues].every((value) => Number.isFinite(value) && value >= 0) &&
+    [expenseTotal, totalYield, revenue, profit, perAcreProfit].every(Number.isFinite);
+  return {
+    valid,
+    totalYield: valid ? totalYield : 0,
+    revenue: valid ? revenue : 0,
+    totalExpenses: valid ? expenseTotal : 0,
+    profit: valid ? profit : 0,
+    profitPerAcre: valid ? perAcreProfit : 0,
+    expenseBreakdown: expenseFields.map((expense, index) => ({
+      ...expense,
+      amount: valid ? expenseValues[index] : 0,
+    })),
+  };
+}
+
+function ProfitCalculator({ t, form, onChange }: PageProps & {
+  form: ProfitInputs;
+  onChange: (field: keyof ProfitInputs, value: string) => void;
+}) {
   const cropOptions = [
     { value: "cropRice", label: t("cropRice") },
     { value: "cropRagi", label: t("cropRagi") },
@@ -1126,25 +1388,12 @@ function ProfitCalculator({ t }: PageProps) {
   ];
 
   function update(field: keyof ProfitInputs, value: string) {
-    setForm((current) => ({ ...current, [field]: value }));
+    onChange(field, value);
   }
 
-  const area = Number(form.area);
-  const yieldPerAcre = Number(form.yieldPerAcre);
-  const salePrice = Number(form.salePrice);
-  const expenseValues = expenseFields.map(({ field }) => {
-    const value = form[field].trim();
-    return value ? Number(value) : 0;
-  });
-  const requiredInputsPresent = Boolean(form.crop && form.area.trim() && form.yieldPerAcre.trim() && form.salePrice.trim());
-  const validInputs = requiredInputsPresent &&
-    Number.isFinite(area) && area > 0 &&
-    [yieldPerAcre, salePrice, ...expenseValues].every((value) => Number.isFinite(value) && value >= 0);
-  const totalYield = validInputs ? area * yieldPerAcre : 0;
-  const revenue = validInputs ? totalYield * salePrice : 0;
-  const expenses = validInputs ? expenseValues.reduce((total, value) => total + value, 0) : 0;
-  const profit = revenue - expenses;
-  const perAcreProfit = validInputs ? profit / area : 0;
+  const calculation = calculateFarmProfit(form);
+  const validInputs = calculation.valid;
+  const { totalYield, revenue, totalExpenses: expenses, profit, profitPerAcre: perAcreProfit } = calculation;
   const chartMaximum = Math.max(revenue, expenses, Math.abs(profit), 1);
   const metrics = [
     { label: "totalExpectedYield" as const, value: validInputs ? new Intl.NumberFormat("en-IN", { maximumFractionDigits: 2 }).format(totalYield) : "—", unit: validInputs ? t("quintals") : "", negative: false },
@@ -1190,6 +1439,217 @@ function ProfitCalculator({ t }: PageProps) {
           </div>)}
         </div>}
         <p className="profit-disclaimer">{t("calculatorDisclaimer")}</p>
+      </section>
+    </div>
+  </>;
+}
+
+function SmartFarm({ t, language, profile, location, forecast, profitInputs, onProfitInputChange, mandiSnapshot, navigate }: PageProps & {
+  language: Language;
+  profile: FarmerProfile | null;
+  location: WeatherLocation | null;
+  forecast: WeatherForecast | null;
+  profitInputs: ProfitInputs;
+  onProfitInputChange: (field: keyof ProfitInputs, value: string) => void;
+  mandiSnapshot: MandiSnapshot | null;
+  navigate: (screen: Screen) => void;
+}) {
+  const cropOptions = [
+    { value: "cropRice", label: t("cropRice") },
+    { value: "cropRagi", label: t("cropRagi") },
+    { value: "cropMaize", label: t("cropMaize") },
+    { value: "cropPulses", label: t("cropPulses") },
+  ];
+  const selectedCrop = cropOptions.find((crop) => crop.value === profitInputs.crop);
+  const cropName = selectedCrop?.label ?? t("chooseCrop");
+  const soilLabels: Record<string, keyof typeof text.en> = {
+    "Red soil": "typeRed",
+    "Black soil": "typeBlack",
+    "Sandy soil": "typeSandy",
+    "Loamy soil": "typeLoamy",
+  };
+  const soilName = profile?.soil && soilLabels[profile.soil] ? t(soilLabels[profile.soil]) : t("noFarmSoil");
+  const isMatchingMarketSnapshot = Boolean(
+    selectedCrop && mandiSnapshot && farmCropMatchesCommodity(selectedCrop.value, mandiSnapshot.commodity),
+  );
+  const realPriceHistory = isMatchingMarketSnapshot && mandiSnapshot
+    ? dailyModalPrices(mandiSnapshot.records, mandiSnapshot.commodity)
+    : [];
+  const isDemoMarket = realPriceHistory.length === 0;
+  const priceHistory = isDemoMarket && selectedCrop ? demoFarmPriceHistory : realPriceHistory;
+  const marketAnalysis = analyzeFarmPrices(priceHistory);
+  const priceChangeLabel = marketAnalysis.percentageChange === null
+    ? t("noPrice")
+    : `${new Intl.NumberFormat(language === "en" ? "en-IN" : "kn-IN", {
+      signDisplay: "exceptZero",
+      minimumFractionDigits: 1,
+      maximumFractionDigits: 1,
+    }).format(marketAnalysis.percentageChange)}%`;
+  const recentPrices = priceHistory.slice(-5);
+  const maximumMarketPrice = Math.max(1, ...recentPrices.map((point) => point.modalPrice));
+  const alerts = forecast ? farmWeatherAlerts(forecast) : [];
+  const availableWeatherValues = Boolean(forecast && (
+    forecast.current.windSpeed !== null ||
+    forecast.daily.some((day) => day.precipitation !== null || day.precipitationProbability !== null || day.temperatureMax !== null)
+  ));
+  const riskKey = !selectedCrop || !profile?.soil || !availableWeatherValues
+    ? "riskUnavailable"
+    : alerts.length === 0 ? "lowRisk"
+      : alerts.length === 1 ? "moderateRisk"
+        : "highRisk";
+  const riskWidth = riskKey === "lowRisk" ? "24%" : riskKey === "moderateRisk" ? "60%" : riskKey === "highRisk" ? "100%" : "0%";
+  const calculation = calculateFarmProfit(profitInputs);
+  const largestExpense = calculation.expenseBreakdown.reduce<typeof calculation.expenseBreakdown[number] | null>(
+    (largest, expense) => expense.amount > (largest?.amount ?? 0) ? expense : largest,
+    null,
+  );
+  const largestExpenseShare = largestExpense && calculation.totalExpenses > 0
+    ? largestExpense.amount / calculation.totalExpenses * 100
+    : 0;
+  const maximumExpense = Math.max(1, ...calculation.expenseBreakdown.map((expense) => expense.amount));
+  const weatherAlertCopy = alerts.map((alert) => ({ alert, ...farmWeatherAlertCopy(alert, t, language) }));
+  const samplePeriodKeys = ["samplePeriodOne", "samplePeriodTwo", "samplePeriodThree"] as const;
+  const recommendations = [
+    {
+      icon: "☁",
+      title: fillTemplate(t("weatherRecommendationTitle"), { "{crop}": cropName }),
+      body: !forecast
+        ? t("weatherRecommendationNoData")
+        : weatherAlertCopy.length
+          ? fillTemplate(t("weatherRecommendationBody"), { "{alert}": `${weatherAlertCopy[0].title}: ${weatherAlertCopy[0].body}` })
+          : t("weatherRecommendationNoAlert"),
+      priority: !forecast || !weatherAlertCopy.length ? "priorityLow" as const : alerts[0].kind === "heavyRain" ? "priorityHigh" as const : "priorityMedium" as const,
+    },
+    {
+      icon: "↗",
+      title: fillTemplate(t("marketRecommendationTitle"), { "{crop}": cropName }),
+      body: !selectedCrop
+        ? t("selectCropForSmartFarm")
+        : fillTemplate(t("marketRecommendationBody"), {
+          "{recommendation}": t(isDemoMarket ? "monitorMarket" : marketAnalysis.recommendation),
+          "{reason}": t(isDemoMarket ? "marketSampleReason" : marketAnalysis.reason),
+        }),
+      priority: !selectedCrop || isDemoMarket || priceHistory.length < 3 ? "priorityLow" as const : "priorityMedium" as const,
+    },
+    {
+      icon: "₹",
+      title: largestExpense
+        ? fillTemplate(t("expenseRecommendationTitle"), { "{category}": t(largestExpense.label) })
+        : t("farmCostsTitle"),
+      body: !calculation.valid
+        ? t("expenseRecommendationNoData")
+        : largestExpense && calculation.totalExpenses > 0
+          ? fillTemplate(t("expenseRecommendationBody"), {
+            "{category}": t(largestExpense.label),
+            "{share}": new Intl.NumberFormat(language === "en" ? "en-IN" : "kn-IN", { maximumFractionDigits: 1 }).format(largestExpenseShare),
+          })
+          : t("expenseRecommendationNoCosts"),
+      priority: largestExpenseShare >= 50 ? "priorityMedium" as const : "priorityLow" as const,
+    },
+  ];
+  const marketRecommendationReason = !selectedCrop ? t("selectCropForSmartFarm")
+    : isDemoMarket ? t("samplePriceExplanation")
+      : marketAnalysis.reason === "marketInsufficientReason" ? t("marketInsufficientReason")
+        : t("reportedPriceMethod");
+
+  return <>
+    <PageHeading eyebrow={t("smartFarmEyebrow")} title={t("smartFarmTitle")} description={t("smartFarmSub")} t={t} badge={t("smartFarmOverview")} badgeKind="source" />
+    <section className="panel smart-farm-context">
+      <label htmlFor="smart-farm-crop">{t("cropSelect")}<select id="smart-farm-crop" value={profitInputs.crop} onChange={(event) => onProfitInputChange("crop", event.target.value)}>
+        <option value="">{t("chooseCrop")}</option>{cropOptions.map((crop) => <option value={crop.value} key={crop.value}>{crop.label}</option>)}
+      </select></label>
+      <div><span>{t("soilChoice")}</span><strong>{soilName}</strong><small>{profile?.soil ? t("profileSoilNote") : t("noProfile")}</small></div>
+      <div><span>{t("locationUnset")}</span><strong>{profile ? `${profile.village}, ${profile.district}` : location?.name ?? t("noProfile")}</strong><small>{location ? locationLabel(location) : t("noForecastForFarm")}</small></div>
+    </section>
+
+    <div className="smart-farm-grid">
+      <section className="panel smart-farm-weather">
+        <div className="smart-farm-panel-heading"><div><div className="eyebrow">{t("weatherTitle")}</div><h2>{t("todayForecast")}</h2></div>{forecast && <span className="live-tag"><i />{t("live")}</span>}</div>
+        {forecast ? <>
+          <div className="smart-current-weather">
+            <div><span>{t("currentTemperature")}</span><strong>{forecast.current.temperature ?? "—"}°C</strong></div>
+            <div><span>{t("rainfall")}</span><strong>{forecast.current.precipitation ?? "—"} mm</strong></div>
+            <div><span>{t("wind")}</span><strong>{forecast.current.windSpeed ?? "—"} km/h</strong></div>
+          </div>
+          <div className="smart-forecast-days">{forecast.daily.slice(0, 3).map((day) => <div key={day.date}>
+            <strong>{formatMandiDate(day.date, language)}</strong><span>{t("high")} {day.temperatureMax ?? "—"}° · {t("low")} {day.temperatureMin ?? "—"}°</span>
+            <small>{t("expectedRain")}: {day.precipitation ?? "—"} mm · {t("rainChance")}: {day.precipitationProbability ?? "—"}%</small>
+          </div>)}</div>
+        </> : <p className="smart-farm-empty">{t("noForecastForFarm")}</p>}
+      </section>
+
+      <section className="panel smart-farm-market">
+        <div className="smart-farm-panel-heading"><div><div className="eyebrow">{t("marketCard")}</div><h2>{t("latestMandiAverage")}</h2></div>
+          <span className={`demo-badge ${isDemoMarket ? "" : "source-badge"}`}><i />{isDemoMarket ? t("demoPriceLabel") : "AGMARKNET"}</span>
+        </div>
+        {!selectedCrop
+          ? <p className="smart-farm-empty">{t("selectCropForSmartFarm")}</p>
+          : <>
+            <div className="smart-market-prices">
+              <div><span>{t("currentReportedPrice")}</span><strong>{formatPrice(marketAnalysis.current?.modalPrice ?? null)}</strong>{marketAnalysis.current && <small>{isDemoMarket ? t("samplePeriodThree") : formatMandiDate(marketAnalysis.current.date, language)}</small>}</div>
+              <div><span>{t("previousReportedPrice")}</span><strong>{formatPrice(marketAnalysis.previous?.modalPrice ?? null)}</strong>{marketAnalysis.previous && <small>{isDemoMarket ? t("samplePeriodTwo") : formatMandiDate(marketAnalysis.previous.date, language)}</small>}</div>
+              <div><span>{t("priceChange")}</span><strong>{priceChangeLabel}</strong></div>
+            </div>
+            <div className="smart-market-trend"><span>{t("trend")}: <strong>{t(marketAnalysis.trend)}</strong></span>
+              <strong>{t(isDemoMarket ? "monitorMarket" : marketAnalysis.recommendation)}</strong></div>
+            <p className="smart-market-reason">{isDemoMarket ? t("marketSampleReason") : t(marketAnalysis.reason)}</p>
+            <div className="smart-price-history" aria-label={t("reportedPriceHistory")}>{recentPrices.map((point, index) => <div key={`${point.date}-${index}`}>
+              <span>{formatPrice(point.modalPrice)}</span>
+              <i style={{ height: `${Math.max(8, point.modalPrice / maximumMarketPrice * 100)}%` }} />
+              <small>{isDemoMarket ? t(samplePeriodKeys[index] ?? "samplePeriodThree") : formatMandiDate(point.date, language)}</small>
+            </div>)}</div>
+            {isDemoMarket ? <p className="smart-market-demo-note">{t("demoPriceLabel")}. {t("samplePriceExplanation")}</p> : <p className="smart-market-demo-note">{mandiSnapshot?.commodity} · {marketRecommendationReason}</p>}
+            <button className="text-link" onClick={() => navigate("mandi")}>{t("openMandi")} <span>→</span></button>
+          </>}
+      </section>
+
+      <section className="panel smart-farm-risk">
+        <div className="smart-farm-panel-heading"><div><div className="eyebrow">{t("cropRiskTitle")}</div><h2>{t(riskKey)}</h2></div><span className={`risk-mark ${riskKey === "highRisk" ? "risk-high" : riskKey === "moderateRisk" ? "risk-moderate" : riskKey === "lowRisk" ? "risk-low" : ""}`}>{riskKey === "riskUnavailable" ? "—" : riskKey === "highRisk" || riskKey === "moderateRisk" ? "!" : "✓"}</span></div>
+        <div className="risk-meter"><i className={riskKey === "highRisk" ? "risk-high" : riskKey === "moderateRisk" ? "risk-moderate" : "risk-low"} style={{ width: riskWidth }} /></div>
+        <ul className="risk-factors">{riskKey === "riskUnavailable"
+          ? <li><span>i</span><div><strong>{t("riskUnavailable")}</strong><small>{t("riskWeatherUnavailable")}</small></div></li>
+          : alerts.length
+          ? weatherAlertCopy.map(({ alert, title, body }) => <li key={`${alert.kind}-${alert.date ?? "current"}`}><span>!</span><div><strong>{title}</strong><small>{body}</small></div></li>)
+          : <li><span>i</span><div><strong>{t("lowRisk")}</strong><small>{t("noActiveFarmAlerts")}</small></div></li>}
+        </ul>
+        <p className="risk-method-note">{t("riskContextNote")} {t("riskMethod")}</p>
+      </section>
+
+      <section className="panel smart-farm-alerts">
+        <div className="smart-farm-panel-heading"><div><div className="eyebrow">{t("farmAlertsTitle")}</div><h2>{t("todayForecast")}</h2></div><span className={`demo-badge ${forecast ? "source-badge" : ""}`}><i />{forecast ? t("forecastVerified") : t("generalAdviceLabel")}</span></div>
+        {forecast && alerts.length
+          ? <ul className="farm-alert-list">{weatherAlertCopy.map(({ alert, title, body }) => <li key={`${alert.kind}-${alert.date ?? "current"}`}><span className="farm-alert-icon">!</span><div><strong>{title}</strong><p>{body}</p></div><b>{t(alert.kind === "heavyRain" ? "priorityHigh" : "priorityMedium")}</b></li>)}</ul>
+          : <div className="general-weather-note"><strong>{t(forecast ? "noActiveFarmAlerts" : "generalWeatherAdviceTitle")}</strong><p>{t(forecast ? "noActiveFarmAlerts" : "generalWeatherAdviceBody")}</p></div>}
+      </section>
+
+      <section className="panel smart-farm-expenses">
+        <div className="smart-farm-panel-heading"><div><div className="eyebrow">{t("farmCostsTitle")}</div><h2>{t("calculatorResults")}</h2></div><button className="button button-outline" onClick={() => navigate("profit")}>{t("profit")} <span>→</span></button></div>
+        <div className="farm-finance-metrics">
+          {[{ label: "totalInvestment" as const, value: calculation.valid ? formatRupees(calculation.totalExpenses) : "—" },
+            { label: "expectedRevenue" as const, value: calculation.valid ? formatRupees(calculation.revenue) : "—" },
+            { label: "estimatedProfit" as const, value: calculation.valid ? formatRupees(calculation.profit) : "—", negative: calculation.profit < 0 },
+            { label: "profitPerAcre" as const, value: calculation.valid ? formatRupees(calculation.profitPerAcre) : "—", negative: calculation.profitPerAcre < 0 }].map((metric) =>
+            <div key={metric.label}><span>{t(metric.label)}</span><strong className={metric.negative ? "profit-negative" : ""}>{metric.value}</strong></div>)}
+        </div>
+        {calculation.valid ? <>
+          {largestExpense && largestExpenseShare > 0 && <p className="largest-expense-insight">{fillTemplate(t("largestExpenseInsight"), {
+            "{category}": t(largestExpense.label),
+            "{share}": new Intl.NumberFormat(language === "en" ? "en-IN" : "kn-IN", { maximumFractionDigits: 1 }).format(largestExpenseShare),
+          })}</p>}
+          <div className="farm-expense-breakdown">{calculation.expenseBreakdown.map((expense) => <div key={expense.field}>
+            <div><span>{t(expense.label)}</span><strong>{formatRupees(expense.amount)}</strong></div>
+            <i><b style={{ width: `${expense.amount / maximumExpense * 100}%` }} /></i>
+          </div>)}</div>
+          {!largestExpense && <p className="smart-farm-empty">{t("noExpensesEntered")}</p>}
+        </> : <p className="smart-farm-empty">{t("expenseRecommendationNoData")}</p>}
+      </section>
+
+      <section className="panel smart-farm-recommendations">
+        <div className="smart-farm-panel-heading"><div><div className="eyebrow">{t("smartFarmEyebrow")}</div><h2>{t("personalizedTitle")}</h2></div><span className="profile-illustration">✳</span></div>
+        <div className="farm-recommendation-list">{recommendations.map((recommendation, index) => <article key={index}>
+          <span className="farm-rec-icon">{recommendation.icon}</span>
+          <div><div className="farm-rec-heading"><strong>{recommendation.title}</strong><small className={`priority-label ${recommendation.priority}`}>{t(recommendation.priority)}</small></div><p>{recommendation.body}</p></div>
+        </article>)}</div>
       </section>
     </div>
   </>;
