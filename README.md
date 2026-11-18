@@ -1,6 +1,8 @@
-# KrishiMitra — Farming Companion Prototype
+# 🌾 KrishiMitra — Farming Companion Prototype
 
-A responsive React + TypeScript farming companion prototype. The interface includes a dashboard, Open-Meteo weather and forecast, mandi price board, soil profile, crop ideas, advisory chat, settings, English/Kannada language switching, and a farmer profile saved in the current browser.
+**🔗 Live Demo:** [https://vercel.app](https://vercel.app)
+
+A responsive React + TypeScript farming companion prototype. The interface includes a dashboard, Open-Meteo weather and forecast, mandi price board, soil profile, crop ideas, advisory chat, settings, English/Kannada/Hindi language switching with voice read-aloud, offline caching, WhatsApp sharing, and a farmer profile saved in the current browser.
 
 ## Requirements
 
@@ -26,11 +28,12 @@ A responsive React + TypeScript farming companion prototype. The interface inclu
 
 For live mandi prices, create a root `.env` file from `.env.example`, replace the placeholder with your data.gov.in API key, and restart Vite. The key is read by the server-side Vite middleware; do not put it in frontend code or commit `.env`.
 
-For a production build, run `npm run build`. To serve that build locally, run `npm run preview`.
+For a production build, run `npm run build`. To serve that build locally, run `node server.mjs` (or `npm run preview`).
 
 ## Try the prototype
 
-- Use the left navigation on desktop or the bottom navigation and **More** menu on a phone to visit all thirteen screens.
+- **Live Web App:** Visit [https://vercel.app](https://vercel.app) to test the deployed application directly in any desktop or mobile browser.
+- Use the left navigation on desktop or the bottom navigation and **More** menu on a phone to visit all screens.
 - Switch between **EN**, **ಕನ್ನಡ**, and **हिंदी** from the top bar or Settings. Hindi is applied to key navigation, weather, Smart Farm, and profit-calculator labels and guidance; legacy screens without Hindi copy fall back to English.
 - Open Settings, fill in the farmer profile, and save it. The details persist in this browser using localStorage; use **Clear saved profile** to remove them.
 - Try the sample questions in Advisory Chat. Replies are intentionally static demo guidance, not a live expert or AI service.
@@ -44,9 +47,10 @@ For a production build, run `npm run build`. To serve that build locally, run `n
 - Open **Irrigation planner**, select a crop, soil type, growth stage, and your own soil-moisture observation. Set a location on Weather to see the live rain forecast and the scheduler's rain-aware decision. The water volume is an explicitly illustrative stage-based planning estimate, not a crop-specific prescription or sensor reading; confirm irrigation depth with your local KVK/agriculture officer.
 - Open **Crop rotation planner**, select the harvested crop, soil type, and next season to compare three general crop-family rotation candidates. The planner explains the assumptions, nitrogen-fixation caveats, and companion-plant limits; confirm local suitability with your KVK/agriculture officer.
 - On the Weather screen, search for a Karnataka location such as **Mysuru**, **Bengaluru**, or **Hubballi**. Select the matching geocoding result to load current conditions and a seven-day forecast from Open-Meteo. The selected location is saved in this browser; use **Change location** to pick another one.
-- Weather is fetched from Open-Meteo at `api.open-meteo.com`; place names are looked up with `geocoding-api.open-meteo.com`. No device location permission is requested and no API key is used. Weather failures display an error instead of demo values. The last-updated time and source are shown with the forecast.
+- Weather is fetched from Open-Meteo at `://open-meteo.com`; place names are looked up with `geocoding-://open-meteo.com`. No device location permission is requested and no API key is used. Weather failures display an error instead of demo values. The last-updated time and source are shown with the forecast.
 - Use **Refresh weather** to fetch updated conditions. The weather advisory uses only the displayed forecast for general rain, heavy-rain, heat, and wind reminders; it does not prescribe treatments.
+- **Offline Caching & WhatsApp Share:** Fetched weather, mandi prices, and advisories are cached in `localStorage` with an online/offline status badge in the header for low-network rural conditions, and key summaries can be shared in one click via WhatsApp.
 
 ## Scope
 
-This repository contains the Phase 1 UI prototype with Open-Meteo weather and a server-side data.gov.in mandi integration. It has no authentication or external advisory integration. Profile and selected weather location remain in the device and browser where they were entered.
+This repository contains the Phase 1 UI prototype with Open-Meteo weather and a server-side data.gov.in mandi integration. It has no authentication or external advisory integration. Profile, cached data, and selected weather location remain in the device and browser where they were entered.
