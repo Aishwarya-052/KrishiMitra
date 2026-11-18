@@ -344,6 +344,38 @@ td:first-child { color: #455b49; font-weight: 600; }
 .missing-date-note { margin-top: 10px; color: #9a8053; font-size: 8px; line-height: 1.6; }
 .missing-date-note strong { margin-right: 4px; }
 .history-method, .mandi-history-empty { margin: 10px 0 0; color: #8d988e; font-size: 8px; line-height: 1.5; }
+.sell-wait-advisor { padding: 17px; margin-bottom: 14px; background: #fbfcf9; }
+.sell-wait-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.sell-wait-heading .eyebrow { margin-bottom: 5px; }
+.sell-wait-heading h2 { margin: 0; color: #334a39; font: 700 14px "Manrope", sans-serif; }
+.sell-wait-heading p { margin: 5px 0 0; color: #879287; font-size: 8px; line-height: 1.5; }
+.sell-wait-icon { display: grid; place-items: center; width: 32px; height: 32px; flex: 0 0 32px; border-radius: 9px; color: #5c805d; background: #eaf2e5; font-size: 18px; }
+.sell-wait-message { margin: 13px 0 0; color: #79877c; font-size: 9px; line-height: 1.5; }
+.sell-wait-metrics { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 9px; margin-top: 14px; }
+.sell-wait-metrics > div { min-width: 0; padding: 10px; border: 1px solid #e9eee5; border-radius: 8px; background: #fff; }
+.sell-wait-metrics span, .sell-wait-metrics strong, .sell-wait-metrics small { display: block; }
+.sell-wait-metrics span { color: #879287; font-size: 8px; line-height: 1.4; }
+.sell-wait-metrics strong { margin-top: 5px; color: #405b45; font: 700 15px "Manrope", sans-serif; overflow-wrap: anywhere; }
+.sell-wait-metrics small { margin-top: 4px; color: #9aa39a; font-size: 7px; }
+.sell-wait-metrics strong.advisor-up { color: #4e8052; }
+.sell-wait-metrics strong.advisor-down { color: #a56e4d; }
+.sell-wait-result { display: flex; align-items: flex-start; justify-content: space-between; gap: 15px; margin-top: 10px; padding: 11px 12px; border-radius: 8px; background: #f0f4eb; }
+.sell-wait-result-heading { display: flex; align-items: center; gap: 9px; min-width: 160px; }
+.trend-indicator { display: grid; place-items: center; width: 27px; height: 27px; flex: 0 0 27px; border-radius: 50%; color: #7a805b; background: #e5e9d8; font-size: 15px; }
+.trend-indicator.rising { color: #4e8052; background: #dfeedd; }
+.trend-indicator.falling { color: #a56e4d; background: #f3e7d9; }
+.sell-wait-result-heading small, .sell-wait-result-heading strong { display: block; }
+.sell-wait-result-heading small { color: #7d8b7b; font-size: 7px; }
+.sell-wait-result-heading strong { margin-top: 3px; color: #405b45; font-size: 10px; }
+.sell-wait-result > p { margin: 0; color: #728071; font-size: 8px; line-height: 1.55; }
+.sell-wait-history { margin-top: 13px; }
+.sell-wait-history > strong { color: #667769; font-size: 8px; }
+.sell-wait-bars { min-height: 105px; display: flex; align-items: end; gap: 9px; overflow-x: auto; margin-top: 8px; padding: 7px 4px 0; border-bottom: 1px solid #edf0e9; }
+.sell-wait-bar { min-width: 54px; height: 98px; display: grid; grid-template-rows: 14px 1fr 23px; justify-items: center; gap: 3px; }
+.sell-wait-bar > span { color: #617463; font-size: 7px; white-space: nowrap; }
+.sell-wait-bar > i { align-self: end; width: 19px; min-height: 3px; border-radius: 5px 5px 0 0; background: #85a777; }
+.sell-wait-bar > small { color: #8c988e; font-size: 7px; text-align: center; }
+.sell-wait-disclaimer { margin: 9px 0 0; color: #8d988e; font-size: 7px; line-height: 1.5; }
 
 .soil-summary { display: flex; align-items: center; gap: 15px; padding: 20px; background: #f0f3e8; }
 .soil-emblem { width: 58px; height: 58px; flex: 0 0 58px; display: grid; place-items: center; position: relative; border-radius: 16px; color: #668358; background: #dfe8d2; font-size: 34px; }
@@ -408,6 +440,39 @@ td:first-child { color: #455b49; font-weight: 600; }
 .profile-form-panel { padding: 19px; margin-top: 14px; scroll-margin-top: 16px; }
 .profile-form-heading { display: flex; align-items: center; gap: 12px; padding-bottom: 16px; border-bottom: 1px solid #eff1eb; }.profile-icon { width: 40px; height: 40px; display: grid; place-items: center; border-radius: 12px; color: #63835b; background: #e9f0e3; font-size: 22px; }.profile-form-heading .eyebrow { margin-bottom: 4px; }.profile-form-heading h2 { margin: 0; color: #3b5140; font: 700 15px "Manrope", sans-serif; }.profile-form-heading p { margin: 4px 0 0; color: #8d988f; font-size: 9px; }
 .profile-form { display: grid; grid-template-columns: repeat(2, 1fr); gap: 13px; padding-top: 16px; }.profile-form label { display: grid; gap: 6px; color: #607065; font-size: 9px; font-weight: 600; }.profile-form input, .profile-form select { width: 100%; min-height: 36px; padding: 0 10px; border: 1px solid #e5e9e1; border-radius: 7px; color: #4c6251; background: #fff; font-size: 10px; }.profile-form input::placeholder { color: #abb3ab; }.profile-form select:invalid { color: #aab1aa; }.form-footer { display: flex; grid-column: 1 / -1; align-items: center; justify-content: space-between; gap: 12px; padding-top: 4px; }.form-footer > span { color: #9aa39a; font-size: 8px; }
+.profit-layout { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); align-items: start; gap: 14px; }
+.profit-input-panel, .profit-results-panel { min-width: 0; padding: 18px; }
+.profit-input-panel .panel-heading h2, .profit-results-panel .panel-heading h2 { font-size: 14px; }
+.profit-result-icon { display: grid; place-items: center; width: 34px; height: 34px; border-radius: 10px; color: #5e8059; background: #eaf1e5; font-size: 17px; }
+.profit-input-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 11px; margin-top: 15px; }
+.profit-input-grid label { min-width: 0; display: grid; align-content: start; gap: 6px; color: #607065; font-size: 9px; font-weight: 600; line-height: 1.4; }
+.profit-input-grid input, .profit-input-grid select { width: 100%; min-width: 0; min-height: 38px; padding: 0 10px; border: 1px solid #e5e9e1; border-radius: 7px; color: #4c6251; background: #fff; font-size: 10px; }
+.profit-input-grid input::placeholder { color: #abb3ab; }
+.profit-crop-field { grid-column: 1 / -1; }
+.profit-expenses-heading { margin-top: 17px; padding-top: 13px; border-top: 1px solid #eff1eb; }
+.profit-expenses-heading h3, .profit-chart h3 { margin: 0; color: #53694f; font: 700 10px "Manrope", sans-serif; }
+.profit-expenses-heading p { margin: 4px 0 0; color: #929d93; font-size: 8px; }
+.profit-expenses-grid { margin-top: 10px; }
+.profit-metrics { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 9px; margin-top: 14px; }
+.profit-metric { min-width: 0; padding: 11px; border: 1px solid #e9eee5; border-radius: 9px; background: #fbfcf9; }
+.profit-metric > span, .profit-metric > strong, .profit-metric > small { display: block; }
+.profit-metric > span { min-height: 22px; color: #879287; font-size: 8px; line-height: 1.4; }
+.profit-metric > strong { margin-top: 5px; color: #3f6046; font: 700 15px "Manrope", sans-serif; overflow-wrap: anywhere; }
+.profit-metric > strong.profit-negative, .profit-chart-label > strong.profit-negative { color: #a45e49; }
+.profit-metric > small { margin-top: 4px; color: #909b91; font-size: 8px; }
+.profit-chart { margin-top: 15px; padding: 13px; border-radius: 9px; background: #f5f7f1; }
+.profit-chart h3 { margin-bottom: 12px; }
+.profit-chart-row + .profit-chart-row { margin-top: 10px; }
+.profit-chart-label { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 5px; }
+.profit-chart-label > span { color: #758276; font-size: 8px; }
+.profit-chart-label > strong { color: #445d48; font-size: 9px; }
+.profit-chart-track { height: 8px; overflow: hidden; border-radius: 8px; background: #e7ece3; }
+.profit-chart-track i { display: block; height: 100%; min-width: 0; border-radius: inherit; background: #77a16d; }
+.profit-chart-track i.expenses { background: #d3a656; }
+.profit-chart-track i.net-profit { background: #54875a; }
+.profit-chart-track i.net-profit.negative { background: #bf765d; }
+.profit-prompt { margin: 14px 0 0; padding: 11px; border-radius: 8px; color: #758276; background: #f5f7f1; font-size: 9px; line-height: 1.5; }
+.profit-disclaimer { margin: 12px 0 0; color: #929b91; font-size: 8px; line-height: 1.5; }
 
 .mobile-nav { display: none; }
 @media (min-width: 1500px) { .main-area { padding-right: 58px; padding-left: 58px; }.page-content { padding-top: 35px; }.welcome-row { min-height: 180px; } }
@@ -434,11 +499,13 @@ td:first-child { color: #455b49; font-weight: 600; }
   .weather-live-facts { padding: 10px 9px; }.weather-live-facts > div { grid-template-columns: 12px 1fr; column-gap: 3px; padding-left: 5px; }.weather-live-facts > div > span { font-size: 11px; }.weather-live-facts small { font-size: 6px; }.weather-live-facts strong { font-size: 9px; }.weather-live-facts em { font-size: 6px; }
   .weather-data-meta { align-items: flex-start; flex-wrap: wrap; gap: 7px; line-height: 1.5; }.weather-data-meta > span:first-child { flex-basis: 100%; }.weather-data-meta .button { margin-left: auto; }.seven-day-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 7px; }.forecast-card { gap: 6px; padding: 10px 5px; }.forecast-date { font-size: 8px; }.forecast-condition { min-height: 0; }.forecast-temperatures { font-size: 7px; }.forecast-rain { font-size: 7px; }.live-forecast-panel { padding: 14px 11px; }.farming-advisory { padding: 14px; }
   .table-heading { align-items: start; padding: 15px 13px 12px; }.table-heading h2 { font-size: 12px; }.location-chip { padding: 6px 7px; font-size: 8px; }.table-panel th, .table-panel td { padding: 12px 10px; }.table-panel th { font-size: 8px; }.table-panel td { font-size: 9px; }.table-footnote { padding: 11px 12px; font-size: 8px; }
-  .mandi-filter-panel, .mandi-comparison, .mandi-history { padding: 12px; }.mandi-filters { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 9px; }.commodity-options { top: 61px; }.mandi-filter-foot { align-items: flex-start; }.mandi-filter-foot > span { line-height: 1.5; }.mandi-source-line { font-size: 7px; }.mandi-section-heading { align-items: flex-start; flex-direction: column; }.mandi-section-heading h2 { font-size: 12px; }.comparison-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 7px; }.comparison-card { padding: 8px; }.comparison-card > b { font-size: 12px; }.date-filters { width: 100%; }.date-filters label { flex: 1; }.date-filters input { min-width: 0; }.history-bars { gap: 4px; }
+  .mandi-filter-panel, .mandi-comparison, .mandi-history, .sell-wait-advisor { padding: 12px; }.mandi-filters { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 9px; }.commodity-options { top: 61px; }.mandi-filter-foot { align-items: flex-start; }.mandi-filter-foot > span { line-height: 1.5; }.mandi-source-line { font-size: 7px; }.mandi-section-heading { align-items: flex-start; flex-direction: column; }.mandi-section-heading h2 { font-size: 12px; }.comparison-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 7px; }.comparison-card { padding: 8px; }.comparison-card > b { font-size: 12px; }.date-filters { width: 100%; }.date-filters label { flex: 1; }.date-filters input { min-width: 0; }.history-bars { gap: 4px; }
+  .sell-wait-heading h2 { font-size: 12px; }.sell-wait-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 7px; }.sell-wait-metrics > div:first-child { grid-column: 1 / -1; }.sell-wait-metrics strong { font-size: 13px; }.sell-wait-result { flex-direction: column; gap: 8px; }.sell-wait-result-heading { min-width: 0; }
   .soil-summary { padding: 14px; gap: 11px; }.soil-emblem { width: 46px; height: 46px; flex-basis: 46px; font-size: 28px; }.soil-summary-main h2 { font-size: 14px; }.soil-summary .demo-badge { font-size: 7px; }.soil-metrics { grid-template-columns: repeat(2, 1fr); gap: 9px; }.soil-metric { min-height: 111px; padding: 13px 12px; }.soil-metric:last-child { grid-column: span 2; min-height: 102px; }.soil-metric > strong { margin: 9px 0; font-size: 16px; }
   .crop-grid { gap: 9px; }.crop-art { height: 84px; }.crop-art > span { font-size: 47px; }.crop-art > small { left: 8px; top: 9px; font-size: 6px; }.crop-content { padding: 11px 10px; }.crop-content h2 { font-size: 13px; }.crop-content > p { min-height: 55px; font-size: 8px; }.crop-facts { grid-template-columns: 1fr; gap: 7px; }.crop-facts strong { font-size: 8px; }.crop-content .button { min-height: 34px; padding: 0 5px; font-size: 8px; }
   .chat-layout { grid-template-columns: 1fr; }.chat-window { min-height: 420px; }.chat-side { min-height: 210px; padding: 17px; }.side-spark { margin-bottom: 12px; }.chat-side-bottom { padding: 11px 17px; }
   .settings-card { padding: 14px; gap: 10px; }.settings-icon { width: 32px; height: 32px; flex-basis: 32px; }.settings-card h2, .about-card h2 { font-size: 12px; }.language-options button { min-width: 103px; }.about-card { padding: 14px; }
+  .profit-layout { grid-template-columns: 1fr; gap: 10px; }.profit-input-panel, .profit-results-panel { padding: 14px; }.profit-input-grid { gap: 9px; }.profit-metric > strong { font-size: 14px; }
   .profile-form-panel { padding: 14px; }.profile-form { gap: 11px; }.profile-form label { font-size: 8px; }.profile-form input, .profile-form select { font-size: 9px; }.profile-form-heading h2 { font-size: 13px; }.form-footer { align-items: start; flex-direction: column; }.form-footer .button { align-self: stretch; }
   .mobile-nav { position: fixed; z-index: 40; display: grid; grid-template-columns: repeat(5, 1fr); height: 59px; left: 0; right: 0; bottom: 0; padding: 4px 5px max(4px, env(safe-area-inset-bottom)); border-top: 1px solid #e5e9e0; background: #fff; box-shadow: 0 -4px 15px #2138220a; }
   .mobile-nav > button { display: grid; align-content: center; justify-items: center; gap: 2px; border: 0; border-radius: 9px; color: #859187; background: transparent; }.mobile-nav > button > span { height: 19px; font-size: 19px; line-height: 1; }.mobile-nav > button small { max-width: 100%; overflow: hidden; font-size: 7px; white-space: nowrap; text-overflow: ellipsis; }.mobile-nav > button.selected { color: #47764b; background: #f1f5ec; }.mobile-more-menu { position: absolute; right: 8px; bottom: 66px; width: min(220px, calc(100vw - 24px)); padding: 7px; border: 1px solid #e7ebe3; border-radius: 12px; background: #fff; box-shadow: 0 8px 30px #1f38201c; }.mobile-more-menu button { width: 100%; display: flex; align-items: center; gap: 10px; padding: 11px; border: 0; border-radius: 8px; color: #536a56; background: #fff; text-align: left; font-size: 11px; }.mobile-more-menu button:hover { background: #f3f6ef; }
@@ -446,7 +513,7 @@ td:first-child { color: #455b49; font-weight: 600; }
 @media (max-width: 380px) {
   .main-area { padding-right: 12px; padding-left: 12px; }.mobile-brand { font-size: 11px; }.offline-pill { display: none; }
   .overview-card { padding-right: 9px; padding-left: 9px; }.market-price { font-size: 19px; }.mini-stats { font-size: 7px; }.weather-facts div { display: block; padding-left: 6px; }.weather-facts div > span { display: none; }.weather-facts small { display: block; line-height: 1.4; }.weather-facts strong { display: block; }
-  .soil-summary .demo-badge { padding: 5px; letter-spacing: 0; }.crop-grid { grid-template-columns: 1fr; }.crop-art { height: 94px; }.crop-content > p { min-height: 0; }.crop-facts { grid-template-columns: 1fr 1fr; }.crop-content .button { font-size: 9px; }.profile-form { grid-template-columns: 1fr; }.form-footer { grid-column: 1; }
+  .soil-summary .demo-badge { padding: 5px; letter-spacing: 0; }.crop-grid { grid-template-columns: 1fr; }.crop-art { height: 94px; }.crop-content > p { min-height: 0; }.crop-facts { grid-template-columns: 1fr 1fr; }.crop-content .button { font-size: 9px; }.profit-input-grid { grid-template-columns: 1fr; }.profit-crop-field { grid-column: auto; }.profit-metrics { grid-template-columns: 1fr 1fr; }.profit-metric:last-child { grid-column: 1 / -1; }.profile-form { grid-template-columns: 1fr; }.form-footer { grid-column: 1; }
   .weather-search-row .button { padding: 0 7px; }.weather-search-row .spinner { display: none; }.weather-live-location { max-width: 72%; }.weather-live-facts { grid-template-columns: repeat(2, 1fr); row-gap: 9px; }.weather-live-facts > div:nth-child(3) { border-left: 0; padding-left: 0; }.weather-live-hero { min-height: 320px; }.seven-day-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }.forecast-rain { font-size: 6px; }
 }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; } }

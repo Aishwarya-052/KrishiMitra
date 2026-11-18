@@ -10,10 +10,9 @@ import {
   fetchMandiRecords,
   MandiServiceError,
   type MandiRecord,
-  type MandiResponse,
 } from "./mandiService";
 
-type Screen = "dashboard" | "weather" | "mandi" | "soil" | "crops" | "advisory" | "settings";
+type Screen = "dashboard" | "weather" | "mandi" | "profit" | "soil" | "crops" | "advisory" | "settings";
 type Language = "en" | "kn";
 type FarmerProfile = {
   name: string;
@@ -23,6 +22,18 @@ type FarmerProfile = {
   soil: string;
   irrigation: string;
 };
+type ProfitInputs = {
+  crop: string;
+  area: string;
+  yieldPerAcre: string;
+  salePrice: string;
+  seedExpense: string;
+  fertilizerExpense: string;
+  labourExpense: string;
+  irrigationExpense: string;
+  transportExpense: string;
+  otherExpense: string;
+};
 type ChatMessage = { from: "farmer" | "mitra"; text: string };
 
 const PROFILE_KEY = "krishimitra-farmer-profile";
@@ -30,7 +41,7 @@ const WEATHER_LOCATION_KEY = "krishimitra-weather-location";
 
 const text = {
   en: {
-    dashboard: "Dashboard", weather: "Weather", mandi: "Mandi prices", soil: "Soil profile",
+    dashboard: "Dashboard", weather: "Weather", mandi: "Mandi prices", profit: "Profit calculator", soil: "Soil profile",
     crops: "Crop suggestions", advisory: "Advisory chat", settings: "Settings",
     greeting: "Good morning", welcome: "Your farm, one step ahead.", demo: "DEMO DATA",
     demoNote: "Sample information for this prototype — not live or location-specific.",
@@ -94,9 +105,45 @@ const text = {
     priceHistory: "Reported price history", fromDate: "From date", toDate: "To date",
     missingDates: "No records for these dates", noHistory: "No historical records are available for this selection.",
     sourceUnitNote: "Prices are shown in ₹ per quintal as reported in the source.",
+    sellWaitTitle: "Smart sell or wait",
+    sellWaitSub: "A cautious guide based only on reported prices for your selected crop and filters.",
+    currentReportedPrice: "Latest reported average",
+    previousReportedPrice: "Previous reported average",
+    priceChange: "Change since previous report",
+    trend: "Recent reported trend",
+    trendRising: "Rising",
+    trendFalling: "Falling",
+    trendMixed: "Mixed or steady",
+    trendInsufficient: "Not enough data to show a trend",
+    recommendationMonitor: "Consider monitoring",
+    recommendationSell: "Consider selling",
+    recommendationNoSignal: "No clear signal",
+    recommendationInsufficient: "Not enough history for a recommendation",
+    adviceMonitor: "The latest three reported dates show a steady rise. You may monitor another update before deciding; this does not predict future prices.",
+    adviceSell: "The latest three reported dates show a steady decline. If today's offer meets your needs, consider selling rather than waiting solely for a price increase.",
+    adviceNoSignal: "The latest reported prices do not show a consistent direction. Compare your costs and local offer before deciding.",
+    adviceInsufficient: "Fewer than three dates with reported prices are available, so there is not enough history for a sell-or-wait recommendation.",
+    selectCropForAdvisor: "Select a crop above to review its reported price history.",
+    noAdvisorPrices: "No usable modal prices are available for this crop and filter selection, so historical analysis is not available.",
+    reportedPriceHistory: "Recent reported prices",
+    reportedPriceMethod: "Daily values are the average of available modal prices for the selected crop and filters. These are past reports, not a forecast or a guarantee.",
     noVariety: "Not reported", noPrice: "—", searchStateHelp: "Locations and crop choices come from returned dataset records.",
     selectedRows: "matching records", allKarnataka: "All Karnataka",
     soilTitle: "Soil profile", soilSub: "A simple guide to understanding what is beneath your field.",
+    profitCalculatorEyebrow: "PLAN YOUR FARM SEASON", profitCalculatorTitle: "Farmer profit calculator",
+    profitCalculatorSub: "Estimate crop revenue, expenses, and profit using your own farm figures.",
+    estimateBadge: "YOUR ESTIMATE", cropSelect: "Crop", chooseCrop: "Choose a crop",
+    cultivatedArea: "Cultivated land area (acres)", expectedYieldPerAcre: "Expected yield per acre (quintals)",
+    expectedSellingPrice: "Expected selling price (₹ / quintal)", estimatedExpenses: "Estimated expenses (₹)",
+    calculatorExpenseHelp: "Enter your estimated costs for the season; unused items can stay at ₹0.",
+    seedExpense: "Seeds", fertilizerExpense: "Fertilizer", labourExpense: "Labour",
+    irrigationExpense: "Irrigation", transportExpense: "Transportation", otherExpense: "Other costs",
+    calculatorResults: "Your estimated results", calculatorPrompt: "Choose a crop and enter area, yield, and selling price to see your estimate.",
+    totalExpectedYield: "Total expected yield", expectedRevenue: "Total expected revenue",
+    quintals: "quintals",
+    totalExpenses: "Total expenses", estimatedProfit: "Estimated profit", profitPerAcre: "Profit per acre",
+    financialBreakdown: "Revenue and cost comparison", revenueLabel: "Revenue", expensesLabel: "Expenses",
+    netProfitLabel: "Net profit", calculatorDisclaimer: "This is an estimate based on your inputs, not a guaranteed return. Actual yield, prices, and costs may differ.",
     soilHealth: "SOIL HEALTH SNAPSHOT", soilType: "Soil type", phLevel: "pH level", organicMatter: "Organic matter",
     nitrogen: "Nitrogen", phosphorus: "Phosphorus", potassium: "Potassium",
     soilTipTitle: "A small soil-care reminder", soilTip: "A soil test from a recognised local lab is the best way to plan nutrients for your own field.",
@@ -133,7 +180,7 @@ const text = {
     waterLowMedium: "Low–medium", waterLow: "Low", waterMedium: "Medium", waterHigh: "High",
   },
   kn: {
-    dashboard: "ಡ್ಯಾಶ್‌ಬೋರ್ಡ್", weather: "ಹವಾಮಾನ", mandi: "ಮಾರುಕಟ್ಟೆ ದರ", soil: "ಮಣ್ಣಿನ ವಿವರ",
+    dashboard: "ಡ್ಯಾಶ್‌ಬೋರ್ಡ್", weather: "ಹವಾಮಾನ", mandi: "ಮಾರುಕಟ್ಟೆ ದರ", profit: "ಲಾಭದ ಲೆಕ್ಕಾಚಾರ", soil: "ಮಣ್ಣಿನ ವಿವರ",
     crops: "ಬೆಳೆ ಸಲಹೆಗಳು", advisory: "ಸಲಹೆ ಚಾಟ್", settings: "ಸೆಟ್ಟಿಂಗ್‌ಗಳು",
     greeting: "ಶುಭೋದಯ", welcome: "ನಿಮ್ಮ ಕೃಷಿ, ಒಂದು ಹೆಜ್ಜೆ ಮುಂದೆ.", demo: "ಡೆಮೋ ಮಾಹಿತಿ",
     demoNote: "ಈ ಮಾದರಿಯ ಮಾಹಿತಿಯು ಪ್ರಾತ್ಯಕ್ಷಿಕೆಗಾಗಿ ಮಾತ್ರ — ನೈಜ ಅಥವಾ ಸ್ಥಳಾಧಾರಿತವಲ್ಲ.",
@@ -197,9 +244,45 @@ const text = {
     priceHistory: "ವರದಿಯಾದ ದರದ ಇತಿಹಾಸ", fromDate: "ದಿನಾಂಕದಿಂದ", toDate: "ದಿನಾಂಕದವರೆಗೆ",
     missingDates: "ಈ ದಿನಾಂಕಗಳಿಗೆ ದಾಖಲೆಗಳಿಲ್ಲ", noHistory: "ಈ ಆಯ್ಕೆಗೆ ಹಿಂದಿನ ದಾಖಲೆಗಳು ಲಭ್ಯವಿಲ್ಲ.",
     sourceUnitNote: "ಮೂಲದಲ್ಲಿ ವರದಿಯಾದಂತೆ ದರಗಳನ್ನು ₹ ಪ್ರತಿ ಕ್ವಿಂಟಾಲ್‌ನಲ್ಲಿ ತೋರಿಸಲಾಗಿದೆ.",
+    sellWaitTitle: "ಮಾರಬೇಕೇ ಅಥವಾ ಕಾಯಬೇಕೇ?",
+    sellWaitSub: "ಆಯ್ಕೆ ಮಾಡಿದ ಬೆಳೆ ಮತ್ತು ಫಿಲ್ಟರ್‌ಗಳ ವರದಿಯಾದ ದರಗಳ ಆಧಾರದ ಎಚ್ಚರಿಕೆಯ ಮಾರ್ಗದರ್ಶಿ.",
+    currentReportedPrice: "ಇತ್ತೀಚಿನ ವರದಿಯಾದ ಸರಾಸರಿ",
+    previousReportedPrice: "ಹಿಂದಿನ ವರದಿಯಾದ ಸರಾಸರಿ",
+    priceChange: "ಹಿಂದಿನ ವರದಿಯಿಂದ ಬದಲಾವಣೆ",
+    trend: "ಇತ್ತೀಚಿನ ವರದಿಯಾದ ಪ್ರವೃತ್ತಿ",
+    trendRising: "ಏರಿಕೆ",
+    trendFalling: "ಇಳಿಕೆ",
+    trendMixed: "ಮಿಶ್ರ ಅಥವಾ ಸ್ಥಿರ",
+    trendInsufficient: "ಪ್ರವೃತ್ತಿ ತೋರಿಸಲು ಸಾಕಷ್ಟು ಮಾಹಿತಿ ಇಲ್ಲ",
+    recommendationMonitor: "ದರ ಗಮನಿಸುವುದನ್ನು ಪರಿಗಣಿಸಿ",
+    recommendationSell: "ಮಾರಾಟವನ್ನು ಪರಿಗಣಿಸಿ",
+    recommendationNoSignal: "ಸ್ಪಷ್ಟ ಸೂಚನೆ ಇಲ್ಲ",
+    recommendationInsufficient: "ಸಲಹೆಗೆ ಸಾಕಷ್ಟು ಇತಿಹಾಸವಿಲ್ಲ",
+    adviceMonitor: "ಇತ್ತೀಚಿನ ಮೂರು ವರದಿಯಾದ ದಿನಗಳಲ್ಲಿ ಸ್ಥಿರ ಏರಿಕೆ ಕಂಡಿದೆ. ನಿರ್ಧಾರಕ್ಕೂ ಮೊದಲು ಮುಂದಿನ ವರದಿಯನ್ನು ಗಮನಿಸಬಹುದು; ಇದು ಭವಿಷ್ಯದ ದರದ ಮುನ್ಸೂಚನೆಯಲ್ಲ.",
+    adviceSell: "ಇತ್ತೀಚಿನ ಮೂರು ವರದಿಯಾದ ದಿನಗಳಲ್ಲಿ ಸ್ಥಿರ ಇಳಿಕೆ ಕಂಡಿದೆ. ಇಂದಿನ ದರ ನಿಮಗೆ ಒಪ್ಪಿಗೆಯಾದರೆ, ಏರಿಕೆಯಾಗುತ್ತದೆ ಎಂದು ಮಾತ್ರ ಕಾಯುವ ಬದಲು ಮಾರಾಟವನ್ನು ಪರಿಗಣಿಸಿ.",
+    adviceNoSignal: "ಇತ್ತೀಚಿನ ವರದಿಯಾದ ದರಗಳಲ್ಲಿ ಸ್ಥಿರ ದಿಕ್ಕು ಕಂಡುಬಂದಿಲ್ಲ. ನಿರ್ಧಾರಕ್ಕೂ ಮೊದಲು ನಿಮ್ಮ ವೆಚ್ಚ ಮತ್ತು ಸ್ಥಳೀಯ ದರವನ್ನು ಹೋಲಿಸಿ.",
+    adviceInsufficient: "ವರದಿಯಾದ ದರಗಳಿರುವ ಮೂರು ದಿನಗಳಿಗಿಂತ ಕಡಿಮೆ ಮಾಹಿತಿ ಇದೆ; ಆದ್ದರಿಂದ ಮಾರಾಟ ಅಥವಾ ಕಾಯುವ ಸಲಹೆಗೆ ಸಾಕಷ್ಟು ಇತಿಹಾಸವಿಲ್ಲ.",
+    selectCropForAdvisor: "ವರದಿಯಾದ ದರದ ಇತಿಹಾಸ ನೋಡಲು ಮೇಲಿನಿಂದ ಬೆಳೆಯನ್ನು ಆಯ್ಕೆಮಾಡಿ.",
+    noAdvisorPrices: "ಈ ಬೆಳೆ ಮತ್ತು ಫಿಲ್ಟರ್‌ಗಳಿಗೆ ಬಳಸಬಹುದಾದ ಮಾದರಿ ದರಗಳು ಲಭ್ಯವಿಲ್ಲ; ಆದ್ದರಿಂದ ಹಿಂದಿನ ದರದ ವಿಶ್ಲೇಷಣೆ ಲಭ್ಯವಿಲ್ಲ.",
+    reportedPriceHistory: "ಇತ್ತೀಚಿನ ವರದಿಯಾದ ದರಗಳು",
+    reportedPriceMethod: "ದೈನಂದಿನ ದರವು ಆಯ್ಕೆ ಮಾಡಿದ ಬೆಳೆ ಮತ್ತು ಫಿಲ್ಟರ್‌ಗಳಿಗೆ ಲಭ್ಯವಿರುವ ಮಾದರಿ ದರಗಳ ಸರಾಸರಿ. ಇವು ಹಿಂದಿನ ವರದಿಗಳು ಮಾತ್ರ; ಮುನ್ಸೂಚನೆ ಅಥವಾ ಖಾತರಿಯಲ್ಲ.",
     noVariety: "ವರದಿಯಾಗಿಲ್ಲ", noPrice: "—", searchStateHelp: "ಸ್ಥಳ ಮತ್ತು ಬೆಳೆ ಆಯ್ಕೆಗಳು ಪಡೆದ ದಾಖಲೆಗಳಿಂದ ಬರುತ್ತವೆ.",
     selectedRows: "ಹೊಂದಿದ ದಾಖಲೆಗಳು", allKarnataka: "ಎಲ್ಲ ಕರ್ನಾಟಕ",
     soilTitle: "ಮಣ್ಣಿನ ವಿವರ", soilSub: "ನಿಮ್ಮ ಹೊಲದ ಮಣ್ಣನ್ನು ಅರ್ಥಮಾಡಿಕೊಳ್ಳಲು ಸರಳ ಮಾರ್ಗದರ್ಶಿ.",
+    profitCalculatorEyebrow: "ನಿಮ್ಮ ಕೃಷಿ ಹಂಗಾಮಿನ ಯೋಜನೆ", profitCalculatorTitle: "ರೈತರ ಲಾಭದ ಲೆಕ್ಕಾಚಾರ",
+    profitCalculatorSub: "ನಿಮ್ಮ ಹೊಲದ ಅಂದಾಜುಗಳ ಆಧಾರದ ಮೇಲೆ ಬೆಳೆ ಆದಾಯ, ವೆಚ್ಚ ಮತ್ತು ಲಾಭ ಲೆಕ್ಕಿಸಿ.",
+    estimateBadge: "ನಿಮ್ಮ ಅಂದಾಜು", cropSelect: "ಬೆಳೆ", chooseCrop: "ಬೆಳೆ ಆಯ್ಕೆಮಾಡಿ",
+    cultivatedArea: "ಬೆಳೆದ ಭೂಮಿ (ಎಕರೆ)", expectedYieldPerAcre: "ಎಕರೆಗೆ ನಿರೀಕ್ಷಿತ ಇಳುವರಿ (ಕ್ವಿಂಟಾಲ್)",
+    expectedSellingPrice: "ನಿರೀಕ್ಷಿತ ಮಾರಾಟ ದರ (₹ / ಕ್ವಿಂಟಾಲ್)", estimatedExpenses: "ಅಂದಾಜು ವೆಚ್ಚಗಳು (₹)",
+    calculatorExpenseHelp: "ಹಂಗಾಮಿನ ಅಂದಾಜು ವೆಚ್ಚಗಳನ್ನು ನಮೂದಿಸಿ; ಬಳಸದ ವೆಚ್ಚಗಳನ್ನು ₹0 ಆಗಿರಿಸಬಹುದು.",
+    seedExpense: "ಬೀಜ", fertilizerExpense: "ಗೊಬ್ಬರ", labourExpense: "ಕಾರ್ಮಿಕರು",
+    irrigationExpense: "ನೀರಾವರಿ", transportExpense: "ಸಾಗಣೆ", otherExpense: "ಇತರೆ ವೆಚ್ಚಗಳು",
+    calculatorResults: "ನಿಮ್ಮ ಅಂದಾಜು ಫಲಿತಾಂಶಗಳು", calculatorPrompt: "ಅಂದಾಜು ನೋಡಲು ಬೆಳೆ ಆಯ್ಕೆಮಾಡಿ ಮತ್ತು ಭೂಮಿ, ಇಳುವರಿ ಹಾಗೂ ಮಾರಾಟ ದರ ನಮೂದಿಸಿ.",
+    totalExpectedYield: "ಒಟ್ಟು ನಿರೀಕ್ಷಿತ ಇಳುವರಿ", expectedRevenue: "ಒಟ್ಟು ನಿರೀಕ್ಷಿತ ಆದಾಯ",
+    quintals: "ಕ್ವಿಂಟಾಲ್",
+    totalExpenses: "ಒಟ್ಟು ವೆಚ್ಚ", estimatedProfit: "ಅಂದಾಜು ಲಾಭ", profitPerAcre: "ಎಕರೆಗೆ ಲಾಭ",
+    financialBreakdown: "ಆದಾಯ ಮತ್ತು ವೆಚ್ಚ ಹೋಲಿಕೆ", revenueLabel: "ಆದಾಯ", expensesLabel: "ವೆಚ್ಚಗಳು",
+    netProfitLabel: "ನಿವ್ವಳ ಲಾಭ", calculatorDisclaimer: "ಇದು ನಿಮ್ಮ ಅಂದಾಜುಗಳ ಆಧಾರದ ಲೆಕ್ಕ ಮಾತ್ರ; ಖಚಿತ ಆದಾಯವಲ್ಲ. ನಿಜವಾದ ಇಳುವರಿ, ದರ ಮತ್ತು ವೆಚ್ಚಗಳು ಬದಲಾಗಬಹುದು.",
     soilHealth: "ಮಣ್ಣಿನ ಆರೋಗ್ಯ ನೋಟ", soilType: "ಮಣ್ಣಿನ ಪ್ರಕಾರ", phLevel: "ಪಿಎಚ್ ಮಟ್ಟ", organicMatter: "ಸಾವಯವ ಪದಾರ್ಥ",
     nitrogen: "ಸಾರಜನಕ", phosphorus: "ರಂಜಕ", potassium: "ಪೊಟ್ಯಾಸಿಯಂ",
     soilTipTitle: "ಮಣ್ಣಿನ ಆರೈಕೆ ನೆನಪು", soilTip: "ನಿಮ್ಮ ಹೊಲದ ಪೋಷಕಾಂಶ ಯೋಜನೆಗೆ ಸ್ಥಳೀಯ ಮಾನ್ಯ ಪ್ರಯೋಗಾಲಯದ ಮಣ್ಣಿನ ಪರೀಕ್ಷೆಯೇ ಉತ್ತಮ.",
@@ -241,6 +324,7 @@ const navItems: { id: Screen; icon: string; key: keyof typeof text.en }[] = [
   { id: "dashboard", icon: "⌂", key: "dashboard" },
   { id: "weather", icon: "☼", key: "weather" },
   { id: "mandi", icon: "↗", key: "mandi" },
+  { id: "profit", icon: "₹", key: "profit" },
   { id: "soil", icon: "◉", key: "soil" },
   { id: "crops", icon: "❋", key: "crops" },
   { id: "advisory", icon: "✳", key: "advisory" },
@@ -447,6 +531,7 @@ function App() {
           {screen === "dashboard" && <Dashboard t={t} profile={profile} navigate={navigate} weatherLocation={weatherLocation} weatherForecast={weatherForecast} weatherLoading={weatherLoading} />}
           {screen === "weather" && <Weather t={t} language={language} location={weatherLocation} forecast={weatherForecast} loading={weatherLoading} error={weatherError} updatedAt={weatherUpdatedAt} onSelectLocation={chooseWeatherLocation} onClearLocation={clearWeatherLocation} onRefresh={() => setWeatherRefresh((count) => count + 1)} />}
           {screen === "mandi" && <Mandi t={t} />}
+          {screen === "profit" && <ProfitCalculator t={t} />}
           {screen === "soil" && <Soil t={t} profile={profile} />}
           {screen === "crops" && <Crops t={t} navigate={navigate} />}
           {screen === "advisory" && <Advisory t={t} messages={chatMessages} input={chatInput} setInput={setChatInput} send={sendMessage} />}
@@ -724,6 +809,91 @@ function formatPrice(value: number | null) {
   return value === null ? "—" : `₹${new Intl.NumberFormat("en-IN", { maximumFractionDigits: 2 }).format(value)}`;
 }
 
+function dailyModalPrices(records: MandiRecord[], commodity: string) {
+  const pricesByDate = new Map<string, { total: number; count: number }>();
+  for (const record of records) {
+    if (record.commodity !== commodity || record.modalPrice === null || !Number.isFinite(record.modalPrice) || record.modalPrice < 0) continue;
+    const daily = pricesByDate.get(record.arrivalDate) ?? { total: 0, count: 0 };
+    daily.total += record.modalPrice;
+    daily.count += 1;
+    pricesByDate.set(record.arrivalDate, daily);
+  }
+  return Array.from(pricesByDate, ([date, daily]) => ({
+    date,
+    modalPrice: daily.total / daily.count,
+  })).sort((a, b) => a.date.localeCompare(b.date));
+}
+
+function SellWaitAdvisor({ t, records, commodity }: PageProps & { records: MandiRecord[]; commodity: string }) {
+  const history = commodity ? dailyModalPrices(records, commodity) : [];
+  const current = history.at(-1);
+  const previous = history.at(-2);
+  const recentThree = history.slice(-3);
+  const isRising = recentThree.length === 3 && recentThree[0].modalPrice < recentThree[1].modalPrice && recentThree[1].modalPrice < recentThree[2].modalPrice;
+  const isFalling = recentThree.length === 3 && recentThree[0].modalPrice > recentThree[1].modalPrice && recentThree[1].modalPrice > recentThree[2].modalPrice;
+  const recommendation = history.length < 3
+    ? "recommendationInsufficient"
+    : isRising ? "recommendationMonitor"
+      : isFalling ? "recommendationSell"
+        : "recommendationNoSignal";
+  const trend = history.length < 2
+    ? "trendInsufficient"
+    : history.length < 3 && current && previous && current.modalPrice > previous.modalPrice
+      ? "trendRising"
+      : history.length < 3 && current && previous && current.modalPrice < previous.modalPrice
+        ? "trendFalling"
+        : isRising ? "trendRising"
+          : isFalling ? "trendFalling"
+            : "trendMixed";
+  const explanation = history.length < 3
+    ? "adviceInsufficient"
+    : isRising ? "adviceMonitor"
+      : isFalling ? "adviceSell"
+        : "adviceNoSignal";
+  const change = current && previous && previous.modalPrice !== 0
+    ? ((current.modalPrice - previous.modalPrice) / previous.modalPrice) * 100
+    : null;
+  const locale = languageOf(t) === "en" ? "en-IN" : "kn-IN";
+  const changeLabel = change === null
+    ? t("noPrice")
+    : `${new Intl.NumberFormat(locale, { signDisplay: "exceptZero", minimumFractionDigits: 1, maximumFractionDigits: 1 }).format(change)}%`;
+  const visibleHistory = history.slice(-5);
+  const maximumPrice = Math.max(1, ...visibleHistory.map((point) => point.modalPrice));
+
+  return <section className="panel sell-wait-advisor">
+    <div className="sell-wait-heading">
+      <div><div className="eyebrow">{t("priceAdvisory")}</div><h2>{t("sellWaitTitle")}{commodity ? ` · ${commodity}` : ""}</h2><p>{t("sellWaitSub")}</p></div>
+      <span className="sell-wait-icon" aria-hidden="true">↗</span>
+    </div>
+    {!commodity
+      ? <p className="sell-wait-message">{t("selectCropForAdvisor")}</p>
+      : !history.length
+        ? <p className="sell-wait-message">{t("noAdvisorPrices")}</p>
+        : <>
+          <div className="sell-wait-metrics">
+            <div><span>{t("currentReportedPrice")}</span><strong>{formatPrice(current?.modalPrice ?? null)}</strong>{current && <small>{formatMandiDate(current.date, languageOf(t) === "en" ? "en" : "kn")}</small>}</div>
+            <div><span>{t("previousReportedPrice")}</span><strong>{formatPrice(previous?.modalPrice ?? null)}</strong>{previous && <small>{formatMandiDate(previous.date, languageOf(t) === "en" ? "en" : "kn")}</small>}</div>
+            <div><span>{t("priceChange")}</span><strong className={change === null ? "" : change > 0 ? "advisor-up" : change < 0 ? "advisor-down" : ""}>{changeLabel}</strong></div>
+          </div>
+          <div className="sell-wait-result">
+            <div className="sell-wait-result-heading"><span className={`trend-indicator ${isRising ? "rising" : isFalling ? "falling" : ""}`}>{isRising ? "↑" : isFalling ? "↓" : "→"}</span><div><small>{t("trend")}: {t(trend)}</small><strong>{t(recommendation)}</strong></div></div>
+            <p>{t(explanation)}</p>
+          </div>
+          <div className="sell-wait-history">
+            <strong>{t("reportedPriceHistory")}</strong>
+            <div className="sell-wait-bars" role="img" aria-label={t("reportedPriceHistory")}>
+              {visibleHistory.map((point) => <div className="sell-wait-bar" key={point.date}>
+                <span>{formatPrice(point.modalPrice)}</span>
+                <i style={{ height: `${Math.max(8, point.modalPrice / maximumPrice * 100)}%` }} />
+                <small>{formatMandiDate(point.date, languageOf(t) === "en" ? "en" : "kn")}</small>
+              </div>)}
+            </div>
+          </div>
+        </>}
+    <p className="sell-wait-disclaimer">{t("reportedPriceMethod")}</p>
+  </section>;
+}
+
 function Mandi({ t }: PageProps) {
   const [records, setRecords] = useState<MandiRecord[]>([]);
   const [catalogRecords, setCatalogRecords] = useState<MandiRecord[]>([]);
@@ -901,6 +1071,7 @@ function Mandi({ t }: PageProps) {
     </section>
     <div className="mandi-source-line"><span>◉ &nbsp;{t("marketApiSource")}</span>{updatedLabel && <span>{t("lastUpdatedMandi")}: {updatedLabel}</span>}{total > 0 && <span>{total.toLocaleString()} {t("selectedRows")}</span>}</div>
     {error && <div className="mandi-error" role="alert"><strong>{t("mandiErrorTitle")}</strong><p>{mandiErrorMessage(error, t)}</p>{error === "missing_credentials" && <code>DATA_GOV_IN_API_KEY</code>}</div>}
+    {!loading && !error && <SellWaitAdvisor t={t} records={records} commodity={selectedCommodity} />}
     {loading && <div className="mandi-loading panel" role="status"><span className="spinner" />{t("loadingMarkets")}</div>}
     {!loading && !error && !records.length && <div className="mandi-empty panel"><span>⌕</span><h2>{loaded ? t("noDataForFilters") : t("noMarketData")}</h2></div>}
     {!loading && !error && records.length > 0 && <>
@@ -919,6 +1090,108 @@ function Mandi({ t }: PageProps) {
         <p className="history-method">{t("sourceUnitNote")}</p>
       </section>
     </>}
+  </>;
+}
+
+function formatRupees(value: number) {
+  return `₹${new Intl.NumberFormat("en-IN", { maximumFractionDigits: 2 }).format(value)}`;
+}
+
+function ProfitCalculator({ t }: PageProps) {
+  const [form, setForm] = useState<ProfitInputs>({
+    crop: "",
+    area: "",
+    yieldPerAcre: "",
+    salePrice: "",
+    seedExpense: "0",
+    fertilizerExpense: "0",
+    labourExpense: "0",
+    irrigationExpense: "0",
+    transportExpense: "0",
+    otherExpense: "0",
+  });
+  const expenseFields = [
+    { field: "seedExpense", label: "seedExpense" },
+    { field: "fertilizerExpense", label: "fertilizerExpense" },
+    { field: "labourExpense", label: "labourExpense" },
+    { field: "irrigationExpense", label: "irrigationExpense" },
+    { field: "transportExpense", label: "transportExpense" },
+    { field: "otherExpense", label: "otherExpense" },
+  ] as const;
+  const cropOptions = [
+    { value: "cropRice", label: t("cropRice") },
+    { value: "cropRagi", label: t("cropRagi") },
+    { value: "cropMaize", label: t("cropMaize") },
+    { value: "cropPulses", label: t("cropPulses") },
+  ];
+
+  function update(field: keyof ProfitInputs, value: string) {
+    setForm((current) => ({ ...current, [field]: value }));
+  }
+
+  const area = Number(form.area);
+  const yieldPerAcre = Number(form.yieldPerAcre);
+  const salePrice = Number(form.salePrice);
+  const expenseValues = expenseFields.map(({ field }) => {
+    const value = form[field].trim();
+    return value ? Number(value) : 0;
+  });
+  const requiredInputsPresent = Boolean(form.crop && form.area.trim() && form.yieldPerAcre.trim() && form.salePrice.trim());
+  const validInputs = requiredInputsPresent &&
+    Number.isFinite(area) && area > 0 &&
+    [yieldPerAcre, salePrice, ...expenseValues].every((value) => Number.isFinite(value) && value >= 0);
+  const totalYield = validInputs ? area * yieldPerAcre : 0;
+  const revenue = validInputs ? totalYield * salePrice : 0;
+  const expenses = validInputs ? expenseValues.reduce((total, value) => total + value, 0) : 0;
+  const profit = revenue - expenses;
+  const perAcreProfit = validInputs ? profit / area : 0;
+  const chartMaximum = Math.max(revenue, expenses, Math.abs(profit), 1);
+  const metrics = [
+    { label: "totalExpectedYield" as const, value: validInputs ? new Intl.NumberFormat("en-IN", { maximumFractionDigits: 2 }).format(totalYield) : "—", unit: validInputs ? t("quintals") : "", negative: false },
+    { label: "expectedRevenue" as const, value: validInputs ? formatRupees(revenue) : "—", unit: "", negative: false },
+    { label: "totalExpenses" as const, value: validInputs ? formatRupees(expenses) : "—", unit: "", negative: false },
+    { label: "estimatedProfit" as const, value: validInputs ? formatRupees(profit) : "—", unit: "", negative: profit < 0 },
+    { label: "profitPerAcre" as const, value: validInputs ? formatRupees(perAcreProfit) : "—", unit: "", negative: perAcreProfit < 0 },
+  ];
+  const chartItems = [
+    { label: "revenueLabel" as const, value: revenue, className: "revenue" },
+    { label: "expensesLabel" as const, value: expenses, className: "expenses" },
+    { label: "netProfitLabel" as const, value: profit, className: "net-profit", negative: profit < 0 },
+  ];
+
+  return <>
+    <PageHeading eyebrow={t("profitCalculatorEyebrow")} title={t("profitCalculatorTitle")} description={t("profitCalculatorSub")} t={t} badge={t("estimateBadge")} badgeKind="source" />
+    <div className="profit-layout">
+      <section className="panel profit-input-panel">
+        <div className="panel-heading"><div><div className="eyebrow">{t("cropSelect")}</div><h2>{t("profitCalculatorTitle")}</h2></div><span className="profile-illustration">₹</span></div>
+        <div className="profit-input-grid">
+          <label className="profit-crop-field" htmlFor="profit-crop">{t("cropSelect")}<select id="profit-crop" value={form.crop} onChange={(event) => update("crop", event.target.value)} required>
+            <option value="">{t("chooseCrop")}</option>{cropOptions.map((crop) => <option value={crop.value} key={crop.value}>{crop.label}</option>)}
+          </select></label>
+          <label htmlFor="profit-area">{t("cultivatedArea")}<input id="profit-area" type="number" min="0.01" step="any" value={form.area} onChange={(event) => update("area", event.target.value)} placeholder="e.g. 2.5" required /></label>
+          <label htmlFor="profit-yield">{t("expectedYieldPerAcre")}<input id="profit-yield" type="number" min="0" step="any" value={form.yieldPerAcre} onChange={(event) => update("yieldPerAcre", event.target.value)} placeholder="e.g. 12" required /></label>
+          <label htmlFor="profit-price">{t("expectedSellingPrice")}<input id="profit-price" type="number" min="0" step="any" value={form.salePrice} onChange={(event) => update("salePrice", event.target.value)} placeholder="e.g. 2500" required /></label>
+        </div>
+        <div className="profit-expenses-heading"><div><h3>{t("estimatedExpenses")}</h3><p>{t("calculatorExpenseHelp")}</p></div></div>
+        <div className="profit-input-grid profit-expenses-grid">{expenseFields.map(({ field, label }) => <label htmlFor={`profit-${field}`} key={field}>{t(label)}<input id={`profit-${field}`} type="number" min="0" step="any" value={form[field]} onChange={(event) => update(field, event.target.value)} /></label>)}</div>
+      </section>
+
+      <section className="panel profit-results-panel">
+        <div className="panel-heading"><div><div className="eyebrow">{t("estimateBadge")}</div><h2>{t("calculatorResults")}</h2></div><span className="profit-result-icon">✳</span></div>
+        {!validInputs && <p className="profit-prompt">{t("calculatorPrompt")}</p>}
+        <div className="profit-metrics">{metrics.map((metric) => <article className="profit-metric" key={metric.label}>
+          <span>{t(metric.label)}</span><strong className={metric.negative ? "profit-negative" : ""}>{metric.value}</strong>{metric.unit && <small>{metric.unit}</small>}
+        </article>)}</div>
+        {validInputs && <div className="profit-chart">
+          <h3>{t("financialBreakdown")}</h3>
+          {chartItems.map((item) => <div className="profit-chart-row" key={item.label}>
+            <div className="profit-chart-label"><span>{t(item.label)}</span><strong className={item.negative ? "profit-negative" : ""}>{formatRupees(item.value)}</strong></div>
+            <div className="profit-chart-track" role="img" aria-label={`${t(item.label)}: ${formatRupees(item.value)}`}><i className={`${item.className}${item.negative ? " negative" : ""}`} style={{ width: `${Math.abs(item.value) / chartMaximum * 100}%` }} /></div>
+          </div>)}
+        </div>}
+        <p className="profit-disclaimer">{t("calculatorDisclaimer")}</p>
+      </section>
+    </div>
   </>;
 }
 
