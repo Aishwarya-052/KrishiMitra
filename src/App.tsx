@@ -9,7 +9,6 @@ import {
 import {
   createSampleMandiRecords,
   fetchMandiRecords,
-  MandiServiceError,
   type MandiRecord,
 } from "./mandiService";
 import GovtSchemesFinder from "./GovtSchemesFinder";
@@ -37,7 +36,7 @@ type ProfitInputs = {
   transportExpense: string;
   otherExpense: string;
 };
-type MandiDataSource = "live" | "cached" | "sample";
+type MandiDataSource = "live" | "cached" | "sample" | "sample-cached";
 type MandiSnapshot = { commodity: string; records: MandiRecord[]; fetchedAt: string; dataSource: MandiDataSource };
 type ChatMessage = { from: "farmer" | "mitra"; text: string };
 type CachedWeather = { locationId: string; forecast: WeatherForecast; timestamp: string };
@@ -103,7 +102,7 @@ const text = {
     weatherApiError: "The weather service could not provide data for this location.",
     weatherInvalidError: "The weather service returned an unexpected response. Please try again.",
     locationSaveError: "Could not save your selected location in this browser.",
-    mandiTitle: "Mandi prices", mandiSub: "Government-reported daily prices from Karnataka markets.",
+    mandiTitle: "Mandi prices", mandiSub: "Indian & state market prices, with sample records clearly labelled.",
     marketBoard: "AGMARKNET DAILY PRICES", commodity: "Commodity", market: "Market", price: "Price / quintal",
     change: "Change", sampleTip: "Prices can change. Transport and other costs affect what you earn; compare carefully.",
     state: "State", districtLabel: "District", variety: "Variety", arrivalDate: "Arrival date",
@@ -116,6 +115,7 @@ const text = {
     chooseCropForCompare: "Search and select a crop to compare prices across markets.",
     marketApiSource: "Government of India · AGMARKNET", sampleCachedMandiData: "Sample / Cached AGMARKNET Data",
     sampleDataSource: "Illustrative built-in dataset · not live or government-reported",
+    mixedDataSource: "Illustrative records plus any saved AGMARKNET cache",
     cachedPriceExplanation: "Previously fetched AGMARKNET records are being shown from this device's cache. They may not reflect current prices.",
     lastUpdatedMandi: "Last updated",
     dataRows: "Records returned", mandiErrorTitle: "Could not load market data",
@@ -124,7 +124,7 @@ const text = {
     mandiNetworkError: "Could not reach the market service. Check your internet connection and try again.",
     mandiUpstreamError: "The data.gov.in service is temporarily unavailable. Please try again later.",
     mandiSchemaError: "The dataset response format is not recognised. No prices are displayed.",
-    refreshPrices: "Refresh prices", refreshingPrices: "Refreshing…", compareMarkets: "Compare Karnataka markets",
+    refreshPrices: "Refresh prices", refreshingPrices: "Refreshing…", compareMarkets: "Compare markets in selected state",
     sortByModal: "Sort by modal price", ascending: "Lowest first", descending: "Highest first",
     priceAdvisory: "Price comparison notes", noCompareData: "Not enough reported prices to compare markets.",
     highestReported: "Highest reported modal price", lowestReported: "Lowest reported modal price",
@@ -214,7 +214,7 @@ const text = {
     expenseRecommendationNoCosts: "Add expense estimates in Profit calculator to identify the largest cost category.",
     selectCropForSmartFarm: "Choose a crop to personalize the farm snapshot.",
     noVariety: "Not reported", noPrice: "—", searchStateHelp: "Locations and crop choices come from returned dataset records.",
-    selectedRows: "matching records", allKarnataka: "All Karnataka",
+    selectedRows: "matching records", allKarnataka: "All India",
     soilTitle: "Soil profile", soilSub: "A simple guide to understanding what is beneath your field.",
     profitCalculatorEyebrow: "PLAN YOUR FARM SEASON", profitCalculatorTitle: "Farmer profit calculator",
     profitCalculatorSub: "Estimate crop revenue, expenses, and profit using your own farm figures.",
@@ -354,7 +354,7 @@ const text = {
     weatherApiError: "ಈ ಸ್ಥಳಕ್ಕೆ ಹವಾಮಾನ ಮಾಹಿತಿ ನೀಡಲು ಸೇವೆಗೆ ಸಾಧ್ಯವಾಗಲಿಲ್ಲ.",
     weatherInvalidError: "ಹವಾಮಾನ ಸೇವೆಯಿಂದ ನಿರೀಕ್ಷಿತವಲ್ಲದ ಮಾಹಿತಿ ಬಂದಿದೆ. ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ.",
     locationSaveError: "ಈ ಬ್ರೌಸರ್‌ನಲ್ಲಿ ಆಯ್ಕೆ ಮಾಡಿದ ಸ್ಥಳ ಉಳಿಸಲಾಗಲಿಲ್ಲ.",
-    mandiTitle: "ಮಾರುಕಟ್ಟೆ ದರಗಳು", mandiSub: "ಕರ್ನಾಟಕ ಮಾರುಕಟ್ಟೆಗಳ ಸರ್ಕಾರಿ ದೈನಂದಿನ ವರದಿ ದರಗಳು.",
+    mandiTitle: "ಮಾರುಕಟ್ಟೆ ದರಗಳು", mandiSub: "ಭಾರತೀಯ ಮತ್ತು ರಾಜ್ಯದ ಮಾರುಕಟ್ಟೆ ದರಗಳು; ಮಾದರಿ ದಾಖಲೆಗಳನ್ನು ಸ್ಪಷ್ಟವಾಗಿ ಗುರುತಿಸಲಾಗಿದೆ.",
     marketBoard: "ಅಗ್ಮಾರ್ಕ್‌ನೆಟ್ ದೈನಂದಿನ ದರಗಳು", commodity: "ಬೆಳೆ", market: "ಮಾರುಕಟ್ಟೆ", price: "ದರ / ಕ್ವಿಂಟಾಲ್",
     change: "ಬದಲಾವಣೆ", sampleTip: "ದರಗಳು ಬದಲಾಗಬಹುದು. ಸಾಗಣೆ ಮತ್ತು ಇತರ ವೆಚ್ಚಗಳು ನಿಮ್ಮ ಗಳಿಕೆಗೆ ಪರಿಣಾಮ ಬೀರುತ್ತವೆ; ಎಚ್ಚರಿಕೆಯಿಂದ ಹೋಲಿಸಿ.",
     state: "ರಾಜ್ಯ", districtLabel: "ಜಿಲ್ಲೆ", variety: "ತಳಿ", arrivalDate: "ಆಗಮನ ದಿನಾಂಕ",
@@ -367,6 +367,7 @@ const text = {
     chooseCropForCompare: "ಮಾರುಕಟ್ಟೆಗಳ ದರ ಹೋಲಿಸಲು ಬೆಳೆ ಹುಡುಕಿ ಆಯ್ಕೆಮಾಡಿ.",
     marketApiSource: "ಭಾರತ ಸರ್ಕಾರ · ಅಗ್ಮಾರ್ಕ್‌ನೆಟ್", sampleCachedMandiData: "ಮಾದರಿ / ಸಂಗ್ರಹಿತ AGMARKNET ಮಾಹಿತಿ",
     sampleDataSource: "ಉದಾಹರಣೆಯಾಗಿ ಸೇರಿಸಿದ ಮಾಹಿತಿ · ನೈಜ ಅಥವಾ ಸರ್ಕಾರಿ ವರದಿಯಲ್ಲ",
+    mixedDataSource: "ಉದಾಹರಣೆಯ ದಾಖಲೆಗಳು ಮತ್ತು ಉಳಿಸಿದ AGMARKNET ಸಂಗ್ರಹ",
     cachedPriceExplanation: "ಈ ಸಾಧನದಲ್ಲಿ ಉಳಿಸಿದ ಹಿಂದಿನ AGMARKNET ದಾಖಲೆಗಳನ್ನು ತೋರಿಸಲಾಗುತ್ತಿದೆ. ಅವು ಪ್ರಸ್ತುತ ದರಗಳಾಗಿರಬೇಕೆಂದಿಲ್ಲ.",
     lastUpdatedMandi: "ಕೊನೆಯ ನವೀಕರಣ",
     dataRows: "ಪಡೆದ ದಾಖಲೆಗಳು", mandiErrorTitle: "ಮಾರುಕಟ್ಟೆ ಮಾಹಿತಿ ಲೋಡ್ ಆಗಲಿಲ್ಲ",
@@ -375,7 +376,7 @@ const text = {
     mandiNetworkError: "ಮಾರುಕಟ್ಟೆ ಸೇವೆಯನ್ನು ತಲುಪಲಾಗಲಿಲ್ಲ. ಇಂಟರ್ನೆಟ್ ಪರಿಶೀಲಿಸಿ ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ.",
     mandiUpstreamError: "data.gov.in ಸೇವೆ ತಾತ್ಕಾಲಿಕವಾಗಿ ಲಭ್ಯವಿಲ್ಲ. ಸ್ವಲ್ಪ ಸಮಯದ ನಂತರ ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ.",
     mandiSchemaError: "ಮಾಹಿತಿಯ ಪ್ರತಿಕ್ರಿಯೆಯ ರೂಪ ಗುರುತಿಸಲಾಗಲಿಲ್ಲ. ಯಾವುದೇ ದರ ತೋರಿಸಲಾಗುವುದಿಲ್ಲ.",
-    refreshPrices: "ದರಗಳನ್ನು ನವೀಕರಿಸಿ", refreshingPrices: "ನವೀಕರಿಸಲಾಗುತ್ತಿದೆ…", compareMarkets: "ಕರ್ನಾಟಕ ಮಾರುಕಟ್ಟೆಗಳನ್ನು ಹೋಲಿಸಿ",
+    refreshPrices: "ದರಗಳನ್ನು ನವೀಕರಿಸಿ", refreshingPrices: "ನವೀಕರಿಸಲಾಗುತ್ತಿದೆ…", compareMarkets: "ಆಯ್ಕೆ ಮಾಡಿದ ರಾಜ್ಯದ ಮಾರುಕಟ್ಟೆಗಳನ್ನು ಹೋಲಿಸಿ",
     sortByModal: "ಮಾದರಿ ದರದಂತೆ ವಿಂಗಡಿಸಿ", ascending: "ಕಡಿಮೆಯಿಂದ ಹೆಚ್ಚು", descending: "ಹೆಚ್ಚಿನಿಂದ ಕಡಿಮೆ",
     priceAdvisory: "ದರ ಹೋಲಿಕೆ ಸೂಚನೆಗಳು", noCompareData: "ಮಾರುಕಟ್ಟೆ ಹೋಲಿಕೆಗೆ ಸಾಕಷ್ಟು ವರದಿಯಾದ ದರಗಳಿಲ್ಲ.",
     highestReported: "ವರದಿಯಾದ ಅತ್ಯಧಿಕ ಮಾದರಿ ದರ", lowestReported: "ವರದಿಯಾದ ಕನಿಷ್ಠ ಮಾದರಿ ದರ",
@@ -465,7 +466,7 @@ const text = {
     expenseRecommendationNoCosts: "ಅತಿದೊಡ್ಡ ವೆಚ್ಚ ಗುರುತಿಸಲು ಲಾಭದ ಲೆಕ್ಕಾಚಾರದಲ್ಲಿ ವೆಚ್ಚ ಸೇರಿಸಿ.",
     selectCropForSmartFarm: "ಕೃಷಿ ಸಾರಾಂಶವನ್ನು ವೈಯಕ್ತಿಕಗೊಳಿಸಲು ಬೆಳೆ ಆಯ್ಕೆಮಾಡಿ.",
     noVariety: "ವರದಿಯಾಗಿಲ್ಲ", noPrice: "—", searchStateHelp: "ಸ್ಥಳ ಮತ್ತು ಬೆಳೆ ಆಯ್ಕೆಗಳು ಪಡೆದ ದಾಖಲೆಗಳಿಂದ ಬರುತ್ತವೆ.",
-    selectedRows: "ಹೊಂದಿದ ದಾಖಲೆಗಳು", allKarnataka: "ಎಲ್ಲ ಕರ್ನಾಟಕ",
+    selectedRows: "ಹೊಂದಿದ ದಾಖಲೆಗಳು", allKarnataka: "ಎಲ್ಲ ಭಾರತ",
     soilTitle: "ಮಣ್ಣಿನ ವಿವರ", soilSub: "ನಿಮ್ಮ ಹೊಲದ ಮಣ್ಣನ್ನು ಅರ್ಥಮಾಡಿಕೊಳ್ಳಲು ಸರಳ ಮಾರ್ಗದರ್ಶಿ.",
     profitCalculatorEyebrow: "ನಿಮ್ಮ ಕೃಷಿ ಹಂಗಾಮಿನ ಯೋಜನೆ", profitCalculatorTitle: "ರೈತರ ಲಾಭದ ಲೆಕ್ಕಾಚಾರ",
     profitCalculatorSub: "ನಿಮ್ಮ ಹೊಲದ ಅಂದಾಜುಗಳ ಆಧಾರದ ಮೇಲೆ ಬೆಳೆ ಆದಾಯ, ವೆಚ್ಚ ಮತ್ತು ಲಾಭ ಲೆಕ್ಕಿಸಿ.",
@@ -746,6 +747,8 @@ const hindiText: Partial<Record<keyof typeof text.en, string>> = {
   weatherHttpError: "मौसम सेवा अभी अस्थायी रूप से उपलब्ध नहीं है। बाद में फिर कोशिश करें।",
   weatherApiError: "इस स्थान के लिए मौसम जानकारी उपलब्ध नहीं हो सकी।",
   weatherInvalidError: "मौसम सेवा से अनपेक्षित जानकारी मिली। फिर कोशिश करें।",
+  mandiSub: "भारतीय और राज्य की मंडियों के भाव; नमूना रिकॉर्ड स्पष्ट रूप से चिह्नित हैं।",
+  compareMarkets: "चुने गए राज्य की मंडियों की तुलना करें",
   dashboardWeatherNote: "मौसम Open-Meteo से लाइव है। मंडी भाव डेमो जानकारी हैं।",
   alertHeavyRainTitle: "भारी बारिश की संभावना", alertHeavyRainBody: "पूर्वानुमान: {date} को {amount} मिमी। सिंचाई टालने और खेत की जल-निकासी जाँचने पर विचार करें।",
   alertRainTitle: "बारिश की संभावना", alertRainBody: "{date} को बारिश की संभावना {chance}% है। अनावश्यक सिंचाई से बचने के लिए पहले मिट्टी की नमी जाँचें।",
@@ -785,6 +788,7 @@ const hindiText: Partial<Record<keyof typeof text.en, string>> = {
   profileSoilNote: "सहेजी गई किसान प्रोफ़ाइल का मिट्टी प्रकार; प्रयोगशाला जाँच नहीं।",
   sampleCachedMandiData: "नमूना / कैश किया गया AGMARKNET डेटा",
   sampleDataSource: "उदाहरण के लिए जोड़ा गया डेटा · लाइव या सरकारी रिपोर्ट नहीं",
+  mixedDataSource: "उदाहरण डेटा और डिवाइस पर सहेजा AGMARKNET कैश",
   cachedPriceExplanation: "इस डिवाइस के कैश में सहेजे गए पुराने AGMARKNET रिकॉर्ड दिखाए जा रहे हैं। ये मौजूदा भाव नहीं भी हो सकते हैं।",
   farmCostsTitle: "खेती के खर्च का सार", totalInvestment: "कुल निवेश", largestExpense: "सबसे बड़ा खर्च",
   latestMandiAverage: "मंडी भाव का नवीनतम औसत", currentReportedPrice: "नवीनतम रिपोर्ट किया गया औसत",
@@ -1858,6 +1862,15 @@ function filterCachedMandiRecords(records: MandiRecord[], state: string, distric
   );
 }
 
+function mergeSampleMandiRecords(records: readonly MandiRecord[]) {
+  const merged = new Map<string, MandiRecord>();
+  for (const record of [...createSampleMandiRecords(), ...records]) {
+    const key = [record.state, record.district, record.market, record.commodity, record.variety ?? "", record.arrivalDate].join("|");
+    merged.set(key, record);
+  }
+  return Array.from(merged.values());
+}
+
 function Mandi({ t, isOnline, onSnapshot }: PageProps & { isOnline: boolean; onSnapshot: (snapshot: MandiSnapshot | null) => void }) {
   const [cachedPrices] = useState(readCachedMandiPrices);
   const [dataSource, setDataSource] = useState<MandiDataSource>(cachedPrices ? "cached" : "live");
@@ -1883,7 +1896,8 @@ function Mandi({ t, isOnline, onSnapshot }: PageProps & { isOnline: boolean; onS
   useEffect(() => {
     if (!isOnline) {
       const cached = readCachedMandiPrices() ?? cachedPrices;
-      const fallbackRecords = cached?.records ?? createSampleMandiRecords();
+      const cachedRecords = cached?.records ?? [];
+      const fallbackRecords = mergeSampleMandiRecords(cachedRecords);
       if (cached) {
         setFetchedAt(cached.timestamp);
       } else {
@@ -1894,7 +1908,7 @@ function Mandi({ t, isOnline, onSnapshot }: PageProps & { isOnline: boolean; onS
       setStateOptions(uniqueSorted(fallbackRecords.map((record) => record.state)));
       setSelectedState((current) => current || preferredMandiState(fallbackRecords));
       setTotal(fallbackRecords.length);
-      setDataSource(cached ? "cached" : "sample");
+      setDataSource(cachedRecords.length ? "sample-cached" : "sample");
       setError("");
       setLoading(false);
       setLoaded(true);
@@ -1920,13 +1934,14 @@ function Mandi({ t, isOnline, onSnapshot }: PageProps & { isOnline: boolean; onS
         if (controller.signal.aborted) return;
         console.warn("Could not load AGMARKNET market options; using cached or sample data.", caught);
         const cached = readCachedMandiPrices() ?? cachedPrices;
-        const fallbackRecords = cached?.records ?? createSampleMandiRecords();
+        const cachedRecords = cached?.records ?? [];
+        const fallbackRecords = mergeSampleMandiRecords(cachedRecords);
         setRecords(fallbackRecords);
         setCatalogRecords(fallbackRecords);
         setStateOptions(uniqueSorted(fallbackRecords.map((record) => record.state)));
         setTotal(fallbackRecords.length);
         setFetchedAt(cached?.timestamp ?? new Date().toISOString());
-        setDataSource(cached ? "cached" : "sample");
+        setDataSource(cachedRecords.length ? "sample-cached" : "sample");
         setSelectedState(preferredMandiState(fallbackRecords));
         setError("");
       } finally {
@@ -1949,8 +1964,11 @@ function Mandi({ t, isOnline, onSnapshot }: PageProps & { isOnline: boolean; onS
     onSnapshot(null);
     if (!isOnline) {
       const cached = readCachedMandiPrices() ?? cachedPrices;
-      const fallbackRecords = cached?.records ?? (catalogRecords.length ? catalogRecords : createSampleMandiRecords());
-      const fallbackSource: MandiDataSource = cached ? "cached" : catalogRecords.length && dataSource !== "sample" ? "cached" : "sample";
+      const cachedRecords = cached?.records.length
+        ? cached.records
+        : catalogRecords.length && dataSource !== "sample" ? catalogRecords : [];
+      const fallbackRecords = mergeSampleMandiRecords(cachedRecords);
+      const fallbackSource: MandiDataSource = cachedRecords.length ? "sample-cached" : "sample";
       const offlineRecords = filterCachedMandiRecords(fallbackRecords, selectedState, selectedDistrict, selectedMarket, selectedCommodity);
       const fallbackTimestamp = (cached?.timestamp ?? fetchedAt) || new Date().toISOString();
       setRecords(offlineRecords);
@@ -1986,8 +2004,11 @@ function Mandi({ t, isOnline, onSnapshot }: PageProps & { isOnline: boolean; onS
         if (controller.signal.aborted) return;
         console.warn("Could not load filtered AGMARKNET prices; using cached or sample data.", caught);
         const cached = readCachedMandiPrices() ?? cachedPrices;
-        const fallbackRecords = cached?.records ?? (catalogRecords.length ? catalogRecords : createSampleMandiRecords());
-        const fallbackSource: MandiDataSource = cached ? "cached" : catalogRecords.length && dataSource !== "sample" ? "cached" : "sample";
+        const cachedRecords = cached?.records.length
+          ? cached.records
+          : catalogRecords.length && dataSource !== "sample" ? catalogRecords : [];
+        const fallbackRecords = mergeSampleMandiRecords(cachedRecords);
+        const fallbackSource: MandiDataSource = cachedRecords.length ? "sample-cached" : "sample";
         const offlineRecords = filterCachedMandiRecords(fallbackRecords, selectedState, selectedDistrict, selectedMarket, selectedCommodity);
         const fallbackTimestamp = (cached?.timestamp ?? fetchedAt) || new Date().toISOString();
         setRecords(offlineRecords);
@@ -2071,7 +2092,9 @@ function Mandi({ t, isOnline, onSnapshot }: PageProps & { isOnline: boolean; onS
   }
 
   return <>
-    <PageHeading eyebrow={t("marketBoard")} title={t("mandiTitle")} description={t("mandiSub")} t={t} badge="AGMARKNET" badgeKind="source" />
+    <PageHeading eyebrow={t("marketBoard")} title={t("mandiTitle")} description={t("mandiSub")} t={t}
+      badge={dataSource === "live" ? "AGMARKNET" : t("sampleCachedMandiData")}
+      badgeKind={dataSource === "live" ? "source" : "demo"} />
     <section className="panel mandi-filter-panel">
       <div className="mandi-filters">
         <label>{t("state")}<select value={selectedState} disabled={loading && stateOptions.length === 0} onChange={(event) => {
@@ -2097,7 +2120,7 @@ function Mandi({ t, isOnline, onSnapshot }: PageProps & { isOnline: boolean; onS
       <div className="mandi-filter-foot"><span>ⓘ &nbsp;{t("searchStateHelp")}</span><button className="button button-outline" onClick={() => setRefreshCount((count) => count + 1)} disabled={loading}>{loading ? <><span className="spinner" />{t("refreshingPrices")}</> : <>↻ &nbsp;{t("refreshPrices")}</>}</button></div>
     </section>
     <div className="mandi-source-line">
-      <span>◉ &nbsp;{dataSource === "sample" ? t("sampleDataSource") : t("marketApiSource")}</span>
+      <span>◉ &nbsp;{dataSource === "sample" ? t("sampleDataSource") : dataSource === "sample-cached" ? t("mixedDataSource") : t("marketApiSource")}</span>
       {dataSource !== "live" && <span className="demo-badge mandi-fallback-badge"><i />{t("sampleCachedMandiData")}</span>}
       {updatedLabel && <span>{t("lastUpdatedMandi")}: {updatedLabel}</span>}
       {total > 0 && <span>{total.toLocaleString()} {t("selectedRows")}</span>}
@@ -3065,7 +3088,7 @@ function SmartFarm({ t, language, profile, location, forecast, profitInputs, onP
   const realPriceHistory = isMatchingMarketSnapshot && mandiSnapshot
     ? dailyModalPrices(mandiSnapshot.records, mandiSnapshot.commodity)
     : [];
-  const isSampleMarket = isMatchingMarketSnapshot && mandiSnapshot?.dataSource === "sample";
+  const isSampleMarket = isMatchingMarketSnapshot && (mandiSnapshot?.dataSource === "sample" || mandiSnapshot?.dataSource === "sample-cached");
   const isCachedMarket = isMatchingMarketSnapshot && mandiSnapshot?.dataSource === "cached";
   const isDemoMarket = isSampleMarket || realPriceHistory.length === 0;
   const priceHistory = realPriceHistory.length ? realPriceHistory : selectedCrop ? demoFarmPriceHistory : [];

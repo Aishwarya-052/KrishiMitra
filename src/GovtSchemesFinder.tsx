@@ -22,7 +22,7 @@ type Scheme = {
 const copy = {
   en: {
     title: "Government Schemes & Subsidies",
-    subtitle: "Find Indian and Karnataka agriculture support that may fit your farm.",
+    subtitle: "Find Indian & state schemes and support that may fit your farm.",
     label: "SCHEME FINDER",
     filters: "Filter schemes",
     landholding: "Landholding size",
@@ -99,7 +99,7 @@ const copy = {
   },
   kn: {
     title: "ಸರ್ಕಾರಿ ಯೋಜನೆಗಳು ಮತ್ತು ಸಬ್ಸಿಡಿಗಳು",
-    subtitle: "ನಿಮ್ಮ ಕೃಷಿಗೆ ಹೊಂದಬಹುದಾದ ಭಾರತ ಮತ್ತು ಕರ್ನಾಟಕದ ಕೃಷಿ ನೆರವನ್ನು ಹುಡುಕಿ.",
+    subtitle: "ನಿಮ್ಮ ಕೃಷಿಗೆ ಹೊಂದಬಹುದಾದ ಭಾರತ ಮತ್ತು ರಾಜ್ಯದ ಯೋಜನೆಗಳು ಹಾಗೂ ನೆರವನ್ನು ಹುಡುಕಿ.",
     label: "ಯೋಜನೆ ಹುಡುಕಾಟ",
     filters: "ಯೋಜನೆಗಳನ್ನು ಫಿಲ್ಟರ್ ಮಾಡಿ",
     landholding: "ಭೂ ಹಿಡುವಳಿ ಗಾತ್ರ",

@@ -31,6 +31,22 @@ const sampleMarkets = [
   { state: "Karnataka", district: "Dharwad", market: "Hubballi APMC", factor: 0.97 },
   { state: "Karnataka", district: "Kolar", market: "Kolar APMC", factor: 1.05 },
   { state: "Karnataka", district: "Belagavi", market: "Belagavi APMC", factor: 0.98 },
+  { state: "Maharashtra", district: "Pune", market: "Pune APMC", factor: 1.08 },
+  { state: "Maharashtra", district: "Nashik", market: "Nashik APMC", factor: 1.12 },
+  { state: "Maharashtra", district: "Nagpur", market: "Nagpur APMC", factor: 1.02 },
+  { state: "Tamil Nadu", district: "Coimbatore", market: "Coimbatore APMC", factor: 1.04 },
+  { state: "Tamil Nadu", district: "Madurai", market: "Madurai APMC", factor: 0.99 },
+  { state: "Tamil Nadu", district: "Salem", market: "Salem APMC", factor: 0.96 },
+  { state: "Andhra Pradesh", district: "Guntur", market: "Guntur APMC", factor: 1.1 },
+  { state: "Andhra Pradesh", district: "NTR", market: "Vijayawada APMC", factor: 1.03 },
+  { state: "Telangana", district: "Hyderabad", market: "Bowenpally APMC", factor: 1.08 },
+  { state: "Telangana", district: "Warangal", market: "Warangal Enamamula APMC", factor: 1 },
+  { state: "Punjab", district: "Ludhiana", market: "Ludhiana APMC", factor: 1.06 },
+  { state: "Punjab", district: "Amritsar", market: "Amritsar APMC", factor: 1.02 },
+  { state: "Uttar Pradesh", district: "Lucknow", market: "Lucknow APMC", factor: 1.04 },
+  { state: "Uttar Pradesh", district: "Agra", market: "Agra APMC", factor: 1 },
+  { state: "Madhya Pradesh", district: "Indore", market: "Indore APMC", factor: 1.07 },
+  { state: "Madhya Pradesh", district: "Bhopal", market: "Bhopal APMC", factor: 1.01 },
 ];
 
 const sampleCommodities = [
