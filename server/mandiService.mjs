@@ -80,7 +80,7 @@ function jsonResponse(status, body) {
   });
 }
 
-export async function handleMandiRequest(request, apiKey, fetcher = fetch) {
+export async function handleMandiRequest(request, apiKey, fetcher = fetch, options = {}) {
   if (request.method !== "GET") {
     return jsonResponse(405, { error: "method_not_allowed" });
   }
@@ -90,9 +90,10 @@ export async function handleMandiRequest(request, apiKey, fetcher = fetch) {
 
   const requestUrl = new URL(request.url);
   const upstreamUrl = new URL(MANDI_SOURCE_URL);
+  const limit = Number.isInteger(options.limit) && options.limit > 0 ? options.limit : 1000;
   upstreamUrl.searchParams.set("api-key", apiKey.trim());
   upstreamUrl.searchParams.set("format", "json");
-  upstreamUrl.searchParams.set("limit", "1000");
+  upstreamUrl.searchParams.set("limit", String(limit));
   upstreamUrl.searchParams.set("offset", "0");
   upstreamUrl.searchParams.set("sort[Arrival_Date]", "desc");
 

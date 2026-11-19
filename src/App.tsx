@@ -2251,7 +2251,7 @@ function mergeSampleMandiRecords(records: readonly MandiRecord[]) {
 
 function Mandi({ t, isOnline, onSnapshot }: PageProps & { isOnline: boolean; onSnapshot: (snapshot: MandiSnapshot | null) => void }) {
   const [cachedPrices] = useState(readCachedMandiPrices);
-  const [dataSource, setDataSource] = useState<MandiDataSource>(cachedPrices ? "cached" : "live");
+  const [dataSource, setDataSource] = useState<MandiDataSource>(cachedPrices ? "cached" : "sample");
   const [records, setRecords] = useState<MandiRecord[]>(cachedPrices?.records ?? []);
   const [catalogRecords, setCatalogRecords] = useState<MandiRecord[]>(cachedPrices?.records ?? []);
   const [stateOptions, setStateOptions] = useState<string[]>([...INDIAN_STATES_AND_UTS]);
@@ -2506,7 +2506,7 @@ function Mandi({ t, isOnline, onSnapshot }: PageProps & { isOnline: boolean; onS
 
   return <>
     <PageHeading eyebrow={t("marketBoard")} title={t("mandiTitle")} description={t("mandiSub")} t={t}
-      badge={dataSource === "live" ? "AGMARKNET" : t("sampleCachedMandiData")}
+      badge={dataSource === "live" ? "Live AGMARKNET Data" : t("sampleCachedMandiData")}
       badgeKind={dataSource === "live" ? "source" : "demo"} />
     <section className="panel mandi-filter-panel">
       <div className="mandi-filters">
@@ -2543,7 +2543,7 @@ function Mandi({ t, isOnline, onSnapshot }: PageProps & { isOnline: boolean; onS
     {loading && <div className="mandi-loading panel" role="status"><span className="spinner" />{t("loadingMarkets")}</div>}
     {!loading && !error && !records.length && <div className="mandi-empty panel"><span>⌕</span><h2>{loaded ? t("noDataForFilters") : t("noMarketData")}</h2></div>}
     {!loading && !error && records.length > 0 && <>
-      <section className="panel table-panel mandi-table-panel"><div className="table-heading"><div><h2>{selectedCommodity || t("mandiTitle")}</h2><p>{records.length} {t("selectedRows")}</p></div><span className={`demo-badge ${dataSource === "live" ? "source-badge" : ""}`}><i />{dataSource === "live" ? "AGMARKNET" : t("sampleCachedMandiData")}</span></div>
+      <section className="panel table-panel mandi-table-panel"><div className="table-heading"><div><h2>{selectedCommodity || t("mandiTitle")}</h2><p>{records.length} {t("selectedRows")}</p></div><span className={`demo-badge ${dataSource === "live" ? "source-badge" : ""}`}><i />{dataSource === "live" ? "Live AGMARKNET Data" : t("sampleCachedMandiData")}</span></div>
         <div className="table-scroll"><table><thead><tr><th>{t("commodity")}</th><th>{t("market")}</th><th>{t("districtLabel")}</th><th>{t("variety")}</th><th>{t("arrivalDate")}</th><th>{t("minPrice")}</th><th>{t("maxPrice")}</th><th>{t("modalPrice")}</th></tr></thead><tbody>{sortedRecords.slice(0, 250).map((record, index) => <tr key={`${record.arrivalDate}-${record.market}-${record.commodity}-${record.variety}-${index}`}><td>{record.commodity}</td><td>{record.market}</td><td>{record.district}</td><td>{record.variety || t("noVariety")}</td><td>{formatMandiDate(record.arrivalDate, languageOf(t))}</td><td>{formatPrice(record.minPrice)}</td><td>{formatPrice(record.maxPrice)}</td><td className="price-cell">{formatPrice(record.modalPrice)}</td></tr>)}</tbody></table></div>
         <div className="table-footnote"><span>ⓘ</span>{t("sourceUnitNote")}</div>
       </section>
@@ -3624,7 +3624,7 @@ function SmartFarm({ t, language, profile, location, forecast, profitInputs, onP
 
       <section className="panel smart-farm-market">
         <div className="smart-farm-panel-heading"><div><div className="eyebrow">{t("marketCard")}</div><h2>{t("latestMandiAverage")}</h2></div>
-          <span className={`demo-badge ${isDemoMarket ? "" : "source-badge"}`}><i />{isDemoMarket ? t("demoPriceLabel") : isCachedMarket ? `${t("cachedData")} · AGMARKNET` : "AGMARKNET"}</span>
+          <span className={`demo-badge ${isDemoMarket ? "" : "source-badge"}`}><i />{isDemoMarket ? t("demoPriceLabel") : isCachedMarket ? `${t("cachedData")} · AGMARKNET` : "Live AGMARKNET Data"}</span>
         </div>
         {!selectedCrop
           ? <p className="smart-farm-empty">{t("selectCropForSmartFarm")}</p>
