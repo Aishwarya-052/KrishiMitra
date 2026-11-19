@@ -490,6 +490,35 @@ td:first-child { color: #455b49; font-weight: 600; }
 .rotation-disclaimer > span { flex: 0 0 auto; color: #a48a50; font-size: 14px; }
 .rotation-disclaimer strong { color: #716b57; font-size: 9px; }
 .rotation-disclaimer p { margin: 5px 0 0; font-size: 8px; line-height: 1.6; }
+.bio-recipe-panel { display: grid; gap: 14px; padding: 18px; margin-top: 15px; }
+.bio-recipe-heading { align-items: flex-start; }
+.bio-recipe-heading h2 { max-width: 700px; }
+.bio-recipe-heading p { max-width: 720px; margin: 6px 0 0; color: #849087; font-size: 9px; line-height: 1.55; }
+.bio-recipe-controls { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 11px; }
+.bio-recipe-controls label { display: grid; gap: 6px; min-width: 0; color: #607065; font-size: 9px; font-weight: 700; line-height: 1.45; }
+.bio-recipe-controls input, .bio-recipe-controls select { width: 100%; min-width: 0; min-height: 38px; padding: 0 10px; border: 1px solid #e5e9e1; border-radius: 7px; color: #4c6251; background: #fff; font-size: 10px; }
+.bio-recipe-results { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, .85fr); gap: 11px; }
+.bio-recipe-ingredients, .bio-recipe-guidance article, .bio-cost-panel { min-width: 0; padding: 13px; border: 1px solid #e9eee5; border-radius: 9px; background: #fbfcf9; }
+.bio-recipe-section-title { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
+.bio-recipe-section-title h3 { margin: 0; color: #435d47; font: 700 11px "Manrope", sans-serif; }
+.bio-recipe-section-title > span { color: #8a968b; font-size: 8px; text-align: right; }
+.bio-recipe-ingredients ul { display: grid; gap: 0; padding: 0; margin: 10px 0 0; list-style: none; }
+.bio-recipe-ingredients li { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; padding: 7px 0; border-top: 1px solid #eef1eb; color: #6d7d70; font-size: 9px; line-height: 1.45; }
+.bio-recipe-ingredients li strong { flex: 0 0 auto; color: #426348; font-size: 9px; text-align: right; }
+.bio-recipe-ingredients > p, .bio-recipe-guidance p { margin: 8px 0 0; color: #7d897f; font-size: 9px; line-height: 1.55; }
+.bio-recipe-note { padding: 8px; border-radius: 7px; background: #f3f5ee; }
+.bio-recipe-guidance { display: grid; gap: 9px; }
+.bio-recipe-guidance article { background: #f4f7f0; }
+.bio-recipe-guidance h3 { margin: 0; color: #566d55; font-size: 9px; }
+.bio-cost-panel { background: #f8f9f5; }
+.bio-cost-panel > .bio-recipe-controls { margin-top: 10px; }
+.bio-cost-result { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 6px 12px; margin: 10px 0 0; padding-top: 9px; border-top: 1px solid #e9eee5; color: #718074; font-size: 9px; }
+.bio-cost-result strong { color: #526a54; }
+.bio-cost-result span { color: #3f6245; font-weight: 700; }
+.bio-recipe-disclaimer { padding: 11px 12px; border: 1px solid #ece8d7; border-radius: 8px; color: #7d7868; background: #fbf9f1; }
+.bio-recipe-disclaimer strong { color: #716b57; font-size: 8px; line-height: 1.55; }
+.bio-recipe-disclaimer p { margin: 5px 0 0; color: #918367; font-size: 8px; line-height: 1.6; }
+.bio-recipe-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; }
 .crop-doctor-intro { display: grid; gap: 17px; padding: 18px; background: #f2f5ed; }
 .crop-doctor-intro > label { display: grid; gap: 7px; color: #687968; font-size: 10px; font-weight: 700; }
 .crop-doctor-intro select { width: min(100%, 360px); height: 39px; padding: 0 11px; border: 1px solid #dfe7d9; border-radius: 8px; color: #405b45; background: #fff; font-size: 11px; }
@@ -586,6 +615,27 @@ td:first-child { color: #455b49; font-weight: 600; }
 .profile-form { display: grid; grid-template-columns: repeat(2, 1fr); gap: 13px; padding-top: 16px; }.profile-form label { display: grid; gap: 6px; color: #607065; font-size: 9px; font-weight: 600; }.profile-form input, .profile-form select { width: 100%; min-height: 36px; padding: 0 10px; border: 1px solid #e5e9e1; border-radius: 7px; color: #4c6251; background: #fff; font-size: 10px; }.profile-form input::placeholder { color: #abb3ab; }.profile-form select:invalid { color: #aab1aa; }.form-footer { display: flex; grid-column: 1 / -1; align-items: center; justify-content: space-between; gap: 12px; padding-top: 4px; }.form-footer > span { color: #9aa39a; font-size: 8px; }
 .profit-layout { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); align-items: start; gap: 14px; }
 .profit-input-panel, .profit-results-panel { min-width: 0; padding: 18px; }
+.transport-pooling-card { margin-top: 14px; padding: 18px; }
+.transport-pooling-heading, .transport-invite { display: flex; align-items: flex-start; justify-content: space-between; gap: 13px; }
+.transport-pooling-heading h2 { margin: 0; color: #35523d; font: 700 14px "Manrope", sans-serif; line-height: 1.4; }
+.transport-pooling-heading .eyebrow { margin-bottom: 5px; }
+.transport-pooling-inputs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 11px; margin-top: 15px; }
+.transport-pooling-inputs label { min-width: 0; display: grid; align-content: start; gap: 6px; color: #607065; font-size: 9px; font-weight: 600; line-height: 1.4; }
+.transport-pooling-inputs input, .transport-pooling-inputs select { width: 100%; min-width: 0; min-height: 38px; padding: 0 10px; border: 1px solid #e5e9e1; border-radius: 7px; color: #4c6251; background: #fff; font-size: 10px; }
+.pooling-farmer-count { margin: 13px 0 0; color: #708071; font-size: 8px; }
+.transport-pooling-results { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 9px; margin-top: 9px; }
+.transport-pooling-results article { min-width: 0; padding: 12px; border: 1px solid #e9eee5; border-radius: 9px; background: #fbfcf9; }
+.transport-pooling-results span, .transport-pooling-results strong { display: block; }
+.transport-pooling-results span { min-height: 21px; color: #879287; font-size: 8px; line-height: 1.4; }
+.transport-pooling-results strong { margin-top: 6px; color: #405b45; font: 700 17px "Manrope", sans-serif; overflow-wrap: anywhere; }
+.transport-pooling-results .pooling-savings { border-color: #dce9d8; background: #f0f6ed; }
+.transport-pooling-results .pooling-savings strong { color: #397347; }
+.pooling-prompt, .transport-pooling-note { margin: 12px 0 0; color: #879287; font-size: 8px; line-height: 1.55; }
+.transport-invite { align-items: center; margin-top: 13px; padding: 12px; border-radius: 9px; background: #f3f6ef; }
+.transport-invite > div { min-width: 0; }
+.transport-invite .eyebrow { margin-bottom: 5px; }
+.transport-invite p { margin: 0; color: #647567; font-size: 9px; line-height: 1.55; overflow-wrap: anywhere; }
+.transport-invite .button { flex: 0 0 auto; }
 .profit-input-panel .panel-heading h2, .profit-results-panel .panel-heading h2 { font-size: 14px; }
 .profit-result-icon { display: grid; place-items: center; width: 34px; height: 34px; border-radius: 10px; color: #5e8059; background: #eaf1e5; font-size: 17px; }
 .profit-results-actions, .farm-alert-actions, .farm-finance-actions { display: flex; align-items: center; gap: 8px; }
@@ -674,6 +724,29 @@ td:first-child { color: #455b49; font-weight: 600; }
 .risk-factors li strong { color: #526753; font-size: 8px; }
 .risk-factors li small { margin-top: 2px; color: #859186; font-size: 7px; }
 .risk-method-note { margin: 10px 0 0; color: #919b91; font-size: 7px; line-height: 1.5; }
+.post-harvest-advisor { grid-column: 1 / -1; }
+.post-harvest-subtitle { margin: 5px 0 0; color: #879287; font-size: 8px; line-height: 1.5; }
+.post-harvest-layout { display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr); gap: 14px; margin-top: 14px; }
+.post-harvest-inputs { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; align-content: start; }
+.post-harvest-inputs label { display: grid; gap: 6px; color: #6f8071; font-size: 8px; font-weight: 700; }
+.post-harvest-inputs select { width: 100%; min-width: 0; min-height: 36px; padding: 0 9px; border: 1px solid #e1e8dc; border-radius: 7px; color: #4c6251; background: #fff; font-size: 9px; }
+.post-harvest-weather { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); grid-column: 1 / -1; gap: 7px; }
+.post-harvest-weather > div, .post-harvest-metrics > div { min-width: 0; padding: 9px; border-radius: 8px; background: #f2f5ee; }
+.post-harvest-weather span, .post-harvest-weather strong, .post-harvest-metrics span, .post-harvest-metrics strong { display: block; }
+.post-harvest-weather span, .post-harvest-metrics span { color: #89958b; font-size: 7px; line-height: 1.4; }
+.post-harvest-weather strong, .post-harvest-metrics strong { margin-top: 4px; color: #405c45; font: 700 12px "Manrope", sans-serif; overflow-wrap: anywhere; }
+.post-harvest-result { display: grid; align-content: start; gap: 9px; }
+.post-harvest-metrics { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 7px; }
+.post-harvest-metrics > div { background: #fff; border: 1px solid #edf0e9; }
+.post-harvest-risk.postHarvestRiskLow { color: #4e8052; }
+.post-harvest-risk.postHarvestRiskModerate { color: #9c7940; }
+.post-harvest-risk.postHarvestRiskHigh { color: #a45e49; }
+.post-harvest-action { padding: 10px; border-radius: 8px; background: #f0f4eb; }
+.post-harvest-action strong { color: #456b4b; font-size: 9px; }
+.post-harvest-action p { margin: 5px 0 0; color: #728071; font-size: 8px; line-height: 1.5; }
+.post-harvest-action.action-sell { background: #fbf0e9; }
+.post-harvest-action.action-sell strong { color: #9a5d43; }
+.post-harvest-note { margin: 11px 0 0; color: #919b91; font-size: 7px; line-height: 1.55; }
 .farm-alert-list { display: grid; gap: 8px; margin: 13px 0 0; padding: 0; list-style: none; }
 .farm-alert-list li { display: grid; grid-template-columns: 24px minmax(0, 1fr) auto; align-items: start; gap: 8px; padding: 9px; border-radius: 8px; background: #fbf7eb; }
 .farm-alert-icon { display: grid; place-items: center; width: 22px; height: 22px; border-radius: 7px; color: #9a773d; background: #f2e7d0; font-size: 11px; font-weight: 700; }
@@ -738,7 +811,9 @@ td:first-child { color: #455b49; font-weight: 600; }
   .chat-layout { grid-template-columns: 1fr; }.chat-window { min-height: 420px; }.chat-side { min-height: 210px; padding: 17px; }.side-spark { margin-bottom: 12px; }.chat-side-bottom { padding: 11px 17px; }
   .settings-card { padding: 14px; gap: 10px; }.settings-icon { width: 32px; height: 32px; flex-basis: 32px; }.settings-card h2, .about-card h2 { font-size: 12px; }.language-options { flex-wrap: wrap; }.language-options button { min-width: 90px; flex: 1; }.about-card { padding: 14px; }
   .profit-layout { grid-template-columns: 1fr; gap: 10px; }.profit-input-panel, .profit-results-panel { padding: 14px; }.profit-input-grid { gap: 9px; }.profit-metric > strong { font-size: 14px; }
+  .transport-pooling-card { padding: 14px; }.transport-pooling-inputs { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 9px; }.transport-pooling-results { grid-template-columns: 1fr; gap: 7px; }.transport-pooling-results article { padding: 10px; }.transport-invite { align-items: flex-start; flex-direction: column; }
   .smart-farm-context { grid-template-columns: 1fr; gap: 10px; padding: 13px; }.smart-farm-grid { grid-template-columns: 1fr; gap: 10px; }.smart-farm-grid > .panel { padding: 13px; }.smart-farm-panel-heading h2 { font-size: 12px; }.farm-alert-list li { grid-template-columns: 22px minmax(0, 1fr) auto; gap: 6px; }.smart-farm-panel-heading > .demo-badge { max-width: 52%; font-size: 6px; }
+  .post-harvest-layout { grid-template-columns: 1fr; gap: 10px; }.post-harvest-advisor .smart-farm-panel-heading { align-items: flex-start; }.post-harvest-advisor .smart-farm-panel-heading h2 { max-width: 275px; }.post-harvest-inputs { gap: 8px; }
   .crop-doctor-intro { gap: 14px; padding: 13px; }.crop-doctor-tags { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; }.crop-doctor-tag { min-height: 41px; padding: 7px; font-size: 8px; }.crop-doctor-result { padding: 12px; }.crop-doctor-result-heading { gap: 7px; }.crop-doctor-result-heading h2 { font-size: 12px; }.crop-doctor-severity { min-width: 65px; padding: 6px; }.crop-doctor-advice-grid { grid-template-columns: 1fr; gap: 7px; }.crop-doctor-advice-grid > section { padding: 9px; }.crop-doctor-disclaimer { padding: 10px; }
   .irrigation-page-heading .demo-badge { max-width: 44%; padding: 6px 7px; font-size: 7px; white-space: normal; text-align: center; }.irrigation-inputs, .irrigation-weather, .irrigation-result { padding: 13px; }.irrigation-inputs { grid-template-columns: 1fr; gap: 11px; }.irrigation-inputs label { font-size: 9px; }.irrigation-inputs select { min-height: 38px; font-size: 10px; }.irrigation-weather-facts { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 7px; margin-top: 12px; }.irrigation-weather-facts > div { padding: 9px; }.irrigation-weather-facts span { font-size: 8px; }.irrigation-weather-facts strong { font-size: 10px; }.irrigation-section-heading h2, .irrigation-result-heading h2 { font-size: 12px; }.irrigation-metrics { grid-template-columns: 1fr; gap: 7px; }.irrigation-metrics > div { padding: 10px; }.irrigation-metrics strong { font-size: 13px; }.irrigation-result-message, .irrigation-disclaimer p { font-size: 8px; }.irrigation-disclaimer { padding: 10px; }
   .advisory-heading { flex-wrap: wrap; }.advisory-heading .speech-control { margin-left: auto; }.speech-control { flex-wrap: wrap; justify-content: flex-end; }.speech-button { min-height: 29px; padding: 0 7px; font-size: 7px; }.speech-control small { max-width: 125px; }.farm-alert-actions, .farm-finance-actions, .profit-results-actions { flex-wrap: wrap; justify-content: flex-end; gap: 5px; }
@@ -748,8 +823,18 @@ td:first-child { color: #455b49; font-weight: 600; }
   .mobile-nav { position: fixed; z-index: 40; display: grid; grid-template-columns: repeat(5, 1fr); height: 59px; left: 0; right: 0; bottom: 0; padding: 4px 5px max(4px, env(safe-area-inset-bottom)); border-top: 1px solid #e5e9e0; background: #fff; box-shadow: 0 -4px 15px #2138220a; }
   .mobile-nav > button { display: grid; align-content: center; justify-items: center; gap: 2px; border: 0; border-radius: 9px; color: #859187; background: transparent; }.mobile-nav > button > span { height: 19px; font-size: 19px; line-height: 1; }.mobile-nav > button small { max-width: 100%; overflow: hidden; font-size: 7px; white-space: nowrap; text-overflow: ellipsis; }.mobile-nav > button.selected { color: #47764b; background: #f1f5ec; }.mobile-more-menu { position: absolute; right: 8px; bottom: 66px; width: min(220px, calc(100vw - 24px)); padding: 7px; border: 1px solid #e7ebe3; border-radius: 12px; background: #fff; box-shadow: 0 8px 30px #1f38201c; }.mobile-more-menu button { width: 100%; display: flex; align-items: center; gap: 10px; padding: 11px; border: 0; border-radius: 8px; color: #536a56; background: #fff; text-align: left; font-size: 11px; }.mobile-more-menu button:hover { background: #f3f6ef; }
 }
+@media (max-width: 600px) {
+  .bio-recipe-panel { gap: 11px; padding: 13px; }
+  .bio-recipe-results { grid-template-columns: 1fr; gap: 8px; }
+  .bio-recipe-controls { grid-template-columns: 1fr; gap: 8px; }
+  .bio-recipe-heading h2 { font-size: 12px; }
+  .bio-recipe-section-title { align-items: flex-start; }
+  .bio-recipe-actions { justify-content: stretch; }
+  .bio-recipe-actions > .button { flex: 1 1 100%; }
+}
 @media (max-width: 380px) {
   .main-area { padding-right: 12px; padding-left: 12px; }.mobile-brand { font-size: 11px; }.offline-pill { max-width: 72px; padding: 4px 5px; font-size: 6px; }.top-actions { gap: 3px; }.language-toggle { font-size: 6px; }.language-toggle button { padding: 3px 4px; }
+  .transport-pooling-inputs { grid-template-columns: 1fr; }
   .overview-card { padding-right: 9px; padding-left: 9px; }.market-price { font-size: 19px; }.mini-stats { font-size: 7px; }.weather-facts div { display: block; padding-left: 6px; }.weather-facts div > span { display: none; }.weather-facts small { display: block; line-height: 1.4; }.weather-facts strong { display: block; }
   .soil-summary .demo-badge { padding: 5px; letter-spacing: 0; }.crop-grid { grid-template-columns: 1fr; }.crop-art { height: 94px; }.crop-content > p { min-height: 0; }.crop-facts { grid-template-columns: 1fr 1fr; }.crop-content .button { font-size: 9px; }.profit-input-grid { grid-template-columns: 1fr; }.profit-crop-field { grid-column: auto; }.profit-metrics { grid-template-columns: 1fr 1fr; }.profit-metric:last-child { grid-column: 1 / -1; }.profile-form { grid-template-columns: 1fr; }.form-footer { grid-column: 1; }.language-options button { min-width: 84px; padding: 8px 7px; font-size: 8px; }
   .crop-doctor-tags { grid-template-columns: 1fr; }.crop-doctor-result-heading { align-items: flex-start; flex-wrap: wrap; }.crop-doctor-result-heading > div { min-width: calc(100% - 55px); }.crop-doctor-severity { margin-left: 45px; }

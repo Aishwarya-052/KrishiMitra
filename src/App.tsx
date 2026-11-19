@@ -179,6 +179,21 @@ const text = {
     riskContextNote: "The indicator requires a selected crop, saved soil type, and live forecast. Its level counts general weather alerts; no validated crop-specific or soil-test thresholds are available for additional weighting.",
     riskWeatherUnavailable: "Select a crop, save a soil type in your profile, and load a live forecast to calculate this indicator.",
     riskFactorWeather: "Forecast alert: {title}",
+    postHarvestEyebrow: "HARVEST & STORAGE",
+    postHarvestTitle: "Post-harvest & spoilage risk advisor",
+    postHarvestSub: "A rough storage-planning estimate using the current outdoor temperature and humidity.",
+    postHarvestCrop: "Harvested crop", postHarvestMethod: "Storage method",
+    postHarvestWindow: "Estimated safe storage window", postHarvestRisk: "Spoilage risk",
+    postHarvestAction: "Action tip", postHarvestSellImmediately: "Sell Immediately",
+    postHarvestSafeToStore: "Safe to Store", postHarvestWeatherUnavailable: "Load current weather with both temperature and humidity to calculate an estimate.",
+    postHarvestRiskHigh: "High", postHarvestRiskModerate: "Moderate", postHarvestRiskLow: "Low",
+    postHarvestSellTip: "Conditions indicate a short estimated window. Prioritise selling or processing and inspect the lot; do not rely on the estimate.",
+    postHarvestStoreTip: "The estimate allows short-term storage. Keep produce dry and ventilated, and inspect it regularly.",
+    postHarvestModelNote: "Prototype rule: for open sheds and gunny bags, the baseline window is shortened at 30/35°C and 70/80% humidity; cold storage gets only a small outdoor-weather adjustment.",
+    postHarvestEstimateNote: "Illustrative screening only—not a validated shelf-life prediction. Assumes sound harvest, fresh chilli, dry paddy/ragi grain, and cured onion/potato; actual life depends on curing, drying, handling, pests, and conditions inside the store. A cold-storage estimate assumes a functioning facility; outdoor weather does not measure its internal conditions.",
+    postHarvestShareMessage: "KrishiMitra post-harvest estimate\nCrop: {crop}\nStorage method: {method}\nCurrent outdoor temperature: {temperature}°C\nCurrent outdoor humidity: {humidity}%\nEstimated safe window: {days} days\nSpoilage risk: {risk}\nAction: {action}\nIllustrative estimate only, not a shelf-life guarantee.",
+    postHarvestCropOnion: "Onion", postHarvestCropPotato: "Potato",
+    storageOpenShed: "Open Shed", storageGunnyBags: "Gunny Bags", storageColdStorage: "Cold Storage",
     farmCostsTitle: "Farm expense insights", totalInvestment: "Total investment", largestExpense: "Largest expense category",
     expenseBreakdown: "Expense breakdown", noExpensesEntered: "Add estimated expenses in Profit calculator to see the cost breakdown.",
     largestExpenseInsight: "{category} is the largest estimated expense at {share}% of your total costs.",
@@ -209,6 +224,18 @@ const text = {
     totalExpenses: "Total expenses", estimatedProfit: "Estimated profit", profitPerAcre: "Profit per acre",
     financialBreakdown: "Revenue and cost comparison", revenueLabel: "Revenue", expensesLabel: "Expenses",
     netProfitLabel: "Net profit", calculatorDisclaimer: "This is an estimate based on your inputs, not a guaranteed return. Actual yield, prices, and costs may differ.",
+    transportPoolingTitle: "Shared transport & bulk input pooling",
+    transportPoolingSub: "Estimate the per-farmer transport saving using the actual vehicle fare for one trip.",
+    harvestQuantity: "Your harvest quantity (quintals)", distanceToMandi: "Distance to Mandi (km)",
+    neighborFarmers: "Neighboring farmers joining (1–5)", vehicleFare: "Actual vehicle fare per trip (₹)",
+    destinationMandi: "Destination Mandi", individualTransportCost: "Individual trip cost",
+    pooledTransportCost: "Your pooled share", transportSavings: "Savings per farmer",
+    totalSharingFarmers: "{count} farmers total, including you.",
+    transportPoolingAssumption: "Assumes each farmer would otherwise pay the same full-trip fare, the fare is split equally across you and the neighbors, and the vehicle has safe capacity for the combined harvest. Confirm fare, capacity and stops with the driver.",
+    transportInviteMessage: "Looking for {count} {farmerUnit} near {village} to share a goods vehicle to {mandi} tomorrow. I have {quantity} quintals; the Mandi is about {distance} km away.",
+    farmerUnitSingular: "farmer", farmerUnitPlural: "farmers",
+    villageForInvite: "Your village", invitePreview: "WhatsApp invite preview",
+    transportInviteMissing: "Add the village and destination Mandi to prepare the invite message.",
     soilHealth: "SOIL HEALTH SNAPSHOT", soilType: "Soil type", phLevel: "pH level", organicMatter: "Organic matter",
     nitrogen: "Nitrogen", phosphorus: "Phosphorus", potassium: "Potassium",
     soilTipTitle: "A small soil-care reminder", soilTip: "A soil test from a recognised local lab is the best way to plan nutrients for your own field.",
@@ -400,6 +427,21 @@ const text = {
     riskContextNote: "ಸೂಚಕಕ್ಕೆ ಆಯ್ಕೆ ಮಾಡಿದ ಬೆಳೆ, ಉಳಿಸಿದ ಮಣ್ಣಿನ ಪ್ರಕಾರ ಮತ್ತು ನೈಜ ಮುನ್ಸೂಚನೆ ಅಗತ್ಯ. ಇದರ ಮಟ್ಟವು ಸಾಮಾನ್ಯ ಹವಾಮಾನ ಎಚ್ಚರಿಕೆಗಳನ್ನು ಎಣಿಸುತ್ತದೆ; ಹೆಚ್ಚುವರಿ ತೂಕಕ್ಕೆ ಮಾನ್ಯ ಬೆಳೆ-ನಿರ್ದಿಷ್ಟ ಅಥವಾ ಮಣ್ಣಿನ ಪರೀಕ್ಷೆಯ ಮಿತಿಗಳಿಲ್ಲ.",
     riskWeatherUnavailable: "ಈ ಸೂಚಕ ಲೆಕ್ಕಿಸಲು ಬೆಳೆ ಆಯ್ಕೆಮಾಡಿ, ಪ್ರೊಫೈಲ್‌ನಲ್ಲಿ ಮಣ್ಣಿನ ಪ್ರಕಾರ ಉಳಿಸಿ ಮತ್ತು ನೈಜ ಮುನ್ಸೂಚನೆ ಲೋಡ್ ಮಾಡಿ.",
     riskFactorWeather: "ಮುನ್ಸೂಚನೆ ಎಚ್ಚರಿಕೆ: {title}",
+    postHarvestEyebrow: "ಕೊಯ್ಲು ಮತ್ತು ಸಂಗ್ರಹ",
+    postHarvestTitle: "ಕೊಯ್ಲಿನ ನಂತರದ ಸಂಗ್ರಹ ಮತ್ತು ಹಾಳಾಗುವ ಅಪಾಯ",
+    postHarvestSub: "ಪ್ರಸ್ತುತ ಹೊರಾಂಗಣ ತಾಪಮಾನ ಮತ್ತು ತೇವಾಂಶ ಆಧರಿಸಿದ ಸ್ಥೂಲ ಸಂಗ್ರಹ ಯೋಜನೆ ಅಂದಾಜು.",
+    postHarvestCrop: "ಕೊಯ್ಲು ಮಾಡಿದ ಬೆಳೆ", postHarvestMethod: "ಸಂಗ್ರಹ ವಿಧಾನ",
+    postHarvestWindow: "ಅಂದಾಜು ಸುರಕ್ಷಿತ ಸಂಗ್ರಹ ಅವಧಿ", postHarvestRisk: "ಹಾಳಾಗುವ ಅಪಾಯ",
+    postHarvestAction: "ಕ್ರಮದ ಸಲಹೆ", postHarvestSellImmediately: "ತಕ್ಷಣ ಮಾರಾಟ ಮಾಡಿ",
+    postHarvestSafeToStore: "ಸಂಗ್ರಹಿಸಬಹುದು", postHarvestWeatherUnavailable: "ಅಂದಾಜಿಗೆ ತಾಪಮಾನ ಮತ್ತು ತೇವಾಂಶ ಎರಡನ್ನೂ ಹೊಂದಿರುವ ಇಂದಿನ ಹವಾಮಾನ ಲೋಡ್ ಮಾಡಿ.",
+    postHarvestRiskHigh: "ಹೆಚ್ಚು", postHarvestRiskModerate: "ಮಧ್ಯಮ", postHarvestRiskLow: "ಕಡಿಮೆ",
+    postHarvestSellTip: "ಸ್ಥಿತಿಗಳು ಕಡಿಮೆ ಅಂದಾಜು ಅವಧಿಯನ್ನು ಸೂಚಿಸುತ್ತವೆ. ಬೇಗ ಮಾರಾಟ ಅಥವಾ ಸಂಸ್ಕರಣೆಗೆ ಆದ್ಯತೆ ನೀಡಿ ಮತ್ತು ಸಂಗ್ರಹವನ್ನು ಪರಿಶೀಲಿಸಿ; ಅಂದಾಜಿನ ಮೇಲೆ ಮಾತ್ರ ಅವಲಂಬಿಸಬೇಡಿ.",
+    postHarvestStoreTip: "ಅಂದಾಜು ಅಲ್ಪಾವಧಿ ಸಂಗ್ರಹಕ್ಕೆ ಅವಕಾಶ ನೀಡುತ್ತದೆ. ಉತ್ಪನ್ನವನ್ನು ಒಣ ಮತ್ತು ಗಾಳಿಯಾಡುವ ಸ್ಥಿತಿಯಲ್ಲಿ ಇಟ್ಟು ನಿಯಮಿತವಾಗಿ ಪರಿಶೀಲಿಸಿ.",
+    postHarvestModelNote: "ಮಾದರಿ ನಿಯಮ: ತೆರೆದ ಶೆಡ್ ಮತ್ತು ಗೋಣಿ ಚೀಲಗಳಿಗೆ 30/35°C ತಾಪಮಾನ ಹಾಗೂ 70/80% ತೇವಾಂಶದಲ್ಲಿ ಮೂಲ ಅವಧಿ ಕಡಿಮೆಯಾಗುತ್ತದೆ; ಶೀತಗೃಹಕ್ಕೆ ಹೊರಾಂಗಣ ಹವಾಮಾನದ ಸಣ್ಣ ಬದಲಾವಣೆ ಮಾತ್ರ ಅನ್ವಯಿಸುತ್ತದೆ.",
+    postHarvestEstimateNote: "ಇದು ಉದಾಹರಣೆಯ ಪರಿಶೀಲನೆ ಮಾತ್ರ; ದೃಢೀಕೃತ ಶೆಲ್ಫ್-ಲೈಫ್ ಮುನ್ಸೂಚನೆಯಲ್ಲ. ಉತ್ತಮ ಸ್ಥಿತಿಯ ಕೊಯ್ಲು, ತಾಜಾ ಮೆಣಸಿನಕಾಯಿ, ಒಣ ಭತ್ತ/ರಾಗಿ ಧಾನ್ಯ ಮತ್ತು ಒಣಗಿಸಿದ ಈರುಳ್ಳಿ/ಆಲೂಗಡ್ಡೆ ಎಂದು ಊಹಿಸುತ್ತದೆ; ನಿಜವಾದ ಅವಧಿ ಒಣಗಿಸುವಿಕೆ, ನಿರ್ವಹಣೆ, ಕೀಟಗಳು ಮತ್ತು ಸಂಗ್ರಹದ ಒಳಗಿನ ಸ್ಥಿತಿಗಳ ಮೇಲೆ ಅವಲಂಬಿತ. ಕೋಲ್ಡ್ ಸ್ಟೋರೇಜ್ ಅಂದಾಜು ಸರಿಯಾಗಿ ಕಾರ್ಯನಿರ್ವಹಿಸುವ ಸೌಲಭ್ಯವನ್ನು ಊಹಿಸುತ್ತದೆ; ಹೊರಾಂಗಣ ಹವಾಮಾನವು ಅದರ ಒಳಗಿನ ಸ್ಥಿತಿಯನ್ನು ಅಳೆಯುವುದಿಲ್ಲ.",
+    postHarvestShareMessage: "ಕೃಷಿಮಿತ್ರ ಕೊಯ್ಲಿನ ನಂತರದ ಅಂದಾಜು\nಬೆಳೆ: {crop}\nಸಂಗ್ರಹ ವಿಧಾನ: {method}\nಪ್ರಸ್ತುತ ಹೊರಾಂಗಣ ತಾಪಮಾನ: {temperature}°C\nಪ್ರಸ್ತುತ ಹೊರಾಂಗಣ ತೇವಾಂಶ: {humidity}%\nಅಂದಾಜು ಸುರಕ್ಷಿತ ಅವಧಿ: {days} ದಿನಗಳು\nಹಾಳಾಗುವ ಅಪಾಯ: {risk}\nಕ್ರಮ: {action}\nಇದು ಉದಾಹರಣೆಯ ಅಂದಾಜು ಮಾತ್ರ; ಶೆಲ್ಫ್-ಲೈಫ್ ಖಾತರಿಯಲ್ಲ.",
+    postHarvestCropOnion: "ಈರುಳ್ಳಿ", postHarvestCropPotato: "ಆಲೂಗಡ್ಡೆ",
+    storageOpenShed: "ತೆರೆದ ಶೆಡ್", storageGunnyBags: "ಗೋಣಿ ಚೀಲಗಳು", storageColdStorage: "ಶೀತಗೃಹ",
     farmCostsTitle: "ಕೃಷಿ ವೆಚ್ಚದ ವಿಶ್ಲೇಷಣೆ", totalInvestment: "ಒಟ್ಟು ಹೂಡಿಕೆ", largestExpense: "ಅತಿದೊಡ್ಡ ವೆಚ್ಚದ ವಿಭಾಗ",
     expenseBreakdown: "ವೆಚ್ಚದ ವಿಭಜನೆ", noExpensesEntered: "ವೆಚ್ಚದ ವಿಭಜನೆ ನೋಡಲು ಲಾಭದ ಲೆಕ್ಕಾಚಾರದಲ್ಲಿ ಅಂದಾಜು ವೆಚ್ಚ ಸೇರಿಸಿ.",
     largestExpenseInsight: "ಒಟ್ಟು ವೆಚ್ಚದಲ್ಲಿ {category} ಅತಿದೊಡ್ಡದು ({share}%).",
@@ -430,6 +472,18 @@ const text = {
     totalExpenses: "ಒಟ್ಟು ವೆಚ್ಚ", estimatedProfit: "ಅಂದಾಜು ಲಾಭ", profitPerAcre: "ಎಕರೆಗೆ ಲಾಭ",
     financialBreakdown: "ಆದಾಯ ಮತ್ತು ವೆಚ್ಚ ಹೋಲಿಕೆ", revenueLabel: "ಆದಾಯ", expensesLabel: "ವೆಚ್ಚಗಳು",
     netProfitLabel: "ನಿವ್ವಳ ಲಾಭ", calculatorDisclaimer: "ಇದು ನಿಮ್ಮ ಅಂದಾಜುಗಳ ಆಧಾರದ ಲೆಕ್ಕ ಮಾತ್ರ; ಖಚಿತ ಆದಾಯವಲ್ಲ. ನಿಜವಾದ ಇಳುವರಿ, ದರ ಮತ್ತು ವೆಚ್ಚಗಳು ಬದಲಾಗಬಹುದು.",
+    transportPoolingTitle: "ಹಂಚಿಕೊಂಡ ಸಾರಿಗೆ ಮತ್ತು ಒಟ್ಟುಗೂಡಿದ ಸಾಗಣೆ",
+    transportPoolingSub: "ಒಂದು ಪ್ರಯಾಣದ ನಿಜವಾದ ವಾಹನ ದರದಿಂದ ಪ್ರತಿ ರೈತನ ಸಾರಿಗೆ ಉಳಿತಾಯ ಅಂದಾಜಿಸಿ.",
+    harvestQuantity: "ನಿಮ್ಮ ಕೊಯ್ಲಿನ ಪ್ರಮಾಣ (ಕ್ವಿಂಟಾಲ್)", distanceToMandi: "ಮಾರುಕಟ್ಟೆಗೆ ದೂರ (ಕಿಮೀ)",
+    neighborFarmers: "ಜೊತೆಯಾಗುವ ನೆರೆಯ ರೈತರು (1–5)", vehicleFare: "ಒಂದು ಪ್ರಯಾಣದ ನಿಜವಾದ ವಾಹನ ದರ (₹)",
+    destinationMandi: "ಗಮ್ಯ ಮಾರುಕಟ್ಟೆ", individualTransportCost: "ಒಬ್ಬರ ಪ್ರಯಾಣ ವೆಚ್ಚ",
+    pooledTransportCost: "ನಿಮ್ಮ ಹಂಚಿಕೆಯ ವೆಚ್ಚ", transportSavings: "ಪ್ರತಿ ರೈತನ ಉಳಿತಾಯ",
+    totalSharingFarmers: "ನಿಮ್ಮನ್ನು ಸೇರಿಸಿ ಒಟ್ಟು {count} ರೈತರು.",
+    transportPoolingAssumption: "ಪ್ರತಿಯೊಬ್ಬರೂ ಪ್ರತ್ಯೇಕವಾಗಿ ಅದೇ ಪೂರ್ಣ ಪ್ರಯಾಣದ ದರ ಪಾವತಿಸುತ್ತಿದ್ದರು, ದರವನ್ನು ನಿಮ್ಮೊಂದಿಗೆ ನೆರೆಯವರ ನಡುವೆ ಸಮವಾಗಿ ಹಂಚಲಾಗುತ್ತದೆ ಮತ್ತು ವಾಹನಕ್ಕೆ ಒಟ್ಟುಗೂಡಿದ ಕೊಯ್ಲನ್ನು ಸುರಕ್ಷಿತವಾಗಿ ಸಾಗಿಸುವ ಸಾಮರ್ಥ್ಯವಿದೆ ಎಂದು ಊಹಿಸುತ್ತದೆ. ಚಾಲಕರೊಂದಿಗೆ ದರ, ಸಾಮರ್ಥ್ಯ ಮತ್ತು ನಿಲ್ದಾಣಗಳನ್ನು ದೃಢಪಡಿಸಿ.",
+    transportInviteMessage: "{village} ಹತ್ತಿರದ {count} {farmerUnit} ನಾಳೆ {mandi} ಮಾರುಕಟ್ಟೆಗೆ ಸರಕು ವಾಹನವನ್ನು ಹಂಚಿಕೊಳ್ಳಲು ಬೇಕಾಗಿದ್ದಾರೆ. ನನ್ನ ಕೊಯ್ಲು {quantity} ಕ್ವಿಂಟಾಲ್; ಮಾರುಕಟ್ಟೆ ಸುಮಾರು {distance} ಕಿಮೀ ದೂರದಲ್ಲಿದೆ.",
+    farmerUnitSingular: "ರೈತ", farmerUnitPlural: "ರೈತರು",
+    villageForInvite: "ನಿಮ್ಮ ಗ್ರಾಮ", invitePreview: "WhatsApp ಆಹ್ವಾನದ ಪೂರ್ವವೀಕ್ಷಣೆ",
+    transportInviteMissing: "ಆಹ್ವಾನ ಸಂದೇಶ ಸಿದ್ಧಪಡಿಸಲು ಗ್ರಾಮ ಮತ್ತು ಗಮ್ಯ ಮಾರುಕಟ್ಟೆ ಸೇರಿಸಿ.",
     soilHealth: "ಮಣ್ಣಿನ ಆರೋಗ್ಯ ನೋಟ", soilType: "ಮಣ್ಣಿನ ಪ್ರಕಾರ", phLevel: "ಪಿಎಚ್ ಮಟ್ಟ", organicMatter: "ಸಾವಯವ ಪದಾರ್ಥ",
     nitrogen: "ಸಾರಜನಕ", phosphorus: "ರಂಜಕ", potassium: "ಪೊಟ್ಯಾಸಿಯಂ",
     soilTipTitle: "ಮಣ್ಣಿನ ಆರೈಕೆ ನೆನಪು", soilTip: "ನಿಮ್ಮ ಹೊಲದ ಪೋಷಕಾಂಶ ಯೋಜನೆಗೆ ಸ್ಥಳೀಯ ಮಾನ್ಯ ಪ್ರಯೋಗಾಲಯದ ಮಣ್ಣಿನ ಪರೀಕ್ಷೆಯೇ ಉತ್ತಮ.",
@@ -703,6 +757,21 @@ const hindiText: Partial<Record<keyof typeof text.en, string>> = {
   riskUnavailable: "जोखिम संकेतक उपलब्ध नहीं", riskWeatherUnavailable: "यह संकेतक देखने के लिए फसल चुनें, प्रोफ़ाइल में मिट्टी का प्रकार सहेजें और लाइव पूर्वानुमान लोड करें।",
   riskMethod: "यह सामान्य संकेतक पूर्वानुमान चेतावनी के प्रकार गिनता है: कोई नहीं = कम, एक = मध्यम, दो या अधिक = अधिक। यह उपज या फसल नुकसान का पूर्वानुमान नहीं है।",
   riskContextNote: "इस संकेतक के लिए चुनी गई फसल, सहेजा गया मिट्टी का प्रकार और लाइव पूर्वानुमान जरूरी हैं। यह सामान्य मौसम चेतावनियों पर आधारित है।",
+  postHarvestEyebrow: "कटाई और भंडारण",
+  postHarvestTitle: "कटाई के बाद भंडारण और खराब होने का जोखिम",
+  postHarvestSub: "मौजूदा बाहरी तापमान और नमी पर आधारित एक मोटा भंडारण अनुमान।",
+  postHarvestCrop: "कटी हुई फसल", postHarvestMethod: "भंडारण का तरीका",
+  postHarvestWindow: "अनुमानित सुरक्षित भंडारण अवधि", postHarvestRisk: "खराब होने का जोखिम",
+  postHarvestAction: "कार्रवाई सुझाव", postHarvestSellImmediately: "तुरंत बेचें",
+  postHarvestSafeToStore: "भंडारित किया जा सकता है", postHarvestWeatherUnavailable: "अनुमान के लिए तापमान और नमी दोनों वाला मौजूदा मौसम लोड करें।",
+  postHarvestRiskHigh: "अधिक", postHarvestRiskModerate: "मध्यम", postHarvestRiskLow: "कम",
+  postHarvestSellTip: "स्थितियाँ कम अनुमानित अवधि दिखाती हैं। जल्दी बेचने या प्रसंस्करण को प्राथमिकता दें और उपज जाँचें; अनुमान पर ही निर्भर न रहें।",
+  postHarvestStoreTip: "अनुमान अल्पकालिक भंडारण की गुंजाइश देता है। उपज को सूखा और हवादार रखें तथा नियमित जाँचें।",
+  postHarvestModelNote: "प्रोटोटाइप नियम: खुले शेड और जूट के बोरों के लिए 30/35°C तापमान और 70/80% नमी पर मूल अवधि घटती है; शीत-भंडारण में बाहरी मौसम का छोटा समायोजन ही होता है।",
+  postHarvestEstimateNote: "यह केवल एक उदाहरणात्मक जोखिम-जाँच है, प्रमाणित भंडारण-अवधि का पूर्वानुमान नहीं। इसमें अच्छी उपज, ताज़ी मिर्च, सूखा धान/रागी अनाज और सुखाए प्याज़/आलू माने गए हैं; वास्तविक अवधि सुखाने, संभाल, कीटों और भंडार के अंदर की स्थिति पर निर्भर करती है। शीत-भंडारण अनुमान सही ढंग से चल रहे केंद्र को मानता है; बाहरी मौसम उसकी अंदरूनी स्थिति नहीं मापता।",
+  postHarvestShareMessage: "कृषिमित्र कटाई के बाद का अनुमान\nफसल: {crop}\nभंडारण तरीका: {method}\nमौजूदा बाहरी तापमान: {temperature}°C\nमौजूदा बाहरी नमी: {humidity}%\nअनुमानित सुरक्षित अवधि: {days} दिन\nखराब होने का जोखिम: {risk}\nकार्रवाई: {action}\nयह उदाहरणात्मक अनुमान है, भंडारण अवधि की गारंटी नहीं।",
+  postHarvestCropOnion: "प्याज़", postHarvestCropPotato: "आलू", dayUnit: "दिन",
+  storageOpenShed: "खुला शेड", storageGunnyBags: "जूट के बोरे", storageColdStorage: "शीत भंडारण",
   noFarmSoil: "किसान प्रोफ़ाइल में मिट्टी का प्रकार सहेजा नहीं गया है।",
   profileSoilNote: "सहेजी गई किसान प्रोफ़ाइल का मिट्टी प्रकार; प्रयोगशाला जाँच नहीं।",
   farmCostsTitle: "खेती के खर्च का सार", totalInvestment: "कुल निवेश", largestExpense: "सबसे बड़ा खर्च",
@@ -742,6 +811,18 @@ const hindiText: Partial<Record<keyof typeof text.en, string>> = {
   totalExpenses: "कुल खर्च", estimatedProfit: "अनुमानित लाभ", profitPerAcre: "प्रति एकड़ लाभ",
   financialBreakdown: "आय और खर्च की तुलना", revenueLabel: "आय", expensesLabel: "खर्च",
   netProfitLabel: "शुद्ध लाभ", calculatorDisclaimer: "यह आपके इनपुट पर आधारित अनुमान है, निश्चित आय नहीं। वास्तविक उपज, भाव और खर्च अलग हो सकते हैं।",
+  transportPoolingTitle: "साझा परिवहन और सामूहिक ढुलाई",
+  transportPoolingSub: "एक यात्रा के वास्तविक वाहन किराये से प्रति किसान बचत का अनुमान लगाएँ।",
+  harvestQuantity: "आपकी उपज की मात्रा (क्विंटल)", distanceToMandi: "मंडी की दूरी (किमी)",
+  neighborFarmers: "साथ जुड़ने वाले पड़ोसी किसान (1–5)", vehicleFare: "एक यात्रा का वास्तविक वाहन किराया (₹)",
+  destinationMandi: "गंतव्य मंडी", individualTransportCost: "अकेले यात्रा का खर्च",
+  pooledTransportCost: "आपका साझा हिस्सा", transportSavings: "प्रति किसान बचत",
+  totalSharingFarmers: "आप सहित कुल {count} किसान।",
+  transportPoolingAssumption: "इसमें माना गया है कि हर किसान अलग जाने पर वही पूरा किराया देगा, किराया आप और पड़ोसियों में बराबर बाँटा जाएगा, और वाहन संयुक्त उपज के लिए पर्याप्त व सुरक्षित है। चालक से किराया, क्षमता और ठहराव की पुष्टि करें।",
+  transportInviteMessage: "{village} के पास {count} {farmerUnit} कल {mandi} मंडी तक मालवाहक वाहन साझा करने के लिए चाहिए। मेरी उपज {quantity} क्विंटल है; मंडी लगभग {distance} किमी दूर है।",
+  farmerUnitSingular: "किसान", farmerUnitPlural: "किसान",
+  villageForInvite: "आपका गाँव", invitePreview: "WhatsApp निमंत्रण का पूर्वावलोकन",
+  transportInviteMissing: "निमंत्रण संदेश तैयार करने के लिए गाँव और गंतव्य मंडी भरें।",
   cropRice: "धान", cropRagi: "रागी", cropMaize: "मक्का", cropPulses: "दलहन",
   settingsTitle: "सेटिंग्स", settingsSub: "कृषिमित्र को अपनी जरूरत के अनुसार बनाएँ।",
   language: "भाषा", chooseLanguage: "अपनी पसंद की भाषा चुनें",
@@ -973,10 +1054,10 @@ function App() {
           {screen === "dashboard" && <Dashboard t={t} profile={profile} navigate={navigate} weatherLocation={weatherLocation} weatherForecast={weatherForecast} weatherLoading={weatherLoading} />}
           {screen === "weather" && <Weather t={t} language={language} location={weatherLocation} forecast={weatherForecast} loading={weatherLoading} error={weatherError} updatedAt={weatherUpdatedAt} isCached={weatherCacheUsed} onSelectLocation={chooseWeatherLocation} onClearLocation={clearWeatherLocation} onRefresh={() => setWeatherRefresh((count) => count + 1)} />}
           {screen === "mandi" && <Mandi t={t} isOnline={isOnline} onSnapshot={setMandiSnapshot} />}
-          {screen === "profit" && <ProfitCalculator t={t} language={language} form={profitInputs} onChange={updateProfitInput} />}
+          {screen === "profit" && <ProfitCalculator t={t} language={language} form={profitInputs} onChange={updateProfitInput} profileVillage={profile?.village ?? ""} />}
           {screen === "smartFarm" && <SmartFarm t={t} language={language} profile={profile} location={weatherLocation} forecast={weatherForecast} profitInputs={profitInputs} onProfitInputChange={updateProfitInput} mandiSnapshot={mandiSnapshot} navigate={navigate} />}
           {screen === "irrigation" && <SmartIrrigationScheduler language={language === "kn" ? "kn" : "en"} forecast={weatherForecast} location={weatherLocation} profileSoil={profile?.soil ?? ""} />}
-          {screen === "soil" && <Soil t={t} profile={profile} />}
+          {screen === "soil" && <><Soil t={t} profile={profile} /><OrganicBioInputCalculator t={t} language={language} profileArea={profile?.land ?? ""} /></>}
           {screen === "crops" && <Crops t={t} navigate={navigate} />}
           {screen === "rotation" && <CropRotationPlanner language={language} profileSoil={profile?.soil ?? ""} />}
           {screen === "cropDoctor" && <CropDoctor t={t} />}
@@ -1855,11 +1936,18 @@ function calculateFarmProfit(inputs: ProfitInputs) {
   };
 }
 
-function ProfitCalculator({ t, language, form, onChange }: PageProps & {
+function ProfitCalculator({ t, language, form, onChange, profileVillage }: PageProps & {
   language: Language;
   form: ProfitInputs;
   onChange: (field: keyof ProfitInputs, value: string) => void;
+  profileVillage: string;
 }) {
+  const [harvestQuantity, setHarvestQuantity] = useState("");
+  const [mandiDistance, setMandiDistance] = useState("");
+  const [neighborCount, setNeighborCount] = useState(1);
+  const [vehicleFare, setVehicleFare] = useState("");
+  const [inviteVillage, setInviteVillage] = useState(profileVillage);
+  const [destinationMandi, setDestinationMandi] = useState("");
   const cropOptions = [
     { value: "cropRice", label: t("cropRice") },
     { value: "cropRagi", label: t("cropRagi") },
@@ -1903,6 +1991,26 @@ function ProfitCalculator({ t, language, form, onChange }: PageProps & {
     "{profit}": formatRupees(profit),
     "{perAcre}": formatRupees(perAcreProfit),
   }) : "";
+  const harvestAmount = Number(harvestQuantity);
+  const distanceAmount = Number(mandiDistance);
+  const fareAmount = Number(vehicleFare);
+  const validPoolingInputs = harvestQuantity.trim() !== "" && mandiDistance.trim() !== "" && vehicleFare.trim() !== "" &&
+    Number.isFinite(harvestAmount) && harvestAmount > 0 &&
+    Number.isFinite(distanceAmount) && distanceAmount > 0 &&
+    Number.isInteger(neighborCount) && neighborCount >= 1 && neighborCount <= 5 &&
+    Number.isFinite(fareAmount) && fareAmount > 0;
+  const totalFarmers = neighborCount + 1;
+  const pooledFare = validPoolingInputs ? fareAmount / totalFarmers : 0;
+  const savingsPerFarmer = validPoolingInputs ? fareAmount - pooledFare : 0;
+  const inviteReady = validPoolingInputs && inviteVillage.trim() !== "" && destinationMandi.trim() !== "";
+  const transportInvite = inviteReady ? fillTemplate(t("transportInviteMessage"), {
+    "{count}": String(neighborCount),
+    "{farmerUnit}": t(neighborCount === 1 ? "farmerUnitSingular" : "farmerUnitPlural"),
+    "{village}": inviteVillage.trim(),
+    "{mandi}": destinationMandi.trim(),
+    "{quantity}": new Intl.NumberFormat(localeForLanguage(language), { maximumFractionDigits: 2 }).format(harvestAmount),
+    "{distance}": new Intl.NumberFormat(localeForLanguage(language), { maximumFractionDigits: 1 }).format(distanceAmount),
+  }) : "";
 
   return <>
     <PageHeading eyebrow={t("profitCalculatorEyebrow")} title={t("profitCalculatorTitle")} description={t("profitCalculatorSub")} t={t} badge={t("estimateBadge")} badgeKind="source" />
@@ -1937,7 +2045,146 @@ function ProfitCalculator({ t, language, form, onChange }: PageProps & {
         <p className="profit-disclaimer">{t("calculatorDisclaimer")}</p>
       </section>
     </div>
+    <section className="panel transport-pooling-card">
+      <div className="transport-pooling-heading">
+        <div><div className="eyebrow">{t("transportPoolingTitle")}</div><h2>{t("transportPoolingSub")}</h2></div>
+        <span className="profit-result-icon" aria-hidden="true">↗</span>
+      </div>
+      <div className="transport-pooling-inputs">
+        <label htmlFor="pooling-harvest">{t("harvestQuantity")}<input id="pooling-harvest" type="number" min="0.01" step="any" value={harvestQuantity} onChange={(event) => setHarvestQuantity(event.target.value)} /></label>
+        <label htmlFor="pooling-distance">{t("distanceToMandi")}<input id="pooling-distance" type="number" min="0.1" step="any" value={mandiDistance} onChange={(event) => setMandiDistance(event.target.value)} /></label>
+        <label htmlFor="pooling-neighbors">{t("neighborFarmers")}<select id="pooling-neighbors" value={neighborCount} onChange={(event) => setNeighborCount(Number(event.target.value))}>
+          {[1, 2, 3, 4, 5].map((count) => <option value={count} key={count}>{count}</option>)}
+        </select></label>
+        <label htmlFor="pooling-fare">{t("vehicleFare")}<input id="pooling-fare" type="number" min="0.01" step="any" value={vehicleFare} onChange={(event) => setVehicleFare(event.target.value)} /></label>
+        <label htmlFor="pooling-village">{t("villageForInvite")}<input id="pooling-village" value={inviteVillage} onChange={(event) => setInviteVillage(event.target.value)} /></label>
+        <label htmlFor="pooling-mandi">{t("destinationMandi")}<input id="pooling-mandi" value={destinationMandi} onChange={(event) => setDestinationMandi(event.target.value)} /></label>
+      </div>
+      {validPoolingInputs ? <>
+        <p className="pooling-farmer-count">{fillTemplate(t("totalSharingFarmers"), { "{count}": String(totalFarmers) })}</p>
+        <div className="transport-pooling-results">
+          <article><span>{t("individualTransportCost")}</span><strong>{formatRupees(fareAmount)}</strong></article>
+          <article><span>{t("pooledTransportCost")}</span><strong>{formatRupees(pooledFare)}</strong></article>
+          <article className="pooling-savings"><span>{t("transportSavings")}</span><strong>{formatRupees(savingsPerFarmer)}</strong></article>
+        </div>
+      </> : <p className="pooling-prompt">{t("transportPoolingSub")}</p>}
+      <p className="transport-pooling-note">{t("transportPoolingAssumption")}</p>
+      <div className="transport-invite">
+        <div><div className="eyebrow">{t("invitePreview")}</div>{transportInvite
+          ? <p>{transportInvite}</p>
+          : <p>{t("transportInviteMissing")}</p>}</div>
+        {inviteReady && <button type="button" className="button button-outline whatsapp-share" onClick={() => shareOnWhatsApp(transportInvite)}><span aria-hidden="true">◉</span>{t("shareWhatsapp")}</button>}
+      </div>
+    </section>
   </>;
+}
+
+type HarvestCrop = "tomato" | "onion" | "potato" | "paddy" | "ragi" | "chilli";
+type StorageMethod = "openShed" | "gunnyBags" | "coldStorage";
+type PostHarvestRisk = "postHarvestRiskLow" | "postHarvestRiskModerate" | "postHarvestRiskHigh";
+
+const postHarvestCrops: { id: HarvestCrop; label: keyof typeof text.en }[] = [
+  { id: "tomato", label: "cropDoctorTomato" },
+  { id: "onion", label: "postHarvestCropOnion" },
+  { id: "potato", label: "postHarvestCropPotato" },
+  { id: "paddy", label: "cropRice" },
+  { id: "ragi", label: "cropRagi" },
+  { id: "chilli", label: "cropDoctorChilli" },
+];
+
+const postHarvestMethods: { id: StorageMethod; label: keyof typeof text.en }[] = [
+  { id: "openShed", label: "storageOpenShed" },
+  { id: "gunnyBags", label: "storageGunnyBags" },
+  { id: "coldStorage", label: "storageColdStorage" },
+];
+
+const illustrativeStorageWindows: Record<HarvestCrop, Record<StorageMethod, number>> = {
+  tomato: { openShed: 2, gunnyBags: 1, coldStorage: 7 },
+  onion: { openShed: 7, gunnyBags: 14, coldStorage: 30 },
+  potato: { openShed: 7, gunnyBags: 14, coldStorage: 30 },
+  paddy: { openShed: 3, gunnyBags: 30, coldStorage: 45 },
+  ragi: { openShed: 3, gunnyBags: 30, coldStorage: 45 },
+  chilli: { openShed: 2, gunnyBags: 3, coldStorage: 7 },
+};
+
+function estimatePostHarvestRisk(crop: HarvestCrop, method: StorageMethod, temperature: number, humidity: number) {
+  const coldStorage = method === "coldStorage";
+  const heatAdjustment = coldStorage
+    ? temperature >= 35 ? 0.9 : 1
+    : temperature >= 35 ? 0.5 : temperature >= 30 ? 0.75 : 1;
+  const humidityAdjustment = coldStorage
+    ? humidity >= 80 ? 0.9 : 1
+    : humidity >= 80 ? 0.5 : humidity >= 70 ? 0.75 : 1;
+  const days = Math.max(1, Math.floor(illustrativeStorageWindows[crop][method] * heatAdjustment * humidityAdjustment));
+  const risk: PostHarvestRisk = days <= 2 || (temperature >= 35 && humidity >= 80)
+    ? "postHarvestRiskHigh"
+    : days <= 7 || temperature >= 30 || humidity >= 70
+      ? "postHarvestRiskModerate"
+      : "postHarvestRiskLow";
+  return { days, risk, action: risk === "postHarvestRiskHigh" ? "postHarvestSellImmediately" as const : "postHarvestSafeToStore" as const };
+}
+
+function PostHarvestAdvisor({ t, language, forecast }: PageProps & {
+  language: Language;
+  forecast: WeatherForecast | null;
+}) {
+  const [crop, setCrop] = useState<HarvestCrop>("tomato");
+  const [method, setMethod] = useState<StorageMethod>("openShed");
+  const temperature = forecast?.current.temperature ?? null;
+  const humidity = forecast?.current.relativeHumidity ?? null;
+  const estimate = temperature !== null && humidity !== null
+    ? estimatePostHarvestRisk(crop, method, temperature, humidity)
+    : null;
+  const cropLabel = t(postHarvestCrops.find((option) => option.id === crop)?.label ?? "cropDoctorTomato");
+  const methodLabel = t(postHarvestMethods.find((option) => option.id === method)?.label ?? "storageOpenShed");
+  const dayLabel = estimate ? new Intl.NumberFormat(localeForLanguage(language)).format(estimate.days) : "";
+  const actionLabel = estimate ? t(estimate.action) : "";
+  const shareMessage = estimate && temperature !== null && humidity !== null ? fillTemplate(t("postHarvestShareMessage"), {
+    "{crop}": cropLabel,
+    "{method}": methodLabel,
+    "{temperature}": new Intl.NumberFormat(localeForLanguage(language), { maximumFractionDigits: 1 }).format(temperature),
+    "{humidity}": new Intl.NumberFormat(localeForLanguage(language), { maximumFractionDigits: 0 }).format(humidity),
+    "{days}": dayLabel,
+    "{risk}": t(estimate.risk),
+    "{action}": actionLabel,
+  }) : "";
+
+  return <section className="panel post-harvest-advisor">
+    <div className="smart-farm-panel-heading">
+      <div><div className="eyebrow">{t("postHarvestEyebrow")}</div><h2>{t("postHarvestTitle")}</h2><p className="post-harvest-subtitle">{t("postHarvestSub")}</p></div>
+      {forecast && <span className="live-tag"><i />{t("live")}</span>}
+    </div>
+    <div className="post-harvest-layout">
+      <div className="post-harvest-inputs">
+        <label>{t("postHarvestCrop")}<select value={crop} onChange={(event) => {
+          const selected = postHarvestCrops.find((option) => option.id === event.target.value);
+          if (selected) setCrop(selected.id);
+        }}>{postHarvestCrops.map((option) => <option value={option.id} key={option.id}>{t(option.label)}</option>)}</select></label>
+        <label>{t("postHarvestMethod")}<select value={method} onChange={(event) => {
+          const selected = postHarvestMethods.find((option) => option.id === event.target.value);
+          if (selected) setMethod(selected.id);
+        }}>{postHarvestMethods.map((option) => <option value={option.id} key={option.id}>{t(option.label)}</option>)}</select></label>
+        <div className="post-harvest-weather">
+          <div><span>{t("currentTemperature")}</span><strong>{temperature === null ? "—" : `${temperature}°C`}</strong></div>
+          <div><span>{t("humidity")}</span><strong>{humidity === null ? "—" : `${humidity}%`}</strong></div>
+        </div>
+      </div>
+      <div className="post-harvest-result" aria-live="polite">
+        {estimate ? <>
+          <div className="post-harvest-metrics">
+            <div><span>{t("postHarvestWindow")}</span><strong>{dayLabel} {t("dayUnit")}</strong></div>
+            <div><span>{t("postHarvestRisk")}</span><strong className={`post-harvest-risk ${estimate.risk}`}>{t(estimate.risk)}</strong></div>
+          </div>
+          <div className={`post-harvest-action ${estimate.action === "postHarvestSellImmediately" ? "action-sell" : "action-store"}`}>
+            <strong>{t("postHarvestAction")}: {actionLabel}</strong>
+            <p>{t(estimate.action === "postHarvestSellImmediately" ? "postHarvestSellTip" : "postHarvestStoreTip")}</p>
+          </div>
+          <button type="button" className="button button-outline whatsapp-share" onClick={() => shareOnWhatsApp(shareMessage)}><span aria-hidden="true">◉</span>{t("shareWhatsapp")}</button>
+        </> : <p className="smart-farm-empty">{t("postHarvestWeatherUnavailable")}</p>}
+      </div>
+    </div>
+    <p className="post-harvest-note">{t("postHarvestModelNote")} {t("postHarvestEstimateNote")}</p>
+  </section>;
 }
 
 function SmartFarm({ t, language, profile, location, forecast, profitInputs, onProfitInputChange, mandiSnapshot, navigate }: PageProps & {
@@ -2129,6 +2376,8 @@ function SmartFarm({ t, language, profile, location, forecast, profitInputs, onP
           : <div className="general-weather-note"><strong>{t(forecast ? "noActiveFarmAlerts" : "generalWeatherAdviceTitle")}</strong><p>{t(forecast ? "noActiveFarmAlerts" : "generalWeatherAdviceBody")}</p></div>}
       </section>
 
+      <PostHarvestAdvisor t={t} language={language} forecast={forecast} />
+
       <section className="panel smart-farm-expenses">
         <div className="smart-farm-panel-heading"><div><div className="eyebrow">{t("farmCostsTitle")}</div><h2>{t("calculatorResults")}</h2></div><div className="farm-finance-actions">{calculation.valid && <SpeakButton textToSpeak={farmProfitSpeech} language={language} t={t} />}<button className="button button-outline" onClick={() => navigate("profit")}>{t("profit")} <span>→</span></button></div></div>
         <div className="farm-finance-metrics">
@@ -2172,6 +2421,278 @@ function Soil({ t, profile }: PageProps & { profile: FarmerProfile | null }) {
     </div>
     <div className="soil-reminder"><span>✿</span><div><strong>{t("soilTipTitle")}</strong><p>{t("soilTip")}</p></div></div>
   </>;
+}
+
+type BioRecipeId = "jeevamrutha" | "beejamrutha" | "neemastra" | "vermicompost";
+type BioRecipeCopy = {
+  title: string;
+  subtitle: string;
+  areaLabel: string;
+  seedBatchLabel: string;
+  preparation: string;
+  application: string;
+  water: string;
+  cowDung: string;
+  cowUrine: string;
+  agedCowUrine: string;
+  jaggery: string;
+  pulseFlour: string;
+  bundSoil: string;
+  lime: string;
+  neem: string;
+  vermicompost: string;
+  organicCost: string;
+  npkCost: string;
+  costResult: string;
+  lowerCost: string;
+  higherCost: string;
+  noCostResult: string;
+  source: string;
+  disclaimer: string;
+  notReplacement: string;
+  shareTitle: string;
+};
+
+const bioRecipeCopy: Record<Language, BioRecipeCopy> = {
+  en: {
+    title: "Organic Bio-Input & Fertilizer Recipe Calculator",
+    subtitle: "Scale extension-style recipes to your field or seed batch. Quantities are illustrative; confirm crop-specific use locally.",
+    areaLabel: "Land area (acres)",
+    seedBatchLabel: "Seeds to treat (kg)",
+    preparation: "Preparation",
+    application: "Application",
+    water: "Water",
+    cowDung: "Fresh cow dung",
+    cowUrine: "Cow urine",
+    agedCowUrine: "Aged cow urine",
+    jaggery: "Jaggery",
+    pulseFlour: "Pulse flour (besan)",
+    bundSoil: "Fertile bund soil",
+    lime: "Slaked lime",
+    neem: "Crushed neem leaves / kernel paste",
+    vermicompost: "Finished vermicompost",
+    organicCost: "Estimated total bio-input preparation cost (₹)",
+    npkCost: "Your NPK fertilizer spend for the same area (₹)",
+    costResult: "Entered expense difference",
+    lowerCost: "Entered bio-input cost is lower by",
+    higherCost: "Entered bio-input cost is higher by",
+    noCostResult: "Enter a valid area and both costs to compare your expenses.",
+    source: "Source basis: user-provided ICAR / NCOF and Karnataka State Department of Agriculture / UAS Bengaluru extension formulations.",
+    disclaimer: "Illustrative extension guidance only. Formulations and rates vary by source and crop. Confirm preparation, crop-specific dosage, and application method with your local KVK or agriculture officer before use.",
+    notReplacement: "The cost comparison is only between the amounts you enter. It does not show nutrient equivalence, prove that a bio-input replaces NPK, or guarantee savings. Neemastra is a pest-management preparation and Beejamrutha is for seed treatment, not fertilizer substitutes.",
+    shareTitle: "KrishiMitra organic bio-input plan",
+  },
+  kn: {
+    title: "ಸಾವಯವ ಜೈವಿಕ ಒಳಸುರಿ ಮತ್ತು ಗೊಬ್ಬರ ಪಾಕವಿಧಾನ ಲೆಕ್ಕಾಚಾರ",
+    subtitle: "ನಿಮ್ಮ ಹೊಲ ಅಥವಾ ಬೀಜದ ಪ್ರಮಾಣಕ್ಕೆ ವಿಸ್ತರಣಾ ಮಾದರಿಯ ಪಾಕವಿಧಾನಗಳನ್ನು ಹೊಂದಿಸಿ. ಪ್ರಮಾಣಗಳು ಉದಾಹರಣಾತ್ಮಕ; ಬೆಳೆಗೆ ತಕ್ಕ ಬಳಕೆಯನ್ನು ಸ್ಥಳೀಯವಾಗಿ ದೃಢಪಡಿಸಿ.",
+    areaLabel: "ಭೂಮಿ (ಎಕರೆ)",
+    seedBatchLabel: "ಸಂಸ್ಕರಿಸಬೇಕಾದ ಬೀಜ (ಕೆಜಿ)",
+    preparation: "ತಯಾರಿಕೆ",
+    application: "ಬಳಕೆ ವಿಧಾನ",
+    water: "ನೀರು",
+    cowDung: "ತಾಜಾ ಹಸುವಿನ ಸಗಣಿ",
+    cowUrine: "ಹಸುವಿನ ಮೂತ್ರ",
+    agedCowUrine: "ಹಳೆಯ ಹಸುವಿನ ಮೂತ್ರ",
+    jaggery: "ಬೆಲ್ಲ",
+    pulseFlour: "ಬೇಳೆ ಹಿಟ್ಟು (ಬೇಸನ್)",
+    bundSoil: "ಫಲವತ್ತಾದ ದಿಬ್ಬದ ಮಣ್ಣು",
+    lime: "ಸುಣ್ಣ",
+    neem: "ಜಜ್ಜಿದ ಬೇವಿನ ಎಲೆ / ಬೀಜದ ಪೇಸ್ಟ್",
+    vermicompost: "ಸಿದ್ಧ ಎರೆಹುಳು ಗೊಬ್ಬರ",
+    organicCost: "ಅಂದಾಜು ಒಟ್ಟು ಜೈವಿಕ ಒಳಸುರಿ ತಯಾರಿಕೆ ವೆಚ್ಚ (₹)",
+    npkCost: "ಅದೇ ಭೂಮಿಗೆ ನಿಮ್ಮ NPK ಗೊಬ್ಬರ ವೆಚ್ಚ (₹)",
+    costResult: "ನಮೂದಿಸಿದ ವೆಚ್ಚದ ವ್ಯತ್ಯಾಸ",
+    lowerCost: "ನಮೂದಿಸಿದ ಜೈವಿಕ ಒಳಸುರಿ ವೆಚ್ಚ ಕಡಿಮೆ:",
+    higherCost: "ನಮೂದಿಸಿದ ಜೈವಿಕ ಒಳಸುರಿ ವೆಚ್ಚ ಹೆಚ್ಚು:",
+    noCostResult: "ವೆಚ್ಚ ಹೋಲಿಸಲು ಮಾನ್ಯ ಭೂಮಿ ಮತ್ತು ಎರಡೂ ಮೊತ್ತಗಳನ್ನು ನಮೂದಿಸಿ.",
+    source: "ಮೂಲ ಆಧಾರ: ಬಳಕೆದಾರರು ನೀಡಿದ ICAR / NCOF ಮತ್ತು ಕರ್ನಾಟಕ ಕೃಷಿ ಇಲಾಖೆ / UAS ಬೆಂಗಳೂರು ವಿಸ್ತರಣಾ ಸೂತ್ರಗಳು.",
+    disclaimer: "ಇದು ಉದಾಹರಣಾತ್ಮಕ ವಿಸ್ತರಣಾ ಮಾರ್ಗದರ್ಶನ ಮಾತ್ರ. ಸೂತ್ರ ಮತ್ತು ಪ್ರಮಾಣಗಳು ಮೂಲ ಹಾಗೂ ಬೆಳೆಗೆ ಅನುಗುಣವಾಗಿ ಬದಲಾಗುತ್ತವೆ. ಬಳಕೆಗೆ ಮೊದಲು ಸ್ಥಳೀಯ ಕೃಷಿ ವಿಜ್ಞಾನ ಕೇಂದ್ರ ಅಥವಾ ಕೃಷಿ ಅಧಿಕಾರಿಯಿಂದ ತಯಾರಿಕೆ, ಬೆಳೆ-ನಿರ್ದಿಷ್ಟ ಪ್ರಮಾಣ ಮತ್ತು ವಿಧಾನ ದೃಢಪಡಿಸಿ.",
+    notReplacement: "ವೆಚ್ಚ ಹೋಲಿಕೆ ನೀವು ನಮೂದಿಸಿದ ಮೊತ್ತಗಳಷ್ಟೇ. ಇದು ಪೋಷಕಾಂಶ ಸಮಾನತೆ, ಜೈವಿಕ ಒಳಸುರಿ NPKಗೆ ಬದಲಿಯೆಂಬುದನ್ನು ಅಥವಾ ಖಚಿತ ಉಳಿತಾಯವನ್ನು ತೋರಿಸುವುದಿಲ್ಲ. ನೀಮಾಸ್ತ್ರ ಕೀಟ ನಿರ್ವಹಣೆಗೆ ಮತ್ತು ಬೀಜಾಮೃತ ಬೀಜ ಸಂಸ್ಕರಣೆಗೆ; ಇವು NPK ಗೊಬ್ಬರದ ಬದಲಿಗಳಲ್ಲ.",
+    shareTitle: "ಕೃಷಿಮಿತ್ರ ಸಾವಯವ ಜೈವಿಕ ಒಳಸುರಿ ಯೋಜನೆ",
+  },
+  hi: {
+    title: "जैविक बायो-इनपुट और खाद नुस्खा कैलकुलेटर",
+    subtitle: "अपने खेत या बीज की मात्रा के अनुसार विस्तार-आधारित नुस्खे मापें। मात्राएँ उदाहरणार्थ हैं; फसल के अनुसार स्थानीय पुष्टि करें।",
+    areaLabel: "भूमि क्षेत्र (एकड़)",
+    seedBatchLabel: "उपचार के लिए बीज (किग्रा)",
+    preparation: "तैयारी",
+    application: "प्रयोग विधि",
+    water: "पानी",
+    cowDung: "ताज़ा गोबर",
+    cowUrine: "गोमूत्र",
+    agedCowUrine: "पुराना गोमूत्र",
+    jaggery: "गुड़",
+    pulseFlour: "दाल का आटा (बेसन)",
+    bundSoil: "उपजाऊ मेड़ की मिट्टी",
+    lime: "बुझा हुआ चूना",
+    neem: "कुचली नीम की पत्तियाँ / बीज का पेस्ट",
+    vermicompost: "तैयार वर्मीकम्पोस्ट",
+    organicCost: "अनुमानित कुल जैव-इनपुट तैयारी लागत (₹)",
+    npkCost: "इसी क्षेत्र के लिए आपका NPK खाद खर्च (₹)",
+    costResult: "दर्ज खर्च का अंतर",
+    lowerCost: "दर्ज जैव-इनपुट लागत कम है:",
+    higherCost: "दर्ज जैव-इनपुट लागत अधिक है:",
+    noCostResult: "खर्च की तुलना के लिए मान्य क्षेत्र और दोनों लागत दर्ज करें।",
+    source: "स्रोत आधार: उपयोगकर्ता द्वारा दिए गए ICAR / NCOF और कर्नाटक कृषि विभाग / UAS बेंगलुरु के विस्तार सूत्र।",
+    disclaimer: "केवल उदाहरणात्मक विस्तार मार्गदर्शन। नुस्खे और दरें स्रोत तथा फसल के अनुसार बदलती हैं। उपयोग से पहले तैयारी, फसल-विशिष्ट मात्रा और विधि की पुष्टि अपने स्थानीय KVK या कृषि अधिकारी से करें।",
+    notReplacement: "खर्च तुलना केवल आपके दर्ज खर्चों की है। यह पोषक-तत्व समानता, NPK के स्थान पर जैव-इनपुट के उपयोग, या सुनिश्चित बचत को प्रमाणित नहीं करती। नीमास्त्र कीट प्रबंधन के लिए और बीजामृत बीज उपचार के लिए है, NPK का विकल्प नहीं।",
+    shareTitle: "कृषिमित्र जैविक बायो-इनपुट योजना",
+  },
+};
+
+type BioIngredient = { name: string; quantity: string; unit: string };
+
+function OrganicBioInputCalculator({ t, language, profileArea }: PageProps & { language: Language; profileArea: string }) {
+  const copy = bioRecipeCopy[language];
+  const [recipe, setRecipe] = useState<BioRecipeId>("jeevamrutha");
+  const [area, setArea] = useState(profileArea);
+  const [seedBatch, setSeedBatch] = useState("");
+  const [organicCost, setOrganicCost] = useState("");
+  const [npkCost, setNpkCost] = useState("");
+  const locale = localeForLanguage(language);
+  const areaAmount = Number(area);
+  const seedAmount = Number(seedBatch);
+  const validArea = area.trim() !== "" && Number.isFinite(areaAmount) && areaAmount > 0;
+  const validSeeds = seedBatch.trim() !== "" && Number.isFinite(seedAmount) && seedAmount > 0;
+  const formatAmount = (value: number) => new Intl.NumberFormat(locale, { maximumFractionDigits: 2 }).format(value);
+  const range = (minimum: number, maximum: number, factor: number) =>
+    `${formatAmount(minimum * factor)}–${formatAmount(maximum * factor)}`;
+  const litre = language === "kn" ? "ಲೀ" : language === "hi" ? "लीटर" : "L";
+  const kilogram = language === "kn" ? "ಕೆಜಿ" : language === "hi" ? "किग्रा" : "kg";
+  const gram = language === "kn" ? "ಗ್ರಾಂ" : language === "hi" ? "ग्राम" : "g";
+  const handful = language === "kn" ? "ಹಿಡಿ" : language === "hi" ? "मुट्ठी" : "handful";
+  const ingredients: BioIngredient[] = (() => {
+    switch (recipe) {
+      case "jeevamrutha":
+        if (!validArea) return [];
+        return [
+          { name: copy.water, quantity: formatAmount(200 * areaAmount), unit: litre },
+          { name: copy.cowDung, quantity: formatAmount(10 * areaAmount), unit: kilogram },
+          { name: copy.agedCowUrine, quantity: range(5, 10, areaAmount), unit: litre },
+          { name: copy.jaggery, quantity: formatAmount(2 * areaAmount), unit: kilogram },
+          { name: copy.pulseFlour, quantity: formatAmount(2 * areaAmount), unit: kilogram },
+          { name: copy.bundSoil, quantity: formatAmount(areaAmount), unit: handful },
+        ];
+      case "beejamrutha":
+        if (!validSeeds) return [];
+        return [
+          { name: copy.water, quantity: formatAmount(20 * seedAmount / 100), unit: litre },
+          { name: copy.cowDung, quantity: formatAmount(5 * seedAmount / 100), unit: kilogram },
+          { name: copy.cowUrine, quantity: formatAmount(5 * seedAmount / 100), unit: litre },
+          { name: copy.lime, quantity: formatAmount(50 * seedAmount / 100), unit: gram },
+          { name: copy.bundSoil, quantity: formatAmount(seedAmount / 100), unit: handful },
+        ];
+      case "neemastra":
+        if (!validArea) return [];
+        return [
+          { name: copy.water, quantity: formatAmount(100 * areaAmount), unit: litre },
+          { name: copy.cowUrine, quantity: formatAmount(5 * areaAmount), unit: litre },
+          { name: copy.cowDung, quantity: range(1, 2, areaAmount), unit: kilogram },
+          { name: copy.neem, quantity: formatAmount(5 * areaAmount), unit: kilogram },
+        ];
+      case "vermicompost":
+        if (!validArea) return [];
+        return [
+          { name: copy.vermicompost, quantity: range(1000, 2000, areaAmount), unit: kilogram },
+        ];
+    }
+  })();
+  const organicAmount = Number(organicCost);
+  const npkAmount = Number(npkCost);
+  const validCosts = validArea && organicCost.trim() !== "" && npkCost.trim() !== "" &&
+    Number.isFinite(organicAmount) && organicAmount >= 0 &&
+    Number.isFinite(npkAmount) && npkAmount >= 0;
+  const costDifference = validCosts ? Math.abs(npkAmount - organicAmount) : 0;
+  const equalCosts = language === "kn" ? "ಎರಡೂ ನಮೂದಿಸಿದ ವೆಚ್ಚಗಳು ಸಮಾನವಾಗಿವೆ." : language === "hi" ? "दोनों दर्ज खर्च समान हैं।" : "Both entered costs are equal.";
+  const costResult = !validCosts
+    ? copy.noCostResult
+    : npkAmount === organicAmount
+      ? equalCosts
+      : `${npkAmount > organicAmount ? copy.lowerCost : copy.higherCost} ${formatRupees(costDifference)}`;
+  const details = {
+    jeevamrutha: {
+      preparation: language === "kn" ? "ನೆರಳಿನಲ್ಲಿ 48–72 ಗಂಟೆ ಹುದುಗಿಸಿ; ಪ್ರತಿದಿನ ಕಲಸಿ." : language === "hi" ? "छाया में 48–72 घंटे किण्वित करें; प्रतिदिन हिलाएँ।" : "Ferment in shade for 48–72 hours; stir daily.",
+      application: language === "kn" ? "ನೀರಾವರಿ ಮೂಲಕ ಅಥವಾ ಎಲೆಗಳ ಮೇಲೆ ಸಿಂಪಡಿಸಿ." : language === "hi" ? "सिंचाई के साथ या पत्तियों पर छिड़कें।" : "Apply through irrigation or as a foliar spray.",
+    },
+    beejamrutha: {
+      preparation: language === "kn" ? "24 ಗಂಟೆ ಸಿದ್ಧಪಡಿಸಿ. ಬೀಜಗಳಿಗೆ ಲೇಪಿಸಿ, ಬಿತ್ತುವ ಮೊದಲು ನೆರಳಿನಲ್ಲಿ ಒಣಗಿಸಿ." : language === "hi" ? "24 घंटे तैयार करें। बीजों पर लेप लगाकर बुवाई से पहले छाया में सुखाएँ।" : "Prepare for 24 hours. Coat the seeds and shade-dry before sowing.",
+      application: language === "kn" ? "ನಮೂದಿಸಿದ ಬೀಜದ ಪ್ರಮಾಣಕ್ಕೆ ಲೇಪಿಸಿ; ಎಕರೆ ಆಧಾರದಲ್ಲಿ ಲೆಕ್ಕಿಸುವುದಿಲ್ಲ." : language === "hi" ? "दर्ज बीज मात्रा पर लेप करें; यह क्षेत्रफल के आधार पर नहीं मापा जाता।" : "Coat the entered seed batch; this recipe is not scaled by acreage.",
+    },
+    neemastra: {
+      preparation: language === "kn" ? "ನೆರಳಿನಲ್ಲಿ 48 ಗಂಟೆ ಹುದುಗಿಸಿ; ಶೋಧಿಸಿ." : language === "hi" ? "छाया में 48 घंटे किण्वित करें; छान लें।" : "Ferment in shade for 48 hours; filter before use.",
+      application: language === "kn" ? "ಬೆಳೆ ಮತ್ತು ಕೀಟಕ್ಕೆ ತಕ್ಕ ಬಳಕೆಯನ್ನು ಸ್ಥಳೀಯವಾಗಿ ದೃಢಪಡಿಸಿ ಸಿಂಪಡಿಸಿ." : language === "hi" ? "फसल और कीट के अनुसार उपयोग की स्थानीय पुष्टि के बाद छिड़कें।" : "Spray only after locally confirming suitability for the crop and pest.",
+    },
+    vermicompost: {
+      preparation: language === "kn" ? "ಈ ಮಾರ್ಗದರ್ಶಿ ಸಿದ್ಧ ಗೊಬ್ಬರದ ಪ್ರಮಾಣವನ್ನು ಮಾತ್ರ ನೀಡುತ್ತದೆ; ತಯಾರಿಕೆಯ ಅವಧಿಯನ್ನು ನಿರ್ಧರಿಸುವುದಿಲ್ಲ." : language === "hi" ? "यह मार्गदर्शिका केवल तैयार खाद की मात्रा देती है; खाद बनाने की अवधि निर्धारित नहीं करती।" : "This guide gives a finished-product rate; it does not prescribe a preparation duration.",
+      application: language === "kn" ? "ಬೆಳೆ ಮತ್ತು ಮಣ್ಣಿಗೆ ತಕ್ಕ ಪ್ರಮಾಣ ದೃಢಪಡಿಸಿ, ಬಿತ್ತನೆಗೂ ಮೊದಲು ಮಣ್ಣಿಗೆ ಹಾಕಿ." : language === "hi" ? "फसल और मिट्टी के अनुसार मात्रा की पुष्टि करें और बुवाई से पहले मिट्टी में मिलाएँ।" : "Confirm the crop- and soil-specific rate, then incorporate before sowing.",
+    },
+  }[recipe];
+  const seedNote = language === "kn"
+    ? "ಬೀಜಾಮೃತದ ಪ್ರಮಾಣ ಬೀಜದ ತೂಕದ ಮೇಲೆ ಅವಲಂಬಿತ; ಭೂಮಿ ವಿಸ್ತೀರ್ಣದಿಂದ ಬೀಜದ ಪ್ರಮಾಣವನ್ನು ಊಹಿಸಲಾಗಿಲ್ಲ."
+    : language === "hi"
+      ? "बीजामृत की मात्रा बीज के वजन पर निर्भर है; क्षेत्रफल से बीज की मात्रा का अनुमान नहीं लगाया गया।"
+      : "Beejamrutha is scaled by seed weight; seed quantity is not inferred from acreage.";
+  const nameForRecipe = (id: BioRecipeId) => ({
+    jeevamrutha: language === "kn" ? "ಜೀವಾಮೃತ" : language === "hi" ? "जीवामृत" : "Jeevamrutha",
+    beejamrutha: language === "kn" ? "ಬೀಜಾಮೃತ" : language === "hi" ? "बीजामृत" : "Beejamrutha",
+    neemastra: language === "kn" ? "ನೀಮಾಸ್ತ್ರ" : language === "hi" ? "नीमास्त्र" : "Neemastra",
+    vermicompost: language === "kn" ? "ಎರೆಹುಳು ಗೊಬ್ಬರ" : language === "hi" ? "वर्मीकम्पोस्ट" : "Vermicompost",
+  }[id]);
+  const recipeName = nameForRecipe(recipe);
+  const quantitySummary = ingredients.map((item) => `${item.name}: ${item.quantity} ${item.unit}`).join("\n");
+  const shareMessage = [
+    copy.shareTitle,
+    `${copy.areaLabel}: ${validArea ? formatAmount(areaAmount) : "—"}`,
+    recipe === "beejamrutha" ? `${copy.seedBatchLabel}: ${validSeeds ? formatAmount(seedAmount) : "—"}` : "",
+    `${recipeName}\n${quantitySummary}`,
+    `${copy.preparation}: ${details.preparation}`,
+    `${copy.application}: ${details.application}`,
+    validCosts ? `${copy.costResult}: ${costResult}` : "",
+    copy.disclaimer,
+  ].filter(Boolean).join("\n");
+
+  return <section className="panel bio-recipe-panel">
+    <div className="panel-heading bio-recipe-heading">
+      <div><div className="eyebrow">{language === "kn" ? "ಮಣ್ಣಿನ ಆರೋಗ್ಯ" : language === "hi" ? "मृदा स्वास्थ्य" : "SOIL HEALTH"}</div><h2>{copy.title}</h2><p>{copy.subtitle}</p></div>
+      <span className="profit-result-icon" aria-hidden="true">♧</span>
+    </div>
+    <div className="bio-recipe-controls">
+      <label htmlFor="bio-recipe-select">{language === "kn" ? "ಸಾವಯವ ತಯಾರಿ" : language === "hi" ? "जैविक तैयारी" : "Organic preparation"}
+        <select id="bio-recipe-select" value={recipe} onChange={(event) => {
+          const value = event.target.value;
+          if (value === "jeevamrutha" || value === "beejamrutha" || value === "neemastra" || value === "vermicompost") setRecipe(value);
+        }}>
+          {(["jeevamrutha", "beejamrutha", "neemastra", "vermicompost"] as const).map((id) => <option value={id} key={id}>{nameForRecipe(id)}</option>)}
+        </select>
+      </label>
+      <label htmlFor="bio-area">{copy.areaLabel}<input id="bio-area" type="number" min="0.01" step="any" value={area} onChange={(event) => setArea(event.target.value)} /></label>
+      {recipe === "beejamrutha" && <label htmlFor="bio-seed-batch">{copy.seedBatchLabel}<input id="bio-seed-batch" type="number" min="0.01" step="any" value={seedBatch} onChange={(event) => setSeedBatch(event.target.value)} placeholder="100" /></label>}
+    </div>
+    <div className="bio-recipe-results" aria-live="polite">
+      <section className="bio-recipe-ingredients">
+        <div className="bio-recipe-section-title"><h3>{recipeName}</h3><span>{language === "kn" ? "ಅಗತ್ಯ ಪ್ರಮಾಣ" : language === "hi" ? "आवश्यक मात्रा" : "Required quantities"}</span></div>
+        {ingredients.length > 0 ? <ul>{ingredients.map((item) => <li key={item.name}><span>{item.name}</span><strong>{item.quantity} {item.unit}</strong></li>)}</ul> : <p>{language === "kn" ? "ಪಾಕವಿಧಾನದ ಪ್ರಮಾಣ ನೋಡಲು ಮಾನ್ಯ ಭೂಮಿ ಅಥವಾ ಬೀಜದ ಪ್ರಮಾಣ ನಮೂದಿಸಿ." : language === "hi" ? "नुस्खे की मात्रा देखने के लिए मान्य भूमि या बीज मात्रा दर्ज करें।" : "Enter a valid area or seed batch to see scaled quantities."}</p>}
+        {recipe === "beejamrutha" && <p className="bio-recipe-note">{seedNote}</p>}
+      </section>
+      <section className="bio-recipe-guidance">
+        <article><h3>◷ {copy.preparation}</h3><p>{details.preparation}</p></article>
+        <article><h3>✿ {copy.application}</h3><p>{details.application}</p></article>
+      </section>
+    </div>
+    <div className="bio-cost-panel">
+      <div className="bio-recipe-section-title"><h3>{language === "kn" ? "ವೆಚ್ಚ ಹೋಲಿಕೆ" : language === "hi" ? "खर्च तुलना" : "Cost comparison"}</h3><span>{language === "kn" ? "ನಿಮ್ಮದೇ ಅಂದಾಜು" : language === "hi" ? "आपका अनुमान" : "Your own estimate"}</span></div>
+      <div className="bio-recipe-controls">
+        <label htmlFor="bio-organic-cost">{copy.organicCost}<input id="bio-organic-cost" type="number" min="0" step="any" value={organicCost} onChange={(event) => setOrganicCost(event.target.value)} /></label>
+        <label htmlFor="bio-npk-cost">{copy.npkCost}<input id="bio-npk-cost" type="number" min="0" step="any" value={npkCost} onChange={(event) => setNpkCost(event.target.value)} /></label>
+      </div>
+      <p className="bio-cost-result"><strong>{copy.costResult}</strong><span>{costResult}</span></p>
+    </div>
+    <div className="bio-recipe-disclaimer"><strong>{copy.source}</strong><p>{copy.disclaimer} {copy.notReplacement}</p></div>
+    <div className="bio-recipe-actions">
+      {ingredients.length > 0 && <SpeakButton textToSpeak={`${recipeName}. ${quantitySummary}. ${details.preparation} ${details.application} ${copy.disclaimer}`} language={language} t={t} />}
+      {ingredients.length > 0 && <button type="button" className="button button-outline whatsapp-share" onClick={() => shareOnWhatsApp(shareMessage)}><span aria-hidden="true">◉</span>{language === "kn" ? "WhatsApp ನಲ್ಲಿ ಹಂಚಿಕೊಳ್ಳಿ" : language === "hi" ? "WhatsApp पर साझा करें" : "Share on WhatsApp"}</button>}
+    </div>
+  </section>;
 }
 
 type RotationSeason = "kharif" | "rabi" | "zaid";
