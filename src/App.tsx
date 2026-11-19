@@ -39,7 +39,7 @@ type ProfitInputs = {
 };
 type MandiDataSource = "live" | "cached" | "sample" | "sample-cached";
 type MandiSnapshot = { commodity: string; records: MandiRecord[]; fetchedAt: string; dataSource: MandiDataSource };
-type ChatMessage = { from: "farmer" | "mitra"; text: string };
+type ChatMessage = { from: "farmer" | "mitra"; text: string; language?: Language };
 type CachedWeather = { locationId: string; forecast: WeatherForecast; timestamp: string };
 type CachedMandiPrices = { records: MandiRecord[]; timestamp: string };
 
@@ -252,7 +252,7 @@ const text = {
     advisoryTitle: "Ask KrishiMitra", advisorySub: "A friendly place to explore common farming questions.",
     demoChat: "DEMO ADVISORY", chatWelcome: "Namaskara! I’m your demo farming companion. Ask a general question, or choose a prompt below.",
     chatPlaceholder: "Ask a general farming question…", send: "Send", prompts: "TRY A SAMPLE QUESTION",
-    reply: "This prototype does not connect to live experts or AI. For decisions about your field, please consult your local agriculture officer or Krishi Vigyan Kendra.",
+    reply: "These topic-based suggestions use the information available in your profile and app. They are general guidance, not a confirmed diagnosis or a guaranteed outcome.",
     settingsTitle: "Settings", settingsSub: "Make KrishiMitra feel more like yours.",
     language: "Language", chooseLanguage: "Choose your preferred language",
     profileSection: "Farmer profile", savedLocally: "Your profile is saved only on this device.",
@@ -504,7 +504,7 @@ const text = {
     advisoryTitle: "ಕೃಷಿಮಿತ್ರನನ್ನು ಕೇಳಿ", advisorySub: "ಸಾಮಾನ್ಯ ಕೃಷಿ ಪ್ರಶ್ನೆಗಳನ್ನು ತಿಳಿಯಲು ಸ್ನೇಹಪರ ಸ್ಥಳ.",
     demoChat: "ಡೆಮೋ ಸಲಹೆ", chatWelcome: "ನಮಸ್ಕಾರ! ನಾನು ನಿಮ್ಮ ಡೆಮೋ ಕೃಷಿ ಸಂಗಾತಿ. ಸಾಮಾನ್ಯ ಪ್ರಶ್ನೆ ಕೇಳಿ ಅಥವಾ ಕೆಳಗಿನ ವಿಷಯ ಆಯ್ಕೆಮಾಡಿ.",
     chatPlaceholder: "ಸಾಮಾನ್ಯ ಕೃಷಿ ಪ್ರಶ್ನೆ ಕೇಳಿ…", send: "ಕಳುಹಿಸಿ", prompts: "ಮಾದರಿ ಪ್ರಶ್ನೆ ಪ್ರಯತ್ನಿಸಿ",
-    reply: "ಈ ಮಾದರಿಯು ನೈಜ ತಜ್ಞರು ಅಥವಾ AI ಜೊತೆ ಸಂಪರ್ಕ ಹೊಂದಿಲ್ಲ. ನಿಮ್ಮ ಹೊಲದ ನಿರ್ಧಾರಗಳಿಗೆ ಸ್ಥಳೀಯ ಕೃಷಿ ಅಧಿಕಾರಿ ಅಥವಾ ಕೃಷಿ ವಿಜ್ಞಾನ ಕೇಂದ್ರವನ್ನು ಸಂಪರ್ಕಿಸಿ.",
+    reply: "ಈ ವಿಷಯಾಧಾರಿತ ಸಲಹೆಗಳು ನಿಮ್ಮ ಪ್ರೊಫೈಲ್ ಮತ್ತು ಆ್ಯಪ್‌ನಲ್ಲಿ ಲಭ್ಯವಿರುವ ಮಾಹಿತಿಯನ್ನು ಬಳಸುತ್ತವೆ. ಇವು ಸಾಮಾನ್ಯ ಮಾರ್ಗದರ್ಶನ ಮಾತ್ರ; ಖಚಿತ ರೋಗನಿರ್ಣಯ ಅಥವಾ ಖಾತರಿಯ ಫಲಿತಾಂಶವಲ್ಲ.",
     settingsTitle: "ಸೆಟ್ಟಿಂಗ್‌ಗಳು", settingsSub: "ಕೃಷಿಮಿತ್ರವನ್ನು ನಿಮ್ಮದಾಗಿಸಿಕೊಳ್ಳಿ.",
     language: "ಭಾಷೆ", chooseLanguage: "ನಿಮ್ಮ ಆದ್ಯತೆಯ ಭಾಷೆ ಆಯ್ಕೆಮಾಡಿ",
     profileSection: "ರೈತರ ಪ್ರೊಫೈಲ್", savedLocally: "ನಿಮ್ಮ ಪ್ರೊಫೈಲ್ ಈ ಸಾಧನದಲ್ಲಿ ಮಾತ್ರ ಉಳಿಯುತ್ತದೆ.",
@@ -853,6 +853,200 @@ const hindiText: Partial<Record<keyof typeof text.en, string>> = {
   profitShareMessage: "कृषिमित्र किसान लाभ अनुमान\nफसल: {crop}\nअनुमानित उपज: {yield} क्विंटल\nअनुमानित आय: {revenue}\nकुल खर्च: {expenses}\nअनुमानित लाभ: {profit}\nप्रति एकड़ लाभ: {perAcre}\nयह दर्ज मानों पर आधारित अनुमान है, निश्चित आय नहीं।",
   mandiShareMessage: "कृषिमित्र मंडी सारांश\nफसल: {crop}\nनवीनतम रिपोर्ट किया गया मॉडल भाव: {current}\nपिछला रिपोर्ट किया गया मॉडल भाव: {previous}\nभाव में बदलाव: {change}\nहाल का रुझान: {trend}\nमार्गदर्शन: {recommendation}\nपुराने रिपोर्ट किए गए भाव पूर्वानुमान या गारंटी नहीं हैं।",
   cropDoctorShareMessage: "कृषिमित्र फसल जाँच\nफसल: {crop}\nदिखा लक्षण: {symptom}\nसंभावित समस्या: {diagnosis}\nप्रारंभिक गंभीरता: {severity}\nतत्काल कदम: {organic}\nरासायनिक विकल्प: {chemical}\nरोकथाम: {prevention}\nयह केवल प्रारंभिक संभावना है, पुष्टि किया गया निदान नहीं। उपचार से पहले स्थानीय पुष्टि लें।",
+  advisoryTitle: "कृषिमित्र से पूछें",
+  advisorySub: "खेती के सवाल पूछें और अपनी परिस्थिति के अनुसार व्यावहारिक सुझाव पाएँ।",
+  demoChat: "सलाहकार चैट",
+  chatPlaceholder: "अपना खेती का सवाल लिखें...",
+  send: "भेजें",
+  reply: "मिट्टी, मौसम, मंडी और खेती की सामान्य जानकारी शुरुआती मार्गदर्शन है। महत्वपूर्ण फैसले स्थानीय परिस्थितियों के अनुसार जाँचें।",
+};
+
+type AdvisoryIntent =
+  | "soil"
+  | "bioInput"
+  | "weather"
+  | "irrigation"
+  | "mandi"
+  | "pest"
+  | "schemes"
+  | "rotation"
+  | "profit";
+
+type AdvisoryLanguageCopy = {
+  introduction: string;
+  greeting: string;
+  promptsLabel: string;
+  prompts: readonly string[];
+  unmatched: string;
+  safetyNote: string;
+  answers: Record<AdvisoryIntent, string>;
+  context: {
+    crop: string;
+    soil: string;
+    farm: string;
+    irrigation: string;
+    weather: string;
+    noLocation: string;
+    noForecast: string;
+    market: string;
+    noCrop: string;
+    noMarketSnapshot: string;
+    samplePriceNote: string;
+    reportedPriceNote: string;
+    trendIncreasing: string;
+    trendDecreasing: string;
+    trendStable: string;
+    insufficientHistory: string;
+    unavailable: string;
+    acres: string;
+  };
+};
+
+const advisoryCopy: Record<Language, AdvisoryLanguageCopy> = {
+  en: {
+    introduction: "Namaskara! I'm KrishiMitra. I can help you think through soil and fertilizer, organic inputs, weather, irrigation, mandi prices, crop symptoms, schemes and loans, crop rotation, and farm costs.",
+    greeting: "Hello! I'm KrishiMitra, your farming companion. Ask about soil and pH, fertilizer, bio-inputs, weather and irrigation, mandi prices, pests and diseases, schemes or KCC loans, crop rotation, sowing, or profit and expenses.",
+    promptsLabel: "QUICK ASK",
+    prompts: [
+      "How do I improve soil pH and fertilizer use?",
+      "How can I prepare and use Jeevamrutha?",
+      "Will rain or heat affect my farm work?",
+      "Should I irrigate today?",
+      "How do I compare mandi prices before selling?",
+      "What should I check if leaves are yellow or spotted?",
+      "Where can I check KCC or farmer scheme eligibility?",
+      "How do I plan crop rotation after this crop and estimate profit?",
+    ],
+    unmatched: "I can help with soil/pH and fertilizer, bio-inputs, weather, irrigation, mandi prices, crop symptoms, schemes/KCC, rotation/sowing, or profit/costs. Tell me the crop or question you want to focus on.",
+    safetyNote: "Please confirm critical field decisions with your local KVK or agriculture officer.",
+    answers: {
+      soil: "For nutrients, first use a recent soil test for pH, organic carbon and available NPK. Match recommendations to the crop and season; avoid adding lime, gypsum or extra fertilizer based on symptoms alone. Split applications and timing should follow the local crop package and product label.",
+      bioInput: "Use clean, mature compost or a locally verified bio-input recipe, prepared and applied as directed for the crop and stage. Jeevamrutha may support soil biological activity, but it does not guarantee nutrient needs or replace a soil-test-based fertilizer plan. Keep containers clean and try a small area first.",
+      weather: "Use a location-specific forecast to plan spraying, drying, harvest and field work. If rain is expected, protect harvested produce and avoid spraying just before rain; in hot conditions, check crop moisture early and protect workers from heat. Forecasts are not guarantees, so verify local conditions.",
+      irrigation: "Check moisture in the root zone and the crop's growth stage before irrigating. If rain is forecast or the soil is still moist, delay and recheck; when irrigation is needed, cooler morning hours can reduce evaporation and runoff. The right amount depends on crop, soil, method and stage, so I won't guess a fixed quantity.",
+      mandi: "Compare recent modal prices for the same crop across several markets and dates, then subtract transport, loading, labour and fees. Confirm a local buyer's quote before deciding; past price movement does not predict the next price. Sample or cached records may not be current.",
+      pest: "Yellowing, spots, curling or wilting can have several causes—not only pests. Check both leaf sides, new growth, soil moisture and nearby plants; note when symptoms began and take clear photos. Use Crop Doctor as a screening aid, not a diagnosis, and do not spray until the cause is confirmed and the product label fits the crop and target.",
+      schemes: "Check the latest official portal or notification for eligibility, season, deadlines and documents. PM-KISAN, crop insurance and KCC have different rules; land size alone may not establish eligibility. Apply through official channels and never share an OTP or pay an unofficial agent.",
+      rotation: "Plan the next crop around season, irrigation, soil and a locally recommended sowing window. After a cereal, a suitable pulse may diversify the rotation; choose it only if water, market and local guidance support it. Avoid repeating the same crop family without checking pest and disease history; the rotation planner gives ideas, not a prescription.",
+      profit: "Enter realistic area, yield and a verified local selling price in Profit Calculator, then include seeds, fertilizer, labour, irrigation, transport and other costs. Record bills in Farm Ledger and compare revenue minus all expenses; this is an estimate, not guaranteed profit.",
+    },
+    context: {
+      crop: "Selected crop",
+      soil: "Saved soil profile",
+      farm: "Saved farm details",
+      irrigation: "Saved irrigation source",
+      weather: "Weather at {location}: currently {temperature}, humidity {humidity}; forecast for {date}: rain {rain}, chance {chance}.",
+      noLocation: "No weather location is saved yet; choose a location in Weather for a local forecast.",
+      noForecast: "No forecast is loaded for {location}; check the Weather page before making weather-sensitive plans.",
+      market: "Recent reported mandi prices for {crop}: {current} on {currentDate}; previous: {previous}; change: {change} ({trend}). {sourceNote}",
+      noCrop: "Select a crop in the Profit Calculator to connect this advice to your crop.",
+      noMarketSnapshot: "No matching mandi price history is loaded for {crop}. Check Mandi Prices for current nearby market records before deciding.",
+      samplePriceNote: "These are sample or cached records; verify today's price with the market or buyer.",
+      reportedPriceNote: "These are reported records, not a quote or a forecast; verify today's price locally.",
+      trendIncreasing: "increasing",
+      trendDecreasing: "decreasing",
+      trendStable: "roughly stable",
+      insufficientHistory: "not enough history to assess a trend",
+      unavailable: "not available",
+      acres: "acres",
+    },
+  },
+  kn: {
+    introduction: "ನಮಸ್ಕಾರ! ನಾನು ಕೃಷಿಮಿತ್ರ. ಮಣ್ಣು ಮತ್ತು ಗೊಬ್ಬರ, ಸಾವಯವ ಒಳಾಂಶಗಳು, ಹವಾಮಾನ, ನೀರಾವರಿ, ಮಾರುಕಟ್ಟೆ ಬೆಲೆ, ಬೆಳೆ ಲಕ್ಷಣಗಳು, ಯೋಜನೆ ಮತ್ತು ಸಾಲ, ಬೆಳೆ ಪರಿವರ್ತನೆ ಹಾಗೂ ಕೃಷಿ ವೆಚ್ಚಗಳ ಬಗ್ಗೆ ಸಹಾಯ ಮಾಡುತ್ತೇನೆ.",
+    greeting: "ನಮಸ್ಕಾರ! ನಾನು ನಿಮ್ಮ ಕೃಷಿ ಸಹಾಯಕ ಕೃಷಿಮಿತ್ರ. ಮಣ್ಣು ಮತ್ತು pH, ಗೊಬ್ಬರ, ಜೈವಿಕ ಒಳಾಂಶ, ಹವಾಮಾನ ಮತ್ತು ನೀರಾವರಿ, ಮಾರುಕಟ್ಟೆ ಬೆಲೆ, ಕೀಟ ಅಥವಾ ರೋಗ ಲಕ್ಷಣ, ಯೋಜನೆ ಅಥವಾ KCC ಸಾಲ, ಬೆಳೆ ಪರಿವರ್ತನೆ, ಬಿತ್ತನೆ, ಲಾಭ ಮತ್ತು ವೆಚ್ಚಗಳ ಬಗ್ಗೆ ಕೇಳಿ.",
+    promptsLabel: "ತ್ವರಿತವಾಗಿ ಕೇಳಿ",
+    prompts: [
+      "ಮಣ್ಣಿನ pH ಮತ್ತು ಗೊಬ್ಬರ ಬಳಕೆಯನ್ನು ಹೇಗೆ ಸುಧಾರಿಸಲಿ?",
+      "ಜೀವಾಮೃತವನ್ನು ಹೇಗೆ ತಯಾರಿಸಿ ಬಳಸಬಹುದು?",
+      "ಮಳೆ ಅಥವಾ ಬಿಸಿಲು ಕೃಷಿ ಕೆಲಸದ ಮೇಲೆ ಪರಿಣಾಮ ಬೀರುತ್ತದೆಯೇ?",
+      "ಇಂದು ನೀರಾವರಿ ಮಾಡಬೇಕೇ?",
+      "ಮಾರಾಟಕ್ಕೂ ಮೊದಲು ಮಾರುಕಟ್ಟೆ ಬೆಲೆಗಳನ್ನು ಹೇಗೆ ಹೋಲಿಸಲಿ?",
+      "ಎಲೆ ಹಳದಿಯಾದರೆ ಅಥವಾ ಚುಕ್ಕೆಗಳಿದ್ದರೆ ಏನು ಪರಿಶೀಲಿಸಲಿ?",
+      "KCC ಅಥವಾ ರೈತ ಯೋಜನೆಗಳ ಅರ್ಹತೆಯನ್ನು ಎಲ್ಲಿ ಪರಿಶೀಲಿಸಲಿ?",
+      "ಈ ಬೆಳೆಯ ನಂತರ ಬೆಳೆ ಪರಿವರ್ತನೆ ಮತ್ತು ಲಾಭವನ್ನು ಹೇಗೆ ಯೋಜಿಸಲಿ?",
+    ],
+    unmatched: "ಮಣ್ಣು/pH ಮತ್ತು ಗೊಬ್ಬರ, ಜೈವಿಕ ಒಳಾಂಶ, ಹವಾಮಾನ, ನೀರಾವರಿ, ಮಾರುಕಟ್ಟೆ ಬೆಲೆ, ಬೆಳೆ ಲಕ್ಷಣ, ಯೋಜನೆ/KCC, ಬೆಳೆ ಪರಿವರ್ತನೆ/ಬಿತ್ತನೆ ಅಥವಾ ಲಾಭ/ವೆಚ್ಚಗಳ ಬಗ್ಗೆ ಕೇಳಬಹುದು. ಯಾವ ಬೆಳೆ ಅಥವಾ ವಿಷಯದ ಬಗ್ಗೆ ತಿಳಿಯಬೇಕೆಂದು ಹೇಳಿ.",
+    safetyNote: "ಮುಖ್ಯ ಹೊಲದ ನಿರ್ಧಾರಗಳನ್ನು ನಿಮ್ಮ ಸ್ಥಳೀಯ ಕೃಷಿ ವಿಜ್ಞಾನ ಕೇಂದ್ರ (KVK) ಅಥವಾ ಕೃಷಿ ಅಧಿಕಾರಿಯಿಂದ ಖಚಿತಪಡಿಸಿಕೊಳ್ಳಿ.",
+    answers: {
+      soil: "ಪೋಷಕಾಂಶ ನಿರ್ಧರಿಸುವ ಮೊದಲು pH, ಸಾವಯವ ಇಂಗಾಲ ಮತ್ತು ಲಭ್ಯ NPK ಒಳಗೊಂಡ ಇತ್ತೀಚಿನ ಮಣ್ಣಿನ ಪರೀಕ್ಷೆ ಮಾಡಿಸಿ. ಶಿಫಾರಸನ್ನು ಬೆಳೆ ಮತ್ತು ಋತುವಿಗೆ ಹೊಂದಿಸಿ; ಲಕ್ಷಣಗಳನ್ನು ಮಾತ್ರ ನೋಡಿ ಸುಣ್ಣ, ಜಿಪ್ಸಂ ಅಥವಾ ಹೆಚ್ಚುವರಿ ಗೊಬ್ಬರ ಹಾಕಬೇಡಿ. ಗೊಬ್ಬರದ ಪ್ರಮಾಣ ಮತ್ತು ಸಮಯಕ್ಕೆ ಸ್ಥಳೀಯ ಬೆಳೆ ಮಾರ್ಗಸೂಚಿ ಹಾಗೂ ಉತ್ಪನ್ನದ ಲೇಬಲ್ ಅನುಸರಿಸಿ.",
+      bioInput: "ಬೆಳೆ ಮತ್ತು ಹಂತಕ್ಕೆ ಸೂಚಿಸಿದಂತೆ ಸ್ವಚ್ಛ, ಚೆನ್ನಾಗಿ ಕೊಳೆತ ಕಾಂಪೋಸ್ಟ್ ಅಥವಾ ಸ್ಥಳೀಯವಾಗಿ ಪರಿಶೀಲಿಸಿದ ಜೈವಿಕ ಒಳಾಂಶವನ್ನು ತಯಾರಿಸಿ ಬಳಸಿ. ಜೀವಾಮೃತವು ಮಣ್ಣಿನ ಜೈವಿಕ ಚಟುವಟಿಕೆಗೆ ನೆರವಾಗಬಹುದು; ಆದರೆ ಪೋಷಕಾಂಶದ ಅಗತ್ಯವನ್ನು ಖಚಿತಪಡಿಸುವುದಿಲ್ಲ ಅಥವಾ ಮಣ್ಣಿನ ಪರೀಕ್ಷೆ ಆಧಾರಿತ ಗೊಬ್ಬರ ಯೋಜನೆಗೆ ಬದಲಿಯಲ್ಲ. ಪಾತ್ರೆಗಳನ್ನು ಸ್ವಚ್ಛವಾಗಿಡಿ ಮತ್ತು ಮೊದಲು ಸಣ್ಣ ಪ್ರದೇಶದಲ್ಲಿ ಪ್ರಯೋಗಿಸಿ.",
+      weather: "ಸಿಂಪಡಣೆ, ಒಣಗಿಸುವಿಕೆ, ಕೊಯ್ಲು ಮತ್ತು ಹೊಲದ ಕೆಲಸವನ್ನು ಯೋಜಿಸಲು ನಿಮ್ಮ ಸ್ಥಳದ ಹವಾಮಾನ ಮುನ್ಸೂಚನೆ ಬಳಸಿ. ಮಳೆ ನಿರೀಕ್ಷೆಯಿದ್ದರೆ ಕೊಯ್ಲಿನ ಉತ್ಪನ್ನವನ್ನು ರಕ್ಷಿಸಿ ಮತ್ತು ಮಳೆಯ ಮುನ್ನ ಸಿಂಪಡಿಸಬೇಡಿ; ಬಿಸಿಲಿನಲ್ಲಿ ಬೆಳೆ ತೇವಾಂಶವನ್ನು ಬೇಗ ಪರಿಶೀಲಿಸಿ, ಕಾರ್ಮಿಕರನ್ನು ಬಿಸಿಯಿಂದ ಕಾಪಾಡಿ. ಮುನ್ಸೂಚನೆ ಖಚಿತವಲ್ಲ—ಸ್ಥಳೀಯ ಸ್ಥಿತಿಯನ್ನೂ ಪರಿಶೀಲಿಸಿ.",
+      irrigation: "ನೀರಾವರಿಗೂ ಮೊದಲು ಬೇರು ವಲಯದ ತೇವಾಂಶ ಮತ್ತು ಬೆಳೆಯ ಹಂತ ಪರಿಶೀಲಿಸಿ. ಮಳೆ ಮುನ್ಸೂಚನೆ ಇದ್ದರೆ ಅಥವಾ ಮಣ್ಣು ತೇವವಾಗಿದ್ದರೆ ನೀರು ಹಾಕುವುದನ್ನು ಮುಂದೂಡಿ ಮತ್ತೆ ಪರಿಶೀಲಿಸಿ; ಅಗತ್ಯವಿದ್ದಾಗ ತಂಪಾದ ಬೆಳಗಿನ ಸಮಯ ಆಯ್ಕೆಮಾಡಿ, ನೀರು ಹರಿದುಹೋಗದಂತೆ ನೋಡಿ. ಸರಿಯಾದ ಪ್ರಮಾಣ ಬೆಳೆ, ಮಣ್ಣು, ವಿಧಾನ ಮತ್ತು ಹಂತದ ಮೇಲೆ ಅವಲಂಬಿತವಾಗಿರುವುದರಿಂದ ಊಹೆಯ ಪ್ರಮಾಣ ನೀಡುವುದಿಲ್ಲ.",
+      mandi: "ಒಂದೇ ಬೆಳೆಯ ಇತ್ತೀಚಿನ ಮಾದರಿ ಬೆಲೆಗಳನ್ನು ಹಲವು ಮಾರುಕಟ್ಟೆ ಮತ್ತು ದಿನಾಂಕಗಳಲ್ಲಿ ಹೋಲಿಸಿ; ನಂತರ ಸಾಗಣೆ, ಲೋಡಿಂಗ್, ಕೂಲಿ ಮತ್ತು ಶುಲ್ಕಗಳನ್ನು ಲೆಕ್ಕಿಸಿ. ಮಾರಾಟಕ್ಕೂ ಮೊದಲು ಸ್ಥಳೀಯ ಖರೀದಿದಾರರ ಬೆಲೆಯನ್ನು ಖಚಿತಪಡಿಸಿಕೊಳ್ಳಿ; ಹಿಂದಿನ ಬೆಲೆ ಏರಿಳಿತ ಮುಂದಿನ ಬೆಲೆಯ ಮುನ್ಸೂಚನೆಯಲ್ಲ. ಮಾದರಿ ಅಥವಾ ಕ್ಯಾಶ್ ಮಾಡಿದ ದಾಖಲೆಗಳು ಇಂದಿನದಾಗಿರದೇ ಇರಬಹುದು.",
+      pest: "ಎಲೆ ಹಳದಿಯಾಗುವುದು, ಚುಕ್ಕೆ, ಮುದುಡುವಿಕೆ ಅಥವಾ ಬಾಡುವಿಕೆಗೆ ಕೀಟ ಮಾತ್ರವಲ್ಲದೆ ಹಲವು ಕಾರಣಗಳಿರಬಹುದು. ಎಲೆಯ ಎರಡೂ ಬದಿ, ಹೊಸ ಬೆಳವಣಿಗೆ, ಮಣ್ಣಿನ ತೇವಾಂಶ ಮತ್ತು ಪಕ್ಕದ ಗಿಡಗಳನ್ನು ಪರಿಶೀಲಿಸಿ; ಲಕ್ಷಣ ಆರಂಭವಾದ ಸಮಯ ದಾಖಲಿಸಿ, ಸ್ಪಷ್ಟ ಚಿತ್ರ ತೆಗೆದುಕೊಳ್ಳಿ. ಬೆಳೆ ವೈದ್ಯವನ್ನು ಪ್ರಾಥಮಿಕ ಪರಿಶೀಲನೆಗೆ ಮಾತ್ರ ಬಳಸಿ; ಕಾರಣ ಖಚಿತಪಡಿಸಿ, ಬೆಳೆ ಮತ್ತು ಸಮಸ್ಯೆಗೆ ಲೇಬಲ್ ಹೊಂದಿರುವುದನ್ನು ಪರಿಶೀಲಿಸದೆ ಸಿಂಪಡಿಸಬೇಡಿ.",
+      schemes: "ಅರ್ಹತೆ, ಋತು, ಕೊನೆಯ ದಿನಾಂಕ ಮತ್ತು ದಾಖಲೆಗಳಿಗೆ ಇತ್ತೀಚಿನ ಅಧಿಕೃತ ಪೋರ್ಟಲ್ ಅಥವಾ ಅಧಿಸೂಚನೆ ಪರಿಶೀಲಿಸಿ. PM-KISAN, ಬೆಳೆ ವಿಮೆ ಮತ್ತು KCC ನಿಯಮಗಳು ಬೇರೆಬೇರೆ; ಭೂಮಿಯ ವಿಸ್ತೀರ್ಣ ಮಾತ್ರ ಅರ್ಹತೆಯನ್ನು ನಿರ್ಧರಿಸುವುದಿಲ್ಲ. ಅಧಿಕೃತ ಮಾರ್ಗದಲ್ಲೇ ಅರ್ಜಿ ಸಲ್ಲಿಸಿ; OTP ಹಂಚಿಕೊಳ್ಳಬೇಡಿ ಅಥವಾ ಅನಧಿಕೃತ ಏಜೆಂಟ್‌ಗೆ ಹಣ ಕೊಡಬೇಡಿ.",
+      rotation: "ಮುಂದಿನ ಬೆಳೆಯನ್ನು ಋತು, ನೀರಾವರಿ, ಮಣ್ಣು ಮತ್ತು ಸ್ಥಳೀಯವಾಗಿ ಶಿಫಾರಸಾದ ಬಿತ್ತನೆ ಅವಧಿಗೆ ಹೊಂದಿಸಿ. ಧಾನ್ಯ ಬೆಳೆಯ ನಂತರ ಸೂಕ್ತ ಬೇಳೆ ಬೆಳೆ ಬೆಳೆ ಪರಿವರ್ತನೆಗೆ ವೈವಿಧ್ಯ ನೀಡಬಹುದು; ನೀರು, ಮಾರುಕಟ್ಟೆ ಮತ್ತು ಸ್ಥಳೀಯ ಸಲಹೆ ಬೆಂಬಲಿಸಿದರೆ ಮಾತ್ರ ಆಯ್ಕೆಮಾಡಿ. ಕೀಟ ಮತ್ತು ರೋಗದ ಹಿಂದಿನ ಸ್ಥಿತಿ ಪರಿಶೀಲಿಸದೆ ಒಂದೇ ಬೆಳೆ ಕುಟುಂಬವನ್ನು ಮರುಮರು ಬೆಳೆಸಬೇಡಿ; ಪರಿವರ್ತನೆ ಯೋಜನೆ ಸಲಹೆ ಮಾತ್ರ, ನಿಶ್ಚಿತ ಸೂಚನೆಯಲ್ಲ.",
+      profit: "ಲಾಭ ಕ್ಯಾಲ್ಕುಲೇಟರ್‌ನಲ್ಲಿ ವಾಸ್ತವಿಕ ವಿಸ್ತೀರ್ಣ, ಇಳುವರಿ ಮತ್ತು ಸ್ಥಳೀಯವಾಗಿ ಖಚಿತಪಡಿಸಿದ ಮಾರಾಟ ಬೆಲೆ ನಮೂದಿಸಿ; ಬೀಜ, ಗೊಬ್ಬರ, ಕೂಲಿ, ನೀರಾವರಿ, ಸಾಗಣೆ ಮತ್ತು ಇತರ ವೆಚ್ಚಗಳನ್ನೂ ಸೇರಿಸಿ. ಕೃಷಿ ಖಾತೆಯಲ್ಲಿ ಬಿಲ್ ದಾಖಲಿಸಿ, ಒಟ್ಟು ವೆಚ್ಚವನ್ನು ಆದಾಯದಿಂದ ಕಳೆಯಿರಿ. ಇದು ಅಂದಾಜು ಮಾತ್ರ, ಖಚಿತ ಲಾಭವಲ್ಲ.",
+    },
+    context: {
+      crop: "ಆಯ್ಕೆ ಮಾಡಿದ ಬೆಳೆ",
+      soil: "ಉಳಿಸಿದ ಮಣ್ಣಿನ ವಿವರ",
+      farm: "ಉಳಿಸಿದ ಕೃಷಿ ವಿವರ",
+      irrigation: "ಉಳಿಸಿದ ನೀರಾವರಿ ಮೂಲ",
+      weather: "{location} ಹವಾಮಾನ: ಈಗ {temperature}, ತೇವಾಂಶ {humidity}; {date} ಮುನ್ಸೂಚನೆ: ಮಳೆ {rain}, ಸಾಧ್ಯತೆ {chance}.",
+      noLocation: "ಹವಾಮಾನ ಸ್ಥಳ ಇನ್ನೂ ಉಳಿಸಿಲ್ಲ; ಸ್ಥಳೀಯ ಮುನ್ಸೂಚನೆಗಾಗಿ ಹವಾಮಾನ ವಿಭಾಗದಲ್ಲಿ ಸ್ಥಳ ಆಯ್ಕೆಮಾಡಿ.",
+      noForecast: "{location}ಗೆ ಮುನ್ಸೂಚನೆ ಲಭ್ಯವಿಲ್ಲ; ಹವಾಮಾನಕ್ಕೆ ಸಂಬಂಧಿಸಿದ ಕೆಲಸಕ್ಕೂ ಮೊದಲು ಹವಾಮಾನ ಪುಟ ಪರಿಶೀಲಿಸಿ.",
+      market: "{crop}ಗೆ ಇತ್ತೀಚಿನ ವರದಿಯಾದ ಮಾರುಕಟ್ಟೆ ಬೆಲೆ: {current} ({currentDate}); ಹಿಂದಿನದು: {previous}; ಬದಲಾವಣೆ: {change} ({trend}). {sourceNote}",
+      noCrop: "ಈ ಸಲಹೆಯನ್ನು ನಿಮ್ಮ ಬೆಳೆಗೆ ಹೊಂದಿಸಲು ಲಾಭ ಕ್ಯಾಲ್ಕುಲೇಟರ್‌ನಲ್ಲಿ ಬೆಳೆ ಆಯ್ಕೆಮಾಡಿ.",
+      noMarketSnapshot: "{crop}ಗೆ ಹೊಂದುವ ಮಾರುಕಟ್ಟೆ ಬೆಲೆ ಇತಿಹಾಸ ಲಭ್ಯವಿಲ್ಲ. ನಿರ್ಧಾರಕ್ಕೂ ಮೊದಲು ಮಾರುಕಟ್ಟೆ ವಿಭಾಗದಲ್ಲಿ ಇಂದಿನ ಹತ್ತಿರದ ಬೆಲೆ ಪರಿಶೀಲಿಸಿ.",
+      samplePriceNote: "ಇವು ಮಾದರಿ ಅಥವಾ ಕ್ಯಾಶ್ ಮಾಡಿದ ದಾಖಲೆಗಳು; ಇಂದಿನ ಬೆಲೆಯನ್ನು ಮಾರುಕಟ್ಟೆ ಅಥವಾ ಖರೀದಿದಾರರಿಂದ ಖಚಿತಪಡಿಸಿ.",
+      reportedPriceNote: "ಇವು ವರದಿಯಾದ ದಾಖಲೆಗಳು ಮಾತ್ರ; ಖರೀದಿ ಬೆಲೆ ಅಥವಾ ಮುನ್ಸೂಚನೆಯಲ್ಲ. ಇಂದಿನ ಬೆಲೆಯನ್ನು ಸ್ಥಳೀಯವಾಗಿ ಖಚಿತಪಡಿಸಿ.",
+      trendIncreasing: "ಏರಿಕೆ",
+      trendDecreasing: "ಇಳಿಕೆ",
+      trendStable: "ಸುಮಾರು ಸ್ಥಿರ",
+      insufficientHistory: "ಪ್ರವೃತ್ತಿ ಅಂದಾಜಿಸಲು ಸಾಕಷ್ಟು ಇತಿಹಾಸವಿಲ್ಲ",
+      unavailable: "ಲಭ್ಯವಿಲ್ಲ",
+      acres: "ಎಕರೆ",
+    },
+  },
+  hi: {
+    introduction: "नमस्कार! मैं कृषिमित्र हूँ। मैं मिट्टी और खाद, जैविक इनपुट, मौसम, सिंचाई, मंडी भाव, फसल के लक्षण, योजनाएँ और ऋण, फसल चक्र तथा खेती के खर्चों पर मदद कर सकता हूँ।",
+    greeting: "नमस्कार! मैं आपका कृषि सहायक कृषिमित्र हूँ। मिट्टी और pH, खाद, जैविक इनपुट, मौसम और सिंचाई, मंडी भाव, कीट या रोग के लक्षण, योजनाएँ या KCC ऋण, फसल चक्र, बुवाई, लाभ और खर्चों के बारे में पूछें।",
+    promptsLabel: "जल्दी पूछें",
+    prompts: [
+      "मिट्टी का pH और खाद का उपयोग कैसे सुधारूँ?",
+      "जीवामृत कैसे तैयार और उपयोग करूँ?",
+      "क्या बारिश या गर्मी से खेत के काम पर असर होगा?",
+      "क्या आज सिंचाई करनी चाहिए?",
+      "बेचने से पहले मंडी भाव की तुलना कैसे करूँ?",
+      "पत्तियाँ पीली हों या धब्बे हों तो क्या जाँचूँ?",
+      "KCC या किसान योजना की पात्रता कहाँ जाँचूँ?",
+      "इस फसल के बाद फसल चक्र कैसे बनाऊँ और लाभ कैसे आँकूँ?",
+    ],
+    unmatched: "मैं मिट्टी/pH और खाद, जैविक इनपुट, मौसम, सिंचाई, मंडी भाव, फसल के लक्षण, योजनाएँ/KCC, फसल चक्र/बुवाई या लाभ/खर्चों पर मदद कर सकता हूँ। बताइए किस फसल या विषय पर ध्यान देना है।",
+    safetyNote: "खेत के महत्वपूर्ण फैसलों की पुष्टि अपने स्थानीय कृषि विज्ञान केंद्र (KVK) या कृषि अधिकारी से करें।",
+    answers: {
+      soil: "पोषक तत्व तय करने से पहले pH, जैविक कार्बन और उपलब्ध NPK की हाल की मिट्टी जाँच कराएँ। सलाह फसल और मौसम के अनुसार लें; केवल लक्षण देखकर चूना, जिप्सम या अतिरिक्त खाद न डालें। खाद की मात्रा और समय के लिए स्थानीय फसल मार्गदर्शिका और उत्पाद का लेबल मानें।",
+      bioInput: "फसल और अवस्था के निर्देशों के अनुसार साफ, अच्छी तरह पकी खाद या स्थानीय रूप से सत्यापित जैविक इनपुट तैयार और उपयोग करें। जीवामृत मिट्टी की जैविक गतिविधि में मदद कर सकता है, लेकिन पोषण की जरूरत की गारंटी या मिट्टी जाँच आधारित खाद योजना का विकल्प नहीं है। बर्तन साफ रखें और पहले छोटे हिस्से में आजमाएँ।",
+      weather: "छिड़काव, सुखाने, कटाई और खेत के काम की योजना के लिए अपने स्थान का मौसम पूर्वानुमान देखें। बारिश की संभावना हो तो कटी उपज को ढकें और बारिश से ठीक पहले छिड़काव न करें; गर्मी में फसल की नमी जल्दी जाँचें और मजदूरों को गर्मी से बचाएँ। पूर्वानुमान निश्चित नहीं होता, स्थानीय स्थिति भी देखें।",
+      irrigation: "सिंचाई से पहले जड़ क्षेत्र की नमी और फसल की अवस्था जाँचें। बारिश का पूर्वानुमान हो या मिट्टी नम हो तो सिंचाई टालकर फिर जाँचें; जरूरत होने पर ठंडे सुबह के समय पानी दें और बहाव रोकें। सही मात्रा फसल, मिट्टी, विधि और अवस्था पर निर्भर करती है, इसलिए मैं तय मात्रा का अनुमान नहीं दूँगा।",
+      mandi: "एक ही फसल के हाल के मॉडल भाव कई मंडियों और तारीखों में तुलना करें, फिर ढुलाई, लोडिंग, मजदूरी और शुल्क घटाएँ। फैसला करने से पहले स्थानीय खरीदार का भाव पक्का करें; पुराने भावों का उतार-चढ़ाव अगले भाव की भविष्यवाणी नहीं है। नमूना या कैश किए गए रिकॉर्ड आज के नहीं हो सकते।",
+      pest: "पीलापन, धब्बे, मुड़ना या मुरझाना कई कारणों से हो सकता है, केवल कीट से नहीं। पत्तियों के दोनों ओर, नई वृद्धि, मिट्टी की नमी और पास के पौधे देखें; लक्षण कब शुरू हुए लिखें और साफ तस्वीर लें। Crop Doctor को शुरुआती जाँच मानें, निदान नहीं; कारण और फसल के लिए लेबल की पुष्टि किए बिना छिड़काव न करें।",
+      schemes: "पात्रता, मौसम, अंतिम तारीख और दस्तावेजों के लिए नवीनतम आधिकारिक पोर्टल या सूचना देखें। PM-KISAN, फसल बीमा और KCC के नियम अलग हैं; केवल जमीन का क्षेत्र पात्रता तय नहीं करता। आधिकारिक माध्यम से आवेदन करें; OTP साझा न करें और अनधिकृत एजेंट को पैसे न दें।",
+      rotation: "अगली फसल को मौसम, सिंचाई, मिट्टी और स्थानीय अनुशंसित बुवाई समय के अनुसार चुनें। अनाज के बाद उपयुक्त दलहन फसल चक्र में विविधता ला सकती है; तभी चुनें जब पानी, बाजार और स्थानीय सलाह अनुकूल हों। कीट और रोग का इतिहास देखे बिना एक ही फसल परिवार बार-बार न लें; रोटेशन प्लानर सुझाव देता है, पक्का निर्देश नहीं।",
+      profit: "लाभ कैलकुलेटर में वास्तविक क्षेत्र, उपज और स्थानीय रूप से पक्का बिक्री भाव डालें; बीज, खाद, मजदूरी, सिंचाई, ढुलाई और अन्य खर्च भी जोड़ें। Farm Ledger में बिल दर्ज करें और कुल खर्च को आय से घटाएँ। यह अनुमान है, निश्चित लाभ नहीं।",
+    },
+    context: {
+      crop: "चुनी गई फसल",
+      soil: "सहेजी गई मिट्टी",
+      farm: "सहेजा गया खेत विवरण",
+      irrigation: "सहेजा गया सिंचाई स्रोत",
+      weather: "{location} का मौसम: अभी {temperature}, नमी {humidity}; {date} का पूर्वानुमान: बारिश {rain}, संभावना {chance}.",
+      noLocation: "अभी मौसम का स्थान सहेजा नहीं है; स्थानीय पूर्वानुमान के लिए मौसम पृष्ठ पर स्थान चुनें।",
+      noForecast: "{location} का पूर्वानुमान उपलब्ध नहीं है; मौसम पर निर्भर काम से पहले मौसम पृष्ठ देखें।",
+      market: "{crop} के हाल के रिपोर्टेड मंडी भाव: {current} ({currentDate}); पिछला: {previous}; बदलाव: {change} ({trend}). {sourceNote}",
+      noCrop: "इस सलाह को आपकी फसल से जोड़ने के लिए लाभ कैलकुलेटर में फसल चुनें।",
+      noMarketSnapshot: "{crop} के लिए मिलते-जुलते मंडी भाव का इतिहास उपलब्ध नहीं है। निर्णय से पहले मंडी पृष्ठ पर आज के नजदीकी भाव देखें।",
+      samplePriceNote: "ये नमूना या कैश किए गए रिकॉर्ड हैं; आज का भाव मंडी या खरीदार से पक्का करें।",
+      reportedPriceNote: "ये रिपोर्टेड रिकॉर्ड हैं, खरीदार का भाव या पूर्वानुमान नहीं; आज का भाव स्थानीय रूप से पक्का करें।",
+      trendIncreasing: "बढ़ रहा है",
+      trendDecreasing: "घट रहा है",
+      trendStable: "लगभग स्थिर है",
+      insufficientHistory: "रुझान आँकने के लिए पर्याप्त इतिहास नहीं है",
+      unavailable: "उपलब्ध नहीं",
+      acres: "एकड़",
+    },
+  },
 };
 
 function App() {
@@ -1024,7 +1218,19 @@ function App() {
   function sendMessage(message = chatInput) {
     const trimmed = message.trim();
     if (!trimmed) return;
-    setChatMessages((current) => [...current, { from: "farmer", text: trimmed }, { from: "mitra", text: t("reply") }]);
+    const response = buildAdvisoryResponse(trimmed, {
+      language,
+      profile,
+      weatherLocation,
+      weatherForecast,
+      profitInputs,
+      mandiSnapshot,
+    }, t);
+    setChatMessages((current) => [
+      ...current,
+      { from: "farmer", text: trimmed, language },
+      { from: "mitra", text: response, language },
+    ]);
     setChatInput("");
   }
 
@@ -1084,7 +1290,7 @@ function App() {
           {screen === "rotation" && <CropRotationPlanner language={language} profileSoil={profile?.soil ?? ""} />}
           {screen === "cropDoctor" && <CropDoctor t={t} />}
           {screen === "schemes" && <GovtSchemesFinder language={language === "kn" ? "kn" : "en"} />}
-          {screen === "advisory" && <Advisory t={t} messages={chatMessages} input={chatInput} setInput={setChatInput} send={sendMessage} />}
+          {screen === "advisory" && <Advisory t={t} language={language} messages={chatMessages} input={chatInput} setInput={setChatInput} send={sendMessage} />}
           {screen === "settings" && <Settings t={t} language={language} setLanguage={setLanguage} profile={profile} clearProfile={clearProfile} navigate={navigate} />}
           {screen === "settings" && <ProfileForm t={t} profile={profile} saveProfile={saveProfile} />}
         </div>
@@ -1763,6 +1969,177 @@ function analyzeFarmPrices(history: FarmPricePoint[]): FarmPriceAnalysis {
       : consistentlyDecreasing ? "sellNowReason"
         : "monitorMarketReason";
   return { current, previous, percentageChange, trend, recommendation, reason };
+}
+
+type AdvisoryResponseContext = {
+  language: Language;
+  profile: FarmerProfile | null;
+  weatherLocation: WeatherLocation | null;
+  weatherForecast: WeatherForecast | null;
+  profitInputs: ProfitInputs;
+  mandiSnapshot: MandiSnapshot | null;
+};
+
+const advisoryKeywords: Record<AdvisoryIntent, readonly string[]> = {
+  soil: ["soil", "pH", "fertilizer", "fertiliser", "nutrient", "मिट्टी", "मृदा", "खाद", "उर्वरक", "ಮಣ್ಣು", "ಮಣ್ಣಿನ", "ಗೊಬ್ಬರ", "ಪೋಷಕಾಂಶ"],
+  bioInput: ["bio-input", "bio input", "jeevamrutha", "jeevamrut", "organic", "compost", "जीवामृत", "जैविक", "कम्पोस्ट", "ಜೀವಾಮೃತ", "ಜೈವಿಕ", "ಸಾವಯವ", "ಕಾಂಪೋಸ್ಟ್"],
+  weather: ["weather", "rain", "rainfall", "heat", "hot", "temperature", "forecast", "मौसम", "बारिश", "गर्मी", "तापमान", "ಹವಾಮಾನ", "ಮಳೆ", "ಬಿಸಿಲು", "ತಾಪಮಾನ"],
+  irrigation: ["irrigation", "irrigate", "water", "सिंचाई", "पानी", "ನೀರಾವರಿ", "ನೀರು"],
+  mandi: ["mandi", "price", "prices", "rate", "rates", "sell", "selling", "market", "मंडी", "भाव", "कीमत", "बेच", "ಮಾರುಕಟ್ಟೆ", "ಬೆಲೆ", "ಮಾರಾಟ"],
+  pest: ["pest", "pests", "disease", "diseases", "yellow leaves", "yellowing", "spot", "spots", "crop doctor", "insect", "symptom", "कीट", "रोग", "पीली", "धब्बे", "बीमारी", "ಕೀಟ", "ರೋಗ", "ಹಳದಿ", "ಚುಕ್ಕೆ", "ಬೆಳೆ ವೈದ್ಯ"],
+  schemes: ["scheme", "schemes", "subsidy", "subsidies", "pm-kisan", "pm kisan", "loan", "kcc", "योजना", "सब्सिडी", "कर्ज", "ऋण", "ಸಹಾಯಧನ", "ಯೋಜನೆ", "ಸಾಲ"],
+  rotation: ["rotation", "next crop", "sowing", "sow", "planting", "next season", "फसल चक्र", "अगली फसल", "बुवाई", "अगला मौसम", "ಬೆಳೆ ಪರಿವರ್ತನೆ", "ಮುಂದಿನ ಬೆಳೆ", "ಬಿತ್ತನೆ"],
+  profit: ["profit", "cost", "costs", "expense", "expenses", "khata", "revenue", "income", "लाभ", "खर्च", "लागत", "खाता", "आय", "ಲಾಭ", "ವೆಚ್ಚ", "ಖರ್ಚು", "ಖಾತೆ", "ಆದಾಯ"],
+};
+
+const advisoryIntents = Object.keys(advisoryKeywords) as AdvisoryIntent[];
+
+function matchesAdvisoryKeyword(message: string, keyword: string) {
+  const normalizedMessage = message.normalize("NFKC").toLocaleLowerCase();
+  const normalizedKeyword = keyword.normalize("NFKC").toLocaleLowerCase();
+  if (/^[a-z0-9][a-z0-9 -]*$/i.test(normalizedKeyword)) {
+    const escapedKeyword = normalizedKeyword.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    return new RegExp(`(^|[^a-z0-9])${escapedKeyword}($|[^a-z0-9])`, "i").test(normalizedMessage);
+  }
+  return normalizedMessage.includes(normalizedKeyword);
+}
+
+function selectedCropLabel(crop: string, t: Translate) {
+  const cropKeys: Record<string, keyof typeof text.en> = {
+    cropRice: "cropRice",
+    cropRagi: "cropRagi",
+    cropMaize: "cropMaize",
+    cropPulses: "cropPulses",
+  };
+  const key = cropKeys[crop];
+  return key ? t(key) : "";
+}
+
+function selectedSoilLabel(soil: string, t: Translate) {
+  const soilKeys: Record<string, keyof typeof text.en> = {
+    "red soil": "typeRed",
+    "black soil": "typeBlack",
+    "sandy soil": "typeSandy",
+    "loamy soil": "typeLoamy",
+  };
+  const key = soilKeys[soil.trim().toLocaleLowerCase()];
+  return key ? t(key) : soil.trim();
+}
+
+function advisoryWeatherSummary(context: AdvisoryResponseContext, copy: AdvisoryLanguageCopy) {
+  if (!context.weatherLocation) return copy.context.noLocation;
+  const location = locationLabel(context.weatherLocation);
+  const forecast = context.weatherForecast;
+  if (!forecast) return fillTemplate(copy.context.noForecast, { location });
+
+  const currentTemperature = forecast.current.temperature === null
+    ? copy.context.unavailable
+    : `${forecast.current.temperature}°C`;
+  const humidity = forecast.current.relativeHumidity === null
+    ? copy.context.unavailable
+    : `${forecast.current.relativeHumidity}%`;
+  const nextDay = forecast.daily[0];
+  const date = nextDay
+    ? formatMandiDate(nextDay.date, context.language)
+    : copy.context.unavailable;
+  const rain = nextDay?.precipitation === null || nextDay?.precipitation === undefined
+    ? copy.context.unavailable
+    : `${nextDay.precipitation} mm`;
+  const chance = nextDay?.precipitationProbability === null || nextDay?.precipitationProbability === undefined
+    ? copy.context.unavailable
+    : `${nextDay.precipitationProbability}%`;
+  return fillTemplate(copy.context.weather, {
+    location,
+    temperature: currentTemperature,
+    humidity,
+    date,
+    rain,
+    chance,
+  });
+}
+
+function advisoryMarketSummary(context: AdvisoryResponseContext, copy: AdvisoryLanguageCopy, crop: string) {
+  if (!crop) return copy.context.noCrop;
+  const snapshot = context.mandiSnapshot;
+  if (!snapshot || !farmCropMatchesCommodity(context.profitInputs.crop, snapshot.commodity)) {
+    return fillTemplate(copy.context.noMarketSnapshot, { crop });
+  }
+  const history = dailyModalPrices(snapshot.records, snapshot.commodity);
+  const analysis = analyzeFarmPrices(history);
+  const latest = analysis.current;
+  const previous = analysis.previous;
+  if (!latest) return fillTemplate(copy.context.noMarketSnapshot, { crop });
+  const trend = analysis.trend === "trendIncreasing"
+    ? copy.context.trendIncreasing
+    : analysis.trend === "trendDecreasing"
+      ? copy.context.trendDecreasing
+      : analysis.trend === "trendStable"
+        ? copy.context.trendStable
+        : copy.context.insufficientHistory;
+  const change = analysis.percentageChange === null
+    ? copy.context.insufficientHistory
+    : `${analysis.percentageChange > 0 ? "+" : ""}${new Intl.NumberFormat(localeForLanguage(context.language), { maximumFractionDigits: 1 }).format(analysis.percentageChange)}%`;
+  const sourceNote = snapshot.dataSource === "sample" || snapshot.dataSource === "sample-cached" || snapshot.dataSource === "cached"
+    ? copy.context.samplePriceNote
+    : copy.context.reportedPriceNote;
+  return fillTemplate(copy.context.market, {
+    crop,
+    current: formatPrice(latest.modalPrice),
+    currentDate: formatMandiDate(latest.date, context.language),
+    previous: previous ? formatPrice(previous.modalPrice) : copy.context.unavailable,
+    change,
+    trend,
+    sourceNote,
+  });
+}
+
+function advisoryContextLines(
+  intents: AdvisoryIntent[],
+  context: AdvisoryResponseContext,
+  copy: AdvisoryLanguageCopy,
+  t: Translate,
+) {
+  const lines: string[] = [];
+  const crop = selectedCropLabel(context.profitInputs.crop, t);
+  if (crop) lines.push(`${copy.context.crop}: ${crop}`);
+  const profile = context.profile;
+  if (profile) {
+    const farmDetails = [profile.village.trim(), profile.district.trim()]
+      .filter(Boolean);
+    if (profile.land.trim()) farmDetails.push(`${profile.land.trim()} ${copy.context.acres}`);
+    if (farmDetails.length > 0) lines.push(`${copy.context.farm}: ${farmDetails.join(", ")}`);
+    if (profile.soil.trim()) lines.push(`${copy.context.soil}: ${selectedSoilLabel(profile.soil, t)}`);
+    const irrigationKeys: Record<string, keyof typeof text.en> = {
+      canal: "waterCanal",
+      borewell: "waterBorewell",
+      rainfed: "waterRainfed",
+      other: "waterOther",
+    };
+    const irrigationKey = irrigationKeys[profile.irrigation.trim().toLocaleLowerCase()];
+    if (irrigationKey) lines.push(`${copy.context.irrigation}: ${t(irrigationKey)}`);
+  }
+  if (intents.includes("weather") || intents.includes("irrigation")) {
+    lines.push(advisoryWeatherSummary(context, copy));
+  }
+  if (intents.includes("mandi")) {
+    lines.push(advisoryMarketSummary(context, copy, crop));
+  }
+  return Array.from(new Set(lines));
+}
+
+function buildAdvisoryResponse(message: string, context: AdvisoryResponseContext, t: Translate) {
+  const copy = advisoryCopy[context.language];
+  const matchedIntents = advisoryIntents.filter((intent) =>
+    advisoryKeywords[intent].some((keyword) => matchesAdvisoryKeyword(message, keyword)),
+  );
+  const normalizedMessage = message.normalize("NFKC").toLocaleLowerCase();
+  const greetingKeywords = ["hi", "hello", "namaskara", "namaste", "ನಮಸ್ಕಾರ", "नमस्ते", "नमस्कार", "help", "ಸಹಾಯ", "मदद"];
+  const isGreeting = greetingKeywords.some((keyword) => matchesAdvisoryKeyword(normalizedMessage, keyword));
+  const response = matchedIntents.length > 0
+    ? matchedIntents.slice(0, 3).map((intent) => copy.answers[intent]).join("\n\n")
+    : isGreeting ? copy.greeting : copy.unmatched;
+  const contextLines = advisoryContextLines(matchedIntents, context, copy, t);
+  return [response, ...contextLines, copy.safetyNote].join("\n\n");
 }
 
 const demoFarmPriceHistory: FarmPricePoint[] = [
@@ -4298,22 +4675,24 @@ function CropDoctor({ t }: PageProps) {
   </>;
 }
 
-function Advisory({ t, messages, input, setInput, send }: PageProps & { messages: ChatMessage[]; input: string; setInput: (value: string) => void; send: (message?: string) => void }) {
-  const promptLanguage = languageOf(t);
-  const prompts = promptLanguage === "kn"
-    ? ["ಮಣ್ಣಿನ ಆರೈಕೆ ಹೇಗೆ ಮಾಡಲಿ?", "ಬಿತ್ತನೆಗೂ ಮುನ್ನ ಏನು ಪರಿಶೀಲಿಸಲಿ?", "ಸ್ಥಳೀಯ ಮಾರುಕಟ್ಟೆ ದರ ಹೇಗೆ ತಿಳಿಯಲಿ?"]
-    : promptLanguage === "hi"
-      ? ["मिट्टी की देखभाल कैसे करें?", "बुवाई से पहले क्या जाँचें?", "स्थानीय मंडी भाव कैसे देखें?"]
-      : ["How can I care for my soil?", "What should I check before sowing?", "How do I find local mandi rates?"];
+function Advisory({ t, language, messages, input, setInput, send }: PageProps & { language: Language; messages: ChatMessage[]; input: string; setInput: (value: string) => void; send: (message?: string) => void }) {
+  const copy = advisoryCopy[language];
+  const welcomeText = `${copy.introduction}\n\n${copy.safetyNote}`;
   return <>
     <PageHeading eyebrow={t("demoChat")} title={t("advisoryTitle")} description={t("advisorySub")} t={t} />
     <div className="chat-layout">
-      <section className="chat-window panel"><div className="chat-top"><div className="chat-avatar">✳</div><div><strong>KrishiMitra</strong><small><i /> {promptLanguage === "kn" ? "ಡೆಮೋ ಸಹಾಯಕ · ಆಫ್‌ಲೈನ್" : promptLanguage === "hi" ? "डेमो सहायक · ऑफ़लाइन" : "Demo assistant · offline"}</small></div><span className="demo-badge"><i />{t("demo")}</span></div>
-        <div className="chat-messages"><div className="message mitra-message"><span className="message-avatar">✳</span><p>{t("chatWelcome")}</p></div>{messages.map((message, index) => <div className={`message ${message.from === "farmer" ? "farmer-message" : "mitra-message"}`} key={`${index}-${message.text}`}>{message.from === "mitra" && <span className="message-avatar">✳</span>}<p>{message.text}</p></div>)}</div>
-        <div className="chat-prompts"><span>{t("prompts")}</span><div>{prompts.map((prompt) => <button key={prompt} onClick={() => send(prompt)}>{prompt} <b>↗</b></button>)}</div></div>
+      <section className="chat-window panel"><div className="chat-top"><div className="chat-avatar">✳</div><div><strong>KrishiMitra</strong><small><i /> {language === "kn" ? "ಡೆಮೋ ಸಹಾಯಕ · ಆಫ್‌ಲೈನ್" : language === "hi" ? "डेमो सहायक · ऑफ़लाइन" : "Topic-based farm guide"}</small></div><span className="demo-badge"><i />{t("demo")}</span></div>
+        <div className="chat-messages">
+          <div className="message mitra-message"><span className="message-avatar">✳</span><div className="message-content"><p>{welcomeText}</p><SpeakButton t={t} textToSpeak={welcomeText} language={language} /></div></div>
+          {messages.map((message, index) => <div className={`message ${message.from === "farmer" ? "farmer-message" : "mitra-message"}`} key={`${index}-${message.text}`}>
+            {message.from === "mitra" && <span className="message-avatar">✳</span>}
+            <div className="message-content"><p>{message.text}</p>{message.from === "mitra" && <SpeakButton t={t} textToSpeak={message.text} language={message.language ?? language} />}</div>
+          </div>)}
+        </div>
+        <div className="chat-prompts"><span>{copy.promptsLabel}</span><div>{copy.prompts.map((prompt) => <button type="button" key={prompt} onClick={() => send(prompt)}>{prompt} <b>↗</b></button>)}</div></div>
         <form className="chat-compose" onSubmit={(event: FormEvent) => { event.preventDefault(); send(); }}><input value={input} onChange={(event) => setInput(event.target.value)} placeholder={t("chatPlaceholder")} aria-label={t("chatPlaceholder")} /><button type="submit" disabled={!input.trim()}>{t("send")} <span>↑</span></button></form>
       </section>
-      <aside className="chat-side panel"><span className="side-spark">✳</span><div className="eyebrow">{promptLanguage === "kn" ? "ನಮ್ಮಿಂದ ಒಂದು ಮಾತು" : promptLanguage === "hi" ? "हमारी ओर से एक बात" : "A NOTE FROM US"}</div><h2>{promptLanguage === "kn" ? "ಉತ್ತಮ ಸಲಹೆ ಸ್ಥಳೀಯವಾಗಿ ಬೆಳೆಯುತ್ತದೆ." : promptLanguage === "hi" ? "अच्छी सलाह स्थानीय अनुभव से मिलती है।" : "Good advice grows locally."}</h2><p>{t("reply")}</p><div className="chat-side-bottom"><span>☘</span>{promptLanguage === "kn" ? "ಸ್ಥಳೀಯ ತಜ್ಞರೇ ನಿಮ್ಮ ಉತ್ತಮ ಮಾರ್ಗದರ್ಶಕರು." : promptLanguage === "hi" ? "स्थानीय कृषि विशेषज्ञ आपके सबसे अच्छे मार्गदर्शक हैं।" : "Your local experts are your best guide."}</div></aside>
+      <aside className="chat-side panel"><span className="side-spark">✳</span><div className="eyebrow">{language === "kn" ? "ನಮ್ಮಿಂದ ಒಂದು ಮಾತು" : language === "hi" ? "हमारी ओर से एक बात" : "A NOTE FROM US"}</div><h2>{language === "kn" ? "ಉತ್ತಮ ಸಲಹೆ ಸ್ಥಳೀಯವಾಗಿ ಬೆಳೆಯುತ್ತದೆ." : language === "hi" ? "अच्छी सलाह स्थानीय अनुभव से मिलती है।" : "Good advice grows locally."}</h2><p>{t("reply")}</p><div className="chat-side-bottom"><span>☘</span>{language === "kn" ? "ಸ್ಥಳೀಯ ತಜ್ಞರೇ ನಿಮ್ಮ ಉತ್ತಮ ಮಾರ್ಗದರ್ಶಕರು." : language === "hi" ? "स्थानीय कृषि विशेषज्ञ आपके सबसे अच्छे मार्गदर्शक हैं।" : "Your local experts are your best guide."}</div></aside>
     </div>
   </>;
 }
