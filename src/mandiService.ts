@@ -75,6 +75,8 @@ const sampleCommodities = {
   Potato: { variety: "Local", basePrice: 1850, trend: [0.96, 0.98, 1.01, 1.04] },
   Coconut: { variety: "Mature", basePrice: 4200, trend: [1.02, 1, 0.99, 1.03] },
   Banana: { variety: "Local", basePrice: 1650, trend: [0.98, 1.01, 1.03, 1] },
+  "Tur Dal": { variety: "Tur", basePrice: 9200, trend: [0.96, 0.99, 1.02, 1.04] },
+  Arecanut: { variety: "Rashi", basePrice: 38000, trend: [1.03, 1, 0.98, 1.02] },
   Barley: { variety: "Local", basePrice: 2700, trend: [1.04, 1.02, 0.99, 1.01] },
   Apricot: { variety: "Dried", basePrice: 12500, trend: [0.97, 1, 1.02, 1.05] },
   Ginger: { variety: "Fresh", basePrice: 9800, trend: [0.93, 0.98, 1.03, 1.07] },
@@ -84,10 +86,16 @@ const sampleCommodities = {
 } as const;
 
 type SampleCommodityName = keyof typeof sampleCommodities;
+type SampleMarket = {
+  district: string;
+  market: string;
+  factor: number;
+  crops?: readonly SampleCommodityName[];
+};
 type SampleMarketGroup = {
   state: typeof INDIAN_STATES_AND_UTS[number];
   crops: readonly SampleCommodityName[];
-  markets: readonly { district: string; market: string; factor: number }[];
+  markets: readonly SampleMarket[];
 };
 
 const sampleMarketGroups: readonly SampleMarketGroup[] = [
@@ -151,12 +159,38 @@ const sampleMarketGroups: readonly SampleMarketGroup[] = [
     { district: "Ranchi", market: "Ranchi APMC", factor: 1.04 },
     { district: "Dhanbad", market: "Dhanbad APMC", factor: 1 },
   ] },
-  { state: "Karnataka", crops: ["Tomato", "Paddy", "Ragi", "Onion", "Maize", "Cotton", "Chilli"], markets: [
-    { district: "Bengaluru Urban", market: "Yeshwanthpur APMC", factor: 1.08 },
-    { district: "Mysuru", market: "Bandipalya APMC", factor: 1 },
-    { district: "Dharwad", market: "Hubballi APMC", factor: 0.97 },
-    { district: "Kolar", market: "Kolar APMC", factor: 1.05 },
-    { district: "Belagavi", market: "Belagavi APMC", factor: 0.98 },
+  { state: "Karnataka", crops: ["Ragi", "Paddy", "Maize", "Tomato", "Onion", "Cotton", "Chilli", "Tur Dal", "Arecanut"], markets: [
+    { district: "Bagalkote", market: "Bagalkote APMC", factor: 1.02, crops: ["Maize", "Onion", "Chilli", "Tur Dal"] },
+    { district: "Ballari", market: "Ballari APMC", factor: 1.04, crops: ["Paddy", "Maize", "Tomato", "Cotton", "Chilli"] },
+    { district: "Belagavi", market: "Belagavi APMC", factor: 0.98, crops: ["Maize", "Cotton", "Chilli", "Onion", "Tur Dal"] },
+    { district: "Bengaluru Rural", market: "Bengaluru Rural APMC", factor: 1.05, crops: ["Ragi", "Tomato", "Maize", "Onion"] },
+    { district: "Bengaluru Urban", market: "Yeshwanthpur APMC", factor: 1.08, crops: ["Tomato", "Onion", "Ragi"] },
+    { district: "Bidar", market: "Bidar APMC", factor: 1.01, crops: ["Tur Dal", "Maize", "Cotton", "Chilli"] },
+    { district: "Chamarajanagar", market: "Chamarajanagar APMC", factor: 0.99, crops: ["Ragi", "Maize", "Tomato", "Paddy"] },
+    { district: "Chikkaballapura", market: "Chikkaballapura APMC", factor: 1.03, crops: ["Ragi", "Tomato", "Maize", "Onion"] },
+    { district: "Chikkamagaluru", market: "Chikkamagaluru APMC", factor: 1.02, crops: ["Arecanut", "Paddy", "Maize", "Tomato"] },
+    { district: "Chitradurga", market: "Chitradurga APMC", factor: 0.97, crops: ["Maize", "Onion", "Ragi", "Chilli"] },
+    { district: "Dakshina Kannada", market: "Mangaluru APMC", factor: 1.06, crops: ["Arecanut", "Paddy", "Chilli", "Coconut"] },
+    { district: "Davanagere", market: "Davanagere APMC", factor: 1, crops: ["Maize", "Paddy", "Cotton", "Chilli"] },
+    { district: "Dharwad", market: "Hubballi APMC", factor: 0.97, crops: ["Maize", "Onion", "Cotton", "Chilli", "Ragi"] },
+    { district: "Gadag", market: "Gadag APMC", factor: 0.96, crops: ["Maize", "Onion", "Cotton", "Chilli"] },
+    { district: "Hassan", market: "Hassan APMC", factor: 1.01, crops: ["Arecanut", "Paddy", "Maize", "Tomato"] },
+    { district: "Haveri", market: "Haveri APMC", factor: 0.99, crops: ["Maize", "Cotton", "Chilli", "Onion"] },
+    { district: "Kalaburagi", market: "Kalaburagi APMC", factor: 1.03, crops: ["Tur Dal", "Maize", "Cotton", "Chilli"] },
+    { district: "Kodagu", market: "Madikeri APMC", factor: 1.07, crops: ["Arecanut", "Paddy", "Ginger", "Tomato"] },
+    { district: "Kolar", market: "Kolar APMC", factor: 1.05, crops: ["Tomato", "Ragi", "Maize", "Onion"] },
+    { district: "Koppal", market: "Koppal APMC", factor: 0.98, crops: ["Paddy", "Maize", "Cotton", "Chilli"] },
+    { district: "Mandya", market: "Mandya APMC", factor: 1.02, crops: ["Paddy", "Ragi", "Tomato", "Maize", "Chilli"] },
+    { district: "Mysuru", market: "Bandipalya APMC", factor: 1, crops: ["Ragi", "Paddy", "Tomato", "Maize", "Chilli"] },
+    { district: "Raichur", market: "Raichur APMC", factor: 1.01, crops: ["Paddy", "Maize", "Cotton", "Chilli"] },
+    { district: "Ramanagara", market: "Ramanagara APMC", factor: 1.02, crops: ["Ragi", "Tomato", "Maize", "Arecanut"] },
+    { district: "Shivamogga", market: "Shivamogga APMC", factor: 1.04, crops: ["Arecanut", "Paddy", "Maize", "Chilli"] },
+    { district: "Tumakuru", market: "Tumakuru APMC", factor: 1.01, crops: ["Ragi", "Maize", "Tomato", "Onion"] },
+    { district: "Udupi", market: "Udupi APMC", factor: 1.05, crops: ["Arecanut", "Paddy", "Coconut", "Chilli"] },
+    { district: "Uttara Kannada", market: "Sirsi APMC", factor: 1.03, crops: ["Arecanut", "Paddy", "Maize", "Chilli", "Coconut"] },
+    { district: "Vijayanagara", market: "Hosapete APMC", factor: 1, crops: ["Maize", "Cotton", "Chilli", "Paddy"] },
+    { district: "Vijayapura", market: "Vijayapura APMC", factor: 1.02, crops: ["Maize", "Onion", "Tur Dal", "Cotton"] },
+    { district: "Yadgir", market: "Yadgir APMC", factor: 0.98, crops: ["Tur Dal", "Maize", "Cotton", "Chilli"] },
   ] },
   { state: "Kerala", crops: ["Paddy", "Tomato", "Coconut", "Banana", "Ginger", "Chilli"], markets: [
     { district: "Ernakulam", market: "Aluva Market", factor: 1.05 },
@@ -245,7 +279,7 @@ const sampleMarketGroups: readonly SampleMarketGroup[] = [
 export function createSampleMandiRecords(referenceDate = new Date()): MandiRecord[] {
   const today = Date.UTC(referenceDate.getUTCFullYear(), referenceDate.getUTCMonth(), referenceDate.getUTCDate());
   return sampleMarketGroups.flatMap((group) => group.markets.flatMap((market) =>
-    group.crops.flatMap((commodity) => {
+    (market.crops ?? group.crops).flatMap((commodity) => {
       const crop = sampleCommodities[commodity];
       return crop.trend.map((dailyFactor, dayIndex) => {
         const arrivalDate = new Date(today + (dayIndex - 3) * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
