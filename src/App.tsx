@@ -9,6 +9,7 @@ import {
 import {
   createSampleMandiRecords,
   fetchMandiRecords,
+  INDIAN_STATES_AND_UTS,
   type MandiRecord,
 } from "./mandiService";
 import GovtSchemesFinder from "./GovtSchemesFinder";
@@ -1876,7 +1877,7 @@ function Mandi({ t, isOnline, onSnapshot }: PageProps & { isOnline: boolean; onS
   const [dataSource, setDataSource] = useState<MandiDataSource>(cachedPrices ? "cached" : "live");
   const [records, setRecords] = useState<MandiRecord[]>(cachedPrices?.records ?? []);
   const [catalogRecords, setCatalogRecords] = useState<MandiRecord[]>(cachedPrices?.records ?? []);
-  const [stateOptions, setStateOptions] = useState<string[]>(uniqueSorted((cachedPrices?.records ?? []).map((record) => record.state)));
+  const [stateOptions, setStateOptions] = useState<string[]>([...INDIAN_STATES_AND_UTS]);
   const [selectedState, setSelectedState] = useState(() => preferredMandiState(cachedPrices?.records ?? []));
   const [selectedDistrict, setSelectedDistrict] = useState("");
   const [selectedMarket, setSelectedMarket] = useState("");
@@ -1905,7 +1906,7 @@ function Mandi({ t, isOnline, onSnapshot }: PageProps & { isOnline: boolean; onS
       }
       setRecords(fallbackRecords);
       setCatalogRecords(fallbackRecords);
-      setStateOptions(uniqueSorted(fallbackRecords.map((record) => record.state)));
+      setStateOptions([...INDIAN_STATES_AND_UTS]);
       setSelectedState((current) => current || preferredMandiState(fallbackRecords));
       setTotal(fallbackRecords.length);
       setDataSource(cachedRecords.length ? "sample-cached" : "sample");
@@ -1922,10 +1923,24 @@ function Mandi({ t, isOnline, onSnapshot }: PageProps & { isOnline: boolean; onS
       try {
         const response = await fetchMandiRecords({}, controller.signal);
         if (controller.signal.aborted) return;
+        if (!response.records.length) {
+          const cached = readCachedMandiPrices() ?? cachedPrices;
+          const cachedRecords = cached?.records ?? [];
+          const fallbackRecords = mergeSampleMandiRecords(cachedRecords);
+          setRecords(fallbackRecords);
+          setCatalogRecords(fallbackRecords);
+          setStateOptions([...INDIAN_STATES_AND_UTS]);
+          setTotal(fallbackRecords.length);
+          setFetchedAt(cached?.timestamp ?? new Date().toISOString());
+          setDataSource(cachedRecords.length ? "sample-cached" : "sample");
+          setSelectedState(preferredMandiState(fallbackRecords));
+          setError("");
+          return;
+        }
         const cached = cacheMandiPrices(response.records);
         setRecords(cached.records);
         setCatalogRecords(cached.records);
-        setStateOptions(uniqueSorted(cached.records.map((record) => record.state)));
+        setStateOptions([...INDIAN_STATES_AND_UTS]);
         setTotal(response.total);
         setFetchedAt(cached.timestamp);
         setDataSource("live");
@@ -1938,7 +1953,7 @@ function Mandi({ t, isOnline, onSnapshot }: PageProps & { isOnline: boolean; onS
         const fallbackRecords = mergeSampleMandiRecords(cachedRecords);
         setRecords(fallbackRecords);
         setCatalogRecords(fallbackRecords);
-        setStateOptions(uniqueSorted(fallbackRecords.map((record) => record.state)));
+        setStateOptions([...INDIAN_STATES_AND_UTS]);
         setTotal(fallbackRecords.length);
         setFetchedAt(cached?.timestamp ?? new Date().toISOString());
         setDataSource(cachedRecords.length ? "sample-cached" : "sample");
@@ -1972,6 +1987,7 @@ function Mandi({ t, isOnline, onSnapshot }: PageProps & { isOnline: boolean; onS
       const offlineRecords = filterCachedMandiRecords(fallbackRecords, selectedState, selectedDistrict, selectedMarket, selectedCommodity);
       const fallbackTimestamp = (cached?.timestamp ?? fetchedAt) || new Date().toISOString();
       setRecords(offlineRecords);
+      setStateOptions([...INDIAN_STATES_AND_UTS]);
       setTotal(offlineRecords.length);
       setFetchedAt(fallbackTimestamp);
       setDataSource(fallbackSource);
@@ -1993,6 +2009,25 @@ function Mandi({ t, isOnline, onSnapshot }: PageProps & { isOnline: boolean; onS
           commodity: selectedCommodity || undefined,
         }, controller.signal);
         if (controller.signal.aborted) return;
+        if (!response.records.length) {
+          const cached = readCachedMandiPrices() ?? cachedPrices;
+          const cachedRecords = cached?.records.length
+            ? cached.records
+            : catalogRecords.length && dataSource !== "sample" ? catalogRecords : [];
+          const fallbackRecords = mergeSampleMandiRecords(cachedRecords);
+          const fallbackSource: MandiDataSource = cachedRecords.length ? "sample-cached" : "sample";
+          const offlineRecords = filterCachedMandiRecords(fallbackRecords, selectedState, selectedDistrict, selectedMarket, selectedCommodity);
+          const fallbackTimestamp = (cached?.timestamp ?? fetchedAt) || new Date().toISOString();
+          setRecords(offlineRecords);
+          setCatalogRecords(fallbackRecords);
+          setStateOptions([...INDIAN_STATES_AND_UTS]);
+          setTotal(offlineRecords.length);
+          setFetchedAt(fallbackTimestamp);
+          setDataSource(fallbackSource);
+          setError("");
+          if (selectedCommodity) onSnapshot({ commodity: selectedCommodity, records: offlineRecords, fetchedAt: fallbackTimestamp, dataSource: fallbackSource });
+          return;
+        }
         setRecords(response.records);
         setTotal(response.total);
         const cached = cacheMandiPrices(response.records);
@@ -2012,6 +2047,7 @@ function Mandi({ t, isOnline, onSnapshot }: PageProps & { isOnline: boolean; onS
         const offlineRecords = filterCachedMandiRecords(fallbackRecords, selectedState, selectedDistrict, selectedMarket, selectedCommodity);
         const fallbackTimestamp = (cached?.timestamp ?? fetchedAt) || new Date().toISOString();
         setRecords(offlineRecords);
+        setStateOptions([...INDIAN_STATES_AND_UTS]);
         setTotal(offlineRecords.length);
         setFetchedAt(fallbackTimestamp);
         setDataSource(fallbackSource);
