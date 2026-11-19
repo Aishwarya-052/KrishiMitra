@@ -7,6 +7,7 @@ import {
   type WeatherLocation,
 } from "./weatherService";
 import {
+  createSampleMandiRecords,
   fetchMandiRecords,
   MandiServiceError,
   type MandiRecord,
@@ -36,7 +37,8 @@ type ProfitInputs = {
   transportExpense: string;
   otherExpense: string;
 };
-type MandiSnapshot = { commodity: string; records: MandiRecord[]; fetchedAt: string };
+type MandiDataSource = "live" | "cached" | "sample";
+type MandiSnapshot = { commodity: string; records: MandiRecord[]; fetchedAt: string; dataSource: MandiDataSource };
 type ChatMessage = { from: "farmer" | "mitra"; text: string };
 type CachedWeather = { locationId: string; forecast: WeatherForecast; timestamp: string };
 type CachedMandiPrices = { records: MandiRecord[]; timestamp: string };
@@ -112,7 +114,10 @@ const text = {
     noMarketData: "No market records are available for this selection.",
     noDataForFilters: "No records match these filters. Try another crop, district or market.",
     chooseCropForCompare: "Search and select a crop to compare prices across markets.",
-    marketApiSource: "Government of India · AGMARKNET", lastUpdatedMandi: "Last updated",
+    marketApiSource: "Government of India · AGMARKNET", sampleCachedMandiData: "Sample / Cached AGMARKNET Data",
+    sampleDataSource: "Illustrative built-in dataset · not live or government-reported",
+    cachedPriceExplanation: "Previously fetched AGMARKNET records are being shown from this device's cache. They may not reflect current prices.",
+    lastUpdatedMandi: "Last updated",
     dataRows: "Records returned", mandiErrorTitle: "Could not load market data",
     missingMandiKey: "Add your data.gov.in API key to the server's .env file, then restart it.",
     rejectedMandiKey: "data.gov.in rejected this API key. Check that it is active and allowed for this resource.",
@@ -360,7 +365,10 @@ const text = {
     noMarketData: "ಈ ಆಯ್ಕೆಗೆ ಮಾರುಕಟ್ಟೆ ದಾಖಲೆಗಳಿಲ್ಲ.",
     noDataForFilters: "ಈ ಫಿಲ್ಟರ್‌ಗಳಿಗೆ ದಾಖಲೆಗಳಿಲ್ಲ. ಬೇರೆ ಬೆಳೆ, ಜಿಲ್ಲೆ ಅಥವಾ ಮಾರುಕಟ್ಟೆ ಆಯ್ಕೆಮಾಡಿ.",
     chooseCropForCompare: "ಮಾರುಕಟ್ಟೆಗಳ ದರ ಹೋಲಿಸಲು ಬೆಳೆ ಹುಡುಕಿ ಆಯ್ಕೆಮಾಡಿ.",
-    marketApiSource: "ಭಾರತ ಸರ್ಕಾರ · ಅಗ್ಮಾರ್ಕ್‌ನೆಟ್", lastUpdatedMandi: "ಕೊನೆಯ ನವೀಕರಣ",
+    marketApiSource: "ಭಾರತ ಸರ್ಕಾರ · ಅಗ್ಮಾರ್ಕ್‌ನೆಟ್", sampleCachedMandiData: "ಮಾದರಿ / ಸಂಗ್ರಹಿತ AGMARKNET ಮಾಹಿತಿ",
+    sampleDataSource: "ಉದಾಹರಣೆಯಾಗಿ ಸೇರಿಸಿದ ಮಾಹಿತಿ · ನೈಜ ಅಥವಾ ಸರ್ಕಾರಿ ವರದಿಯಲ್ಲ",
+    cachedPriceExplanation: "ಈ ಸಾಧನದಲ್ಲಿ ಉಳಿಸಿದ ಹಿಂದಿನ AGMARKNET ದಾಖಲೆಗಳನ್ನು ತೋರಿಸಲಾಗುತ್ತಿದೆ. ಅವು ಪ್ರಸ್ತುತ ದರಗಳಾಗಿರಬೇಕೆಂದಿಲ್ಲ.",
+    lastUpdatedMandi: "ಕೊನೆಯ ನವೀಕರಣ",
     dataRows: "ಪಡೆದ ದಾಖಲೆಗಳು", mandiErrorTitle: "ಮಾರುಕಟ್ಟೆ ಮಾಹಿತಿ ಲೋಡ್ ಆಗಲಿಲ್ಲ",
     missingMandiKey: "ಸರ್ವರ್‌ನ .env ಕಡತಕ್ಕೆ data.gov.in API ಕೀ ಸೇರಿಸಿ, ನಂತರ ಸರ್ವರ್ ಮರುಪ್ರಾರಂಭಿಸಿ.",
     rejectedMandiKey: "data.gov.in ಈ API ಕೀಯನ್ನು ತಿರಸ್ಕರಿಸಿದೆ. ಅದು ಸಕ್ರಿಯವಾಗಿದೆಯೇ ಮತ್ತು ಈ ಮಾಹಿತಿಗೆ ಅನುಮತಿದೆಯೇ ಪರಿಶೀಲಿಸಿ.",
@@ -775,6 +783,9 @@ const hindiText: Partial<Record<keyof typeof text.en, string>> = {
   storageOpenShed: "खुला शेड", storageGunnyBags: "जूट के बोरे", storageColdStorage: "शीत भंडारण",
   noFarmSoil: "किसान प्रोफ़ाइल में मिट्टी का प्रकार सहेजा नहीं गया है।",
   profileSoilNote: "सहेजी गई किसान प्रोफ़ाइल का मिट्टी प्रकार; प्रयोगशाला जाँच नहीं।",
+  sampleCachedMandiData: "नमूना / कैश किया गया AGMARKNET डेटा",
+  sampleDataSource: "उदाहरण के लिए जोड़ा गया डेटा · लाइव या सरकारी रिपोर्ट नहीं",
+  cachedPriceExplanation: "इस डिवाइस के कैश में सहेजे गए पुराने AGMARKNET रिकॉर्ड दिखाए जा रहे हैं। ये मौजूदा भाव नहीं भी हो सकते हैं।",
   farmCostsTitle: "खेती के खर्च का सार", totalInvestment: "कुल निवेश", largestExpense: "सबसे बड़ा खर्च",
   latestMandiAverage: "मंडी भाव का नवीनतम औसत", currentReportedPrice: "नवीनतम रिपोर्ट किया गया औसत",
   previousReportedPrice: "पिछला रिपोर्ट किया गया औसत", priceChange: "पिछली रिपोर्ट से बदलाव",
@@ -1849,6 +1860,7 @@ function filterCachedMandiRecords(records: MandiRecord[], state: string, distric
 
 function Mandi({ t, isOnline, onSnapshot }: PageProps & { isOnline: boolean; onSnapshot: (snapshot: MandiSnapshot | null) => void }) {
   const [cachedPrices] = useState(readCachedMandiPrices);
+  const [dataSource, setDataSource] = useState<MandiDataSource>(cachedPrices ? "cached" : "live");
   const [records, setRecords] = useState<MandiRecord[]>(cachedPrices?.records ?? []);
   const [catalogRecords, setCatalogRecords] = useState<MandiRecord[]>(cachedPrices?.records ?? []);
   const [stateOptions, setStateOptions] = useState<string[]>(uniqueSorted((cachedPrices?.records ?? []).map((record) => record.state)));
@@ -1871,17 +1883,19 @@ function Mandi({ t, isOnline, onSnapshot }: PageProps & { isOnline: boolean; onS
   useEffect(() => {
     if (!isOnline) {
       const cached = readCachedMandiPrices() ?? cachedPrices;
+      const fallbackRecords = cached?.records ?? createSampleMandiRecords();
       if (cached) {
-        setRecords(cached.records);
-        setCatalogRecords(cached.records);
-        setStateOptions(uniqueSorted(cached.records.map((record) => record.state)));
-        setSelectedState((current) => current || preferredMandiState(cached.records));
-        setTotal(cached.records.length);
         setFetchedAt(cached.timestamp);
-        setError("");
       } else {
-        setError("network_error");
+        setFetchedAt(new Date().toISOString());
       }
+      setRecords(fallbackRecords);
+      setCatalogRecords(fallbackRecords);
+      setStateOptions(uniqueSorted(fallbackRecords.map((record) => record.state)));
+      setSelectedState((current) => current || preferredMandiState(fallbackRecords));
+      setTotal(fallbackRecords.length);
+      setDataSource(cached ? "cached" : "sample");
+      setError("");
       setLoading(false);
       setLoaded(true);
       return;
@@ -1900,22 +1914,21 @@ function Mandi({ t, isOnline, onSnapshot }: PageProps & { isOnline: boolean; onS
         setStateOptions(uniqueSorted(cached.records.map((record) => record.state)));
         setTotal(response.total);
         setFetchedAt(cached.timestamp);
+        setDataSource("live");
         setSelectedState(preferredMandiState(cached.records));
       } catch (caught) {
         if (controller.signal.aborted) return;
-        console.error("Could not load AGMARKNET market options.", caught);
+        console.warn("Could not load AGMARKNET market options; using cached or sample data.", caught);
         const cached = readCachedMandiPrices() ?? cachedPrices;
-        if (cached) {
-          setRecords(cached.records);
-          setCatalogRecords(cached.records);
-          setStateOptions(uniqueSorted(cached.records.map((record) => record.state)));
-          setTotal(cached.records.length);
-          setFetchedAt(cached.timestamp);
-          setSelectedState(preferredMandiState(cached.records));
-          setError("");
-        } else {
-          setError(caught instanceof MandiServiceError ? caught.code : "invalid_response");
-        }
+        const fallbackRecords = cached?.records ?? createSampleMandiRecords();
+        setRecords(fallbackRecords);
+        setCatalogRecords(fallbackRecords);
+        setStateOptions(uniqueSorted(fallbackRecords.map((record) => record.state)));
+        setTotal(fallbackRecords.length);
+        setFetchedAt(cached?.timestamp ?? new Date().toISOString());
+        setDataSource(cached ? "cached" : "sample");
+        setSelectedState(preferredMandiState(fallbackRecords));
+        setError("");
       } finally {
         if (!controller.signal.aborted) {
           setLoading(false);
@@ -1936,12 +1949,16 @@ function Mandi({ t, isOnline, onSnapshot }: PageProps & { isOnline: boolean; onS
     onSnapshot(null);
     if (!isOnline) {
       const cached = readCachedMandiPrices() ?? cachedPrices;
-      const offlineRecords = filterCachedMandiRecords(cached?.records ?? catalogRecords, selectedState, selectedDistrict, selectedMarket, selectedCommodity);
+      const fallbackRecords = cached?.records ?? (catalogRecords.length ? catalogRecords : createSampleMandiRecords());
+      const fallbackSource: MandiDataSource = cached ? "cached" : catalogRecords.length && dataSource !== "sample" ? "cached" : "sample";
+      const offlineRecords = filterCachedMandiRecords(fallbackRecords, selectedState, selectedDistrict, selectedMarket, selectedCommodity);
+      const fallbackTimestamp = (cached?.timestamp ?? fetchedAt) || new Date().toISOString();
       setRecords(offlineRecords);
       setTotal(offlineRecords.length);
-      setFetchedAt(cached?.timestamp ?? fetchedAt);
-      setError(cached || catalogRecords.length ? "" : "network_error");
-      if (selectedCommodity) onSnapshot({ commodity: selectedCommodity, records: offlineRecords, fetchedAt: cached?.timestamp ?? fetchedAt });
+      setFetchedAt(fallbackTimestamp);
+      setDataSource(fallbackSource);
+      setError("");
+      if (selectedCommodity) onSnapshot({ commodity: selectedCommodity, records: offlineRecords, fetchedAt: fallbackTimestamp, dataSource: fallbackSource });
       setLoading(false);
       return;
     }
@@ -1963,21 +1980,22 @@ function Mandi({ t, isOnline, onSnapshot }: PageProps & { isOnline: boolean; onS
         const cached = cacheMandiPrices(response.records);
         setFetchedAt(cached.timestamp);
         setCatalogRecords(cached.records);
-        if (selectedCommodity) onSnapshot({ commodity: selectedCommodity, records: response.records, fetchedAt: response.fetchedAt });
+        setDataSource("live");
+        if (selectedCommodity) onSnapshot({ commodity: selectedCommodity, records: response.records, fetchedAt: response.fetchedAt, dataSource: "live" });
       } catch (caught) {
         if (controller.signal.aborted) return;
-        console.error("Could not load filtered AGMARKNET prices.", caught);
+        console.warn("Could not load filtered AGMARKNET prices; using cached or sample data.", caught);
         const cached = readCachedMandiPrices() ?? cachedPrices;
-        if (cached) {
-          const offlineRecords = filterCachedMandiRecords(cached.records, selectedState, selectedDistrict, selectedMarket, selectedCommodity);
-          setRecords(offlineRecords);
-          setTotal(offlineRecords.length);
-          setFetchedAt(cached.timestamp);
-          setError("");
-          if (selectedCommodity) onSnapshot({ commodity: selectedCommodity, records: offlineRecords, fetchedAt: cached.timestamp });
-        } else {
-          setError(caught instanceof MandiServiceError ? caught.code : "invalid_response");
-        }
+        const fallbackRecords = cached?.records ?? (catalogRecords.length ? catalogRecords : createSampleMandiRecords());
+        const fallbackSource: MandiDataSource = cached ? "cached" : catalogRecords.length && dataSource !== "sample" ? "cached" : "sample";
+        const offlineRecords = filterCachedMandiRecords(fallbackRecords, selectedState, selectedDistrict, selectedMarket, selectedCommodity);
+        const fallbackTimestamp = (cached?.timestamp ?? fetchedAt) || new Date().toISOString();
+        setRecords(offlineRecords);
+        setTotal(offlineRecords.length);
+        setFetchedAt(fallbackTimestamp);
+        setDataSource(fallbackSource);
+        setError("");
+        if (selectedCommodity) onSnapshot({ commodity: selectedCommodity, records: offlineRecords, fetchedAt: fallbackTimestamp, dataSource: fallbackSource });
       } finally {
         if (!controller.signal.aborted) setLoading(false);
       }
@@ -2078,13 +2096,18 @@ function Mandi({ t, isOnline, onSnapshot }: PageProps & { isOnline: boolean; onS
       </div>
       <div className="mandi-filter-foot"><span>ⓘ &nbsp;{t("searchStateHelp")}</span><button className="button button-outline" onClick={() => setRefreshCount((count) => count + 1)} disabled={loading}>{loading ? <><span className="spinner" />{t("refreshingPrices")}</> : <>↻ &nbsp;{t("refreshPrices")}</>}</button></div>
     </section>
-    <div className="mandi-source-line"><span>◉ &nbsp;{t("marketApiSource")}</span>{updatedLabel && <span>{t("lastUpdatedMandi")}: {updatedLabel}</span>}{total > 0 && <span>{total.toLocaleString()} {t("selectedRows")}</span>}</div>
+    <div className="mandi-source-line">
+      <span>◉ &nbsp;{dataSource === "sample" ? t("sampleDataSource") : t("marketApiSource")}</span>
+      {dataSource !== "live" && <span className="demo-badge mandi-fallback-badge"><i />{t("sampleCachedMandiData")}</span>}
+      {updatedLabel && <span>{t("lastUpdatedMandi")}: {updatedLabel}</span>}
+      {total > 0 && <span>{total.toLocaleString()} {t("selectedRows")}</span>}
+    </div>
     {error && <div className="mandi-error" role="alert"><strong>{t("mandiErrorTitle")}</strong><p>{mandiErrorMessage(error, t)}</p>{error === "missing_credentials" && <code>DATA_GOV_IN_API_KEY</code>}</div>}
     {!loading && !error && <SellWaitAdvisor t={t} records={records} commodity={selectedCommodity} />}
     {loading && <div className="mandi-loading panel" role="status"><span className="spinner" />{t("loadingMarkets")}</div>}
     {!loading && !error && !records.length && <div className="mandi-empty panel"><span>⌕</span><h2>{loaded ? t("noDataForFilters") : t("noMarketData")}</h2></div>}
     {!loading && !error && records.length > 0 && <>
-      <section className="panel table-panel mandi-table-panel"><div className="table-heading"><div><h2>{selectedCommodity || t("mandiTitle")}</h2><p>{records.length} {t("selectedRows")}</p></div><span className="source-badge demo-badge">AGMARKNET</span></div>
+      <section className="panel table-panel mandi-table-panel"><div className="table-heading"><div><h2>{selectedCommodity || t("mandiTitle")}</h2><p>{records.length} {t("selectedRows")}</p></div><span className={`demo-badge ${dataSource === "live" ? "source-badge" : ""}`}><i />{dataSource === "live" ? "AGMARKNET" : t("sampleCachedMandiData")}</span></div>
         <div className="table-scroll"><table><thead><tr><th>{t("commodity")}</th><th>{t("market")}</th><th>{t("districtLabel")}</th><th>{t("variety")}</th><th>{t("arrivalDate")}</th><th>{t("minPrice")}</th><th>{t("maxPrice")}</th><th>{t("modalPrice")}</th></tr></thead><tbody>{sortedRecords.slice(0, 250).map((record, index) => <tr key={`${record.arrivalDate}-${record.market}-${record.commodity}-${record.variety}-${index}`}><td>{record.commodity}</td><td>{record.market}</td><td>{record.district}</td><td>{record.variety || t("noVariety")}</td><td>{formatMandiDate(record.arrivalDate, languageOf(t))}</td><td>{formatPrice(record.minPrice)}</td><td>{formatPrice(record.maxPrice)}</td><td className="price-cell">{formatPrice(record.modalPrice)}</td></tr>)}</tbody></table></div>
         <div className="table-footnote"><span>ⓘ</span>{t("sourceUnitNote")}</div>
       </section>
@@ -3042,8 +3065,10 @@ function SmartFarm({ t, language, profile, location, forecast, profitInputs, onP
   const realPriceHistory = isMatchingMarketSnapshot && mandiSnapshot
     ? dailyModalPrices(mandiSnapshot.records, mandiSnapshot.commodity)
     : [];
-  const isDemoMarket = realPriceHistory.length === 0;
-  const priceHistory = isDemoMarket && selectedCrop ? demoFarmPriceHistory : realPriceHistory;
+  const isSampleMarket = isMatchingMarketSnapshot && mandiSnapshot?.dataSource === "sample";
+  const isCachedMarket = isMatchingMarketSnapshot && mandiSnapshot?.dataSource === "cached";
+  const isDemoMarket = isSampleMarket || realPriceHistory.length === 0;
+  const priceHistory = realPriceHistory.length ? realPriceHistory : selectedCrop ? demoFarmPriceHistory : [];
   const marketAnalysis = analyzeFarmPrices(priceHistory);
   const priceChangeLabel = marketAnalysis.percentageChange === null
     ? t("noPrice")
@@ -3127,6 +3152,7 @@ function SmartFarm({ t, language, profile, location, forecast, profitInputs, onP
   }) : "";
   const marketRecommendationReason = !selectedCrop ? t("selectCropForSmartFarm")
     : isDemoMarket ? t("samplePriceExplanation")
+      : isCachedMarket ? t("cachedPriceExplanation")
       : marketAnalysis.reason === "marketInsufficientReason" ? t("marketInsufficientReason")
         : t("reportedPriceMethod");
 
@@ -3162,7 +3188,7 @@ function SmartFarm({ t, language, profile, location, forecast, profitInputs, onP
 
       <section className="panel smart-farm-market">
         <div className="smart-farm-panel-heading"><div><div className="eyebrow">{t("marketCard")}</div><h2>{t("latestMandiAverage")}</h2></div>
-          <span className={`demo-badge ${isDemoMarket ? "" : "source-badge"}`}><i />{isDemoMarket ? t("demoPriceLabel") : "AGMARKNET"}</span>
+          <span className={`demo-badge ${isDemoMarket ? "" : "source-badge"}`}><i />{isDemoMarket ? t("demoPriceLabel") : isCachedMarket ? `${t("cachedData")} · AGMARKNET` : "AGMARKNET"}</span>
         </div>
         {!selectedCrop
           ? <p className="smart-farm-empty">{t("selectCropForSmartFarm")}</p>

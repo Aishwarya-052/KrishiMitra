@@ -25,6 +25,45 @@ export type MandiFilters = {
   commodity?: string;
 };
 
+const sampleMarkets = [
+  { state: "Karnataka", district: "Bengaluru Urban", market: "Yeshwanthpur APMC", factor: 1.08 },
+  { state: "Karnataka", district: "Mysuru", market: "Bandipalya APMC", factor: 1 },
+  { state: "Karnataka", district: "Dharwad", market: "Hubballi APMC", factor: 0.97 },
+  { state: "Karnataka", district: "Kolar", market: "Kolar APMC", factor: 1.05 },
+  { state: "Karnataka", district: "Belagavi", market: "Belagavi APMC", factor: 0.98 },
+];
+
+const sampleCommodities = [
+  { commodity: "Tomato", variety: "Local", basePrice: 2400, trend: [0.92, 0.96, 1, 1.04] },
+  { commodity: "Paddy", variety: "Common", basePrice: 2350, trend: [1.01, 0.99, 1.02, 1] },
+  { commodity: "Ragi", variety: "Local", basePrice: 3850, trend: [1.06, 1.02, 1, 0.97] },
+  { commodity: "Onion", variety: "Red", basePrice: 2200, trend: [0.94, 0.98, 1.03, 1.07] },
+  { commodity: "Maize", variety: "Hybrid", basePrice: 2150, trend: [1.03, 1.01, 0.99, 0.97] },
+  { commodity: "Cotton", variety: "Medium Staple", basePrice: 6900, trend: [0.96, 0.99, 1.03, 1.05] },
+  { commodity: "Chilli", variety: "Dry", basePrice: 9200, trend: [1.02, 1.01, 0.99, 0.98] },
+];
+
+export function createSampleMandiRecords(referenceDate = new Date()): MandiRecord[] {
+  const today = Date.UTC(referenceDate.getUTCFullYear(), referenceDate.getUTCMonth(), referenceDate.getUTCDate());
+  return sampleMarkets.flatMap((market) => sampleCommodities.flatMap((crop) =>
+    crop.trend.map((dailyFactor, dayIndex) => {
+      const arrivalDate = new Date(today + (dayIndex - 3) * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
+      const modalPrice = Math.round(crop.basePrice * market.factor * dailyFactor);
+      return {
+        state: market.state,
+        district: market.district,
+        market: market.market,
+        commodity: crop.commodity,
+        variety: crop.variety,
+        arrivalDate,
+        minPrice: Math.round(modalPrice * 0.94),
+        maxPrice: Math.round(modalPrice * 1.06),
+        modalPrice,
+      };
+    }),
+  ));
+}
+
 export class MandiServiceError extends Error {
   constructor(readonly code: string) {
     super(code);

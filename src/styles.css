@@ -339,6 +339,7 @@ td:first-child { color: #455b49; font-weight: 600; }
 .mandi-filter-foot .spinner { width: 11px; height: 11px; margin-right: 5px; vertical-align: -2px; }
 .mandi-source-line { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 7px 14px; margin: 0 1px 12px; color: #869388; font-size: 8px; }
 .mandi-source-line > span:first-child { color: #5d795c; font-weight: 700; }
+.mandi-fallback-badge { padding: 5px 8px; font-size: 7px; letter-spacing: .25px; }
 .mandi-error { padding: 12px 14px; margin-bottom: 12px; border: 1px solid #f0d7cb; border-radius: 9px; color: #925a43; background: #fff7f2; font-size: 9px; }
 .mandi-error > strong { display: block; font-size: 10px; }
 .mandi-error > p { margin: 5px 0 0; line-height: 1.5; }
@@ -352,6 +353,7 @@ td:first-child { color: #455b49; font-weight: 600; }
 .mandi-table-panel table { min-width: 930px; }
 .mandi-table-panel td { font-size: 9px; }
 .mandi-table-panel .source-badge { font-size: 7px; letter-spacing: .3px; }
+.mandi-table-panel .demo-badge { max-width: 230px; white-space: normal; text-align: center; line-height: 1.35; }
 .mandi-comparison, .mandi-history { padding: 17px; margin-bottom: 14px; }
 .mandi-section-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 .mandi-section-heading .eyebrow { margin-bottom: 5px; }
