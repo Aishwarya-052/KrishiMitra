@@ -46,6 +46,7 @@ const WEATHER_LOCATION_KEY = "krishimitra-weather-location";
 const WEATHER_CACHE_KEY = "krishimitra-weather-cache";
 const MANDI_CACHE_KEY = "krishimitra-mandi-cache";
 const CROP_DOCTOR_CACHE_KEY = "krishimitra-crop-doctor-cache";
+const FARM_EXPENSE_LEDGER_KEY = "krishimitra-farm-expense-ledger";
 const initialProfitInputs: ProfitInputs = {
   crop: "",
   area: "",
@@ -864,6 +865,9 @@ function App() {
   const [weatherRefresh, setWeatherRefresh] = useState(0);
   const [profitInputs, setProfitInputs] = useState<ProfitInputs>(initialProfitInputs);
   const [mandiSnapshot, setMandiSnapshot] = useState<MandiSnapshot | null>(null);
+  const [bioInputRecipe, setBioInputRecipe] = useState<BioRecipeId>("jeevamrutha");
+  const [bioInputArea, setBioInputArea] = useState(profile?.land ?? "");
+  const [bioInputSeedBatch, setBioInputSeedBatch] = useState("");
   const t = (key: keyof typeof text.en) => language === "hi"
     ? hindiText[key] ?? text.en[key]
     : text[language][key];
@@ -973,6 +977,7 @@ function App() {
     }
     try {
       localStorage.setItem(PROFILE_KEY, JSON.stringify(next));
+      setBioInputArea((currentArea) => currentArea === (profile?.land ?? "") ? next.land : currentArea);
       setProfile(next);
       setNotice(t("saved"));
       return true;
@@ -987,6 +992,7 @@ function App() {
     if (!window.confirm(t("clearConfirm"))) return;
     try {
       localStorage.removeItem(PROFILE_KEY);
+      setBioInputArea((currentArea) => currentArea === (profile?.land ?? "") ? "" : currentArea);
       setProfile(null);
       setNotice(t("profileCleared"));
     } catch (error) {
@@ -1055,9 +1061,9 @@ function App() {
           {screen === "weather" && <Weather t={t} language={language} location={weatherLocation} forecast={weatherForecast} loading={weatherLoading} error={weatherError} updatedAt={weatherUpdatedAt} isCached={weatherCacheUsed} onSelectLocation={chooseWeatherLocation} onClearLocation={clearWeatherLocation} onRefresh={() => setWeatherRefresh((count) => count + 1)} />}
           {screen === "mandi" && <Mandi t={t} isOnline={isOnline} onSnapshot={setMandiSnapshot} />}
           {screen === "profit" && <ProfitCalculator t={t} language={language} form={profitInputs} onChange={updateProfitInput} profileVillage={profile?.village ?? ""} />}
-          {screen === "smartFarm" && <SmartFarm t={t} language={language} profile={profile} location={weatherLocation} forecast={weatherForecast} profitInputs={profitInputs} onProfitInputChange={updateProfitInput} mandiSnapshot={mandiSnapshot} navigate={navigate} />}
+          {screen === "smartFarm" && <SmartFarm t={t} language={language} profile={profile} location={weatherLocation} forecast={weatherForecast} profitInputs={profitInputs} onProfitInputChange={updateProfitInput} mandiSnapshot={mandiSnapshot} bioInputPlan={{ recipe: bioInputRecipe, area: bioInputArea, seedBatch: bioInputSeedBatch }} navigate={navigate} />}
           {screen === "irrigation" && <SmartIrrigationScheduler language={language === "kn" ? "kn" : "en"} forecast={weatherForecast} location={weatherLocation} profileSoil={profile?.soil ?? ""} />}
-          {screen === "soil" && <><Soil t={t} profile={profile} /><OrganicBioInputCalculator t={t} language={language} profileArea={profile?.land ?? ""} /></>}
+          {screen === "soil" && <><Soil t={t} profile={profile} /><OrganicBioInputCalculator t={t} language={language} recipe={bioInputRecipe} onRecipeChange={setBioInputRecipe} area={bioInputArea} onAreaChange={setBioInputArea} seedBatch={bioInputSeedBatch} onSeedBatchChange={setBioInputSeedBatch} /></>}
           {screen === "crops" && <Crops t={t} navigate={navigate} />}
           {screen === "rotation" && <CropRotationPlanner language={language} profileSoil={profile?.soil ?? ""} />}
           {screen === "cropDoctor" && <CropDoctor t={t} />}
@@ -1193,9 +1199,219 @@ function Dashboard({ t, profile, navigate, weatherLocation, weatherForecast, wea
           </div>
         </section>
       </div>
+      <CropMilestoneTimeline t={t} language={languageOf(t)} />
       <div className="field-note"><span>✿</span><p>{t("fieldNote")}</p><span className="note-sun">☀</span></div>
     </>
   );
+}
+
+type TimelineCrop = "paddy" | "ragi" | "maize" | "tomato" | "cotton" | "groundnut";
+type DayWindow = { start: number; end: number };
+type CropTimelineSchedule = {
+  germination: DayWindow;
+  topDress: DayWindow;
+  flowering: DayWindow;
+  harvest: DayWindow;
+};
+type TimelineStageId = "basal" | "topDress" | "flowering" | "harvest";
+
+const cropTimelineSchedules: Record<TimelineCrop, CropTimelineSchedule> = {
+  paddy: { germination: { start: 0, end: 7 }, topDress: { start: 20, end: 30 }, flowering: { start: 55, end: 70 }, harvest: { start: 120, end: 150 } },
+  ragi: { germination: { start: 0, end: 7 }, topDress: { start: 20, end: 30 }, flowering: { start: 45, end: 60 }, harvest: { start: 100, end: 120 } },
+  maize: { germination: { start: 0, end: 7 }, topDress: { start: 20, end: 30 }, flowering: { start: 45, end: 60 }, harvest: { start: 90, end: 110 } },
+  tomato: { germination: { start: 0, end: 10 }, topDress: { start: 35, end: 50 }, flowering: { start: 55, end: 75 }, harvest: { start: 100, end: 130 } },
+  cotton: { germination: { start: 0, end: 10 }, topDress: { start: 30, end: 45 }, flowering: { start: 60, end: 90 }, harvest: { start: 150, end: 180 } },
+  groundnut: { germination: { start: 0, end: 10 }, topDress: { start: 20, end: 30 }, flowering: { start: 25, end: 45 }, harvest: { start: 100, end: 120 } },
+};
+
+const cropTimelineCopy: Record<Language, {
+  title: string;
+  description: string;
+  crop: string;
+  sowingDate: string;
+  chooseCrop: string;
+  daysAfterSowing: string;
+  stageTitles: Record<TimelineStageId, string>;
+  stageDescriptions: Record<TimelineStageId, string>;
+  datePrompt: string;
+  scheduleNote: string;
+  tomatoNote: string;
+  cottonNote: string;
+  shareTitle: string;
+}> = {
+  en: {
+    title: "Interactive Crop Milestone & Harvest Timeline",
+    description: "See estimated calendar dates for key crop milestones, calculated from your sowing date.",
+    crop: "Crop",
+    sowingDate: "Sowing date",
+    chooseCrop: "Choose a crop",
+    daysAfterSowing: "days after sowing",
+    stageTitles: {
+      basal: "Basal Fertilizer & Germination",
+      topDress: "First Top-Dressing & Weeding",
+      flowering: "Flowering & Critical Irrigation Stage",
+      harvest: "Expected Harvest Window",
+    },
+    stageDescriptions: {
+      basal: "Basal application is generally planned at sowing; germination timing is an estimate.",
+      topDress: "A planning checkpoint only. Confirm fertilizer and weed-control timing for your crop and field.",
+      flowering: "Monitor crop stage and soil moisture. Irrigation needs depend on rainfall, soil and field conditions.",
+      harvest: "An indicative maturity window, not a prediction. Check crop maturity and local guidance before harvest.",
+    },
+    datePrompt: "Choose a crop and sowing date to calculate milestone dates.",
+    scheduleNote: "Calendar dates are calculated from illustrative day-after-sowing windows, not a local prescription. Variety, season, establishment method, weather and field conditions can shift timing. Confirm fertilizer, irrigation and harvest decisions with your local KVK or agriculture officer.",
+    tomatoNote: "For tomato, the estimate starts at the entered sowing date; nursery duration and transplanting date can shift field-stage milestones.",
+    cottonNote: "Cotton is usually picked in multiple rounds; this range is an indicative start-of-harvest window.",
+    shareTitle: "KrishiMitra crop milestone timeline",
+  },
+  kn: {
+    title: "ಬೆಳೆ ಮೈಲಿಗಲ್ಲು ಮತ್ತು ಕೊಯ್ಲು ಸಮಯರೇಖೆ",
+    description: "ನೀವು ನೀಡಿದ ಬಿತ್ತನೆ ದಿನಾಂಕದಿಂದ ಪ್ರಮುಖ ಹಂತಗಳ ಅಂದಾಜು ಕ್ಯಾಲೆಂಡರ್ ದಿನಾಂಕಗಳನ್ನು ನೋಡಿ.",
+    crop: "ಬೆಳೆ",
+    sowingDate: "ಬಿತ್ತನೆ ದಿನಾಂಕ",
+    chooseCrop: "ಬೆಳೆ ಆಯ್ಕೆಮಾಡಿ",
+    daysAfterSowing: "ಬಿತ್ತನೆಯ ನಂತರದ ದಿನಗಳು",
+    stageTitles: {
+      basal: "ಮೂಲ ಗೊಬ್ಬರ ಮತ್ತು ಮೊಳಕೆ",
+      topDress: "ಮೊದಲ ಮೇಲ್ಗೊಬ್ಬರ ಮತ್ತು ಕಳೆ ತೆಗೆಯುವಿಕೆ",
+      flowering: "ಹೂಬಿಡುವಿಕೆ ಮತ್ತು ನಿರ್ಣಾಯಕ ನೀರಾವರಿ ಹಂತ",
+      harvest: "ನಿರೀಕ್ಷಿತ ಕೊಯ್ಲು ಅವಧಿ",
+    },
+    stageDescriptions: {
+      basal: "ಮೂಲ ಗೊಬ್ಬರವನ್ನು ಸಾಮಾನ್ಯವಾಗಿ ಬಿತ್ತನೆ ಸಮಯದಲ್ಲಿ ಹಾಕಲಾಗುತ್ತದೆ; ಮೊಳಕೆಯ ಸಮಯ ಅಂದಾಜು.",
+      topDress: "ಇದು ಯೋಜನಾ ನೆನಪು ಮಾತ್ರ. ನಿಮ್ಮ ಬೆಳೆ ಮತ್ತು ಹೊಲಕ್ಕೆ ಗೊಬ್ಬರ ಹಾಗೂ ಕಳೆ ನಿಯಂತ್ರಣ ಸಮಯ ದೃಢಪಡಿಸಿ.",
+      flowering: "ಬೆಳೆ ಹಂತ ಮತ್ತು ಮಣ್ಣಿನ ತೇವಾಂಶ ಗಮನಿಸಿ. ನೀರಾವರಿ ಮಳೆ, ಮಣ್ಣು ಮತ್ತು ಹೊಲದ ಸ್ಥಿತಿಯನ್ನು ಅವಲಂಬಿಸುತ್ತದೆ.",
+      harvest: "ಇದು ಸೂಚಕ ಪಕ್ವತಾ ಅವಧಿ ಮಾತ್ರ, ಮುನ್ಸೂಚನೆಯಲ್ಲ. ಕೊಯ್ಲಿಗೂ ಮೊದಲು ಪಕ್ವತೆ ಮತ್ತು ಸ್ಥಳೀಯ ಸಲಹೆ ಪರಿಶೀಲಿಸಿ.",
+    },
+    datePrompt: "ದಿನಾಂಕಗಳನ್ನು ಲೆಕ್ಕಿಸಲು ಬೆಳೆ ಮತ್ತು ಬಿತ್ತನೆ ದಿನಾಂಕ ಆಯ್ಕೆಮಾಡಿ.",
+    scheduleNote: "ಕ್ಯಾಲೆಂಡರ್ ದಿನಾಂಕಗಳು ಉದಾಹರಣಾತ್ಮಕ ಬಿತ್ತನೆಯ ನಂತರದ ದಿನಗಳ ಅವಧಿಯಿಂದ ಲೆಕ್ಕಿಸಿದವು; ಸ್ಥಳೀಯ ಶಿಫಾರಸುಗಳಲ್ಲ. ತಳಿ, ಹಂಗಾಮು, ನೆಡುವ ವಿಧಾನ, ಹವಾಮಾನ ಮತ್ತು ಹೊಲದ ಸ್ಥಿತಿಯಿಂದ ಸಮಯ ಬದಲಾಗಬಹುದು. ಗೊಬ್ಬರ, ನೀರಾವರಿ ಮತ್ತು ಕೊಯ್ಲಿನ ನಿರ್ಧಾರಕ್ಕೆ ಸ್ಥಳೀಯ ಕೃಷಿ ವಿಜ್ಞಾನ ಕೇಂದ್ರ ಅಥವಾ ಕೃಷಿ ಅಧಿಕಾರಿಯನ್ನು ಸಂಪರ್ಕಿಸಿ.",
+    tomatoNote: "ಟೊಮೇಟೊ ಅಂದಾಜು ನಮೂದಿಸಿದ ಬಿತ್ತನೆ ದಿನದಿಂದ ಪ್ರಾರಂಭವಾಗುತ್ತದೆ; ನರ್ಸರಿ ಅವಧಿ ಮತ್ತು ನಾಟಿ ದಿನಾಂಕದಿಂದ ಹೊಲದ ಹಂತಗಳು ಬದಲಾಗಬಹುದು.",
+    cottonNote: "ಹತ್ತಿಯನ್ನು ಸಾಮಾನ್ಯವಾಗಿ ಹಲವು ಬಾರಿ ಆರಿಸಲಾಗುತ್ತದೆ; ಈ ಅವಧಿ ಮೊದಲ ಕೊಯ್ಲಿನ ಸೂಚಕ ಆರಂಭ ಮಾತ್ರ.",
+    shareTitle: "ಕೃಷಿಮಿತ್ರ ಬೆಳೆ ಹಂತಗಳ ಸಮಯರೇಖೆ",
+  },
+  hi: {
+    title: "फसल चरण और कटाई समयरेखा",
+    description: "आपकी बुवाई की तारीख से प्रमुख चरणों की अनुमानित कैलेंडर तिथियाँ देखें।",
+    crop: "फसल",
+    sowingDate: "बुवाई की तारीख",
+    chooseCrop: "फसल चुनें",
+    daysAfterSowing: "बुवाई के बाद दिन",
+    stageTitles: {
+      basal: "आधार खाद और अंकुरण",
+      topDress: "पहली टॉप-ड्रेसिंग और निराई",
+      flowering: "फूल आना और महत्वपूर्ण सिंचाई चरण",
+      harvest: "अनुमानित कटाई अवधि",
+    },
+    stageDescriptions: {
+      basal: "आधार खाद सामान्यतः बुवाई के समय दी जाती है; अंकुरण का समय अनुमान है।",
+      topDress: "यह केवल योजना हेतु संकेत है। अपनी फसल और खेत के लिए खाद व निराई का समय स्थानीय रूप से जाँचें।",
+      flowering: "फसल की अवस्था और मिट्टी की नमी देखें। सिंचाई की जरूरत बारिश, मिट्टी और खेत की स्थिति पर निर्भर करती है।",
+      harvest: "यह केवल अनुमानित परिपक्वता अवधि है, भविष्यवाणी नहीं। कटाई से पहले फसल की परिपक्वता और स्थानीय सलाह देखें।",
+    },
+    datePrompt: "तिथियाँ निकालने के लिए फसल और बुवाई की तारीख चुनें।",
+    scheduleNote: "कैलेंडर तिथियाँ उदाहरणात्मक बुवाई-पश्चात दिनों की अवधि से निकाली गई हैं, स्थानीय निर्देश नहीं हैं। किस्म, मौसम, स्थापना विधि, वर्षा और खेत की स्थिति से समय बदल सकता है। खाद, सिंचाई और कटाई के निर्णय स्थानीय KVK या कृषि अधिकारी से पुष्टि करें।",
+    tomatoNote: "टमाटर का अनुमान दर्ज बुवाई तिथि से शुरू होता है; नर्सरी अवधि और रोपाई की तारीख खेत के चरणों को बदल सकती है।",
+    cottonNote: "कपास की तुड़ाई आमतौर पर कई बार होती है; यह अवधि पहली तुड़ाई की अनुमानित शुरुआत है।",
+    shareTitle: "कृषिमित्र फसल चरण समयरेखा",
+  },
+};
+
+function parseLocalDate(value: string) {
+  const [year, month, day] = value.split("-").map(Number);
+  if (!year || !month || !day) return null;
+  const date = new Date(year, month - 1, day);
+  return date.getFullYear() === year && date.getMonth() === month - 1 && date.getDate() === day ? date : null;
+}
+
+function addCalendarDays(date: Date, days: number) {
+  const result = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+  result.setDate(result.getDate() + days);
+  return result;
+}
+
+function CropMilestoneTimeline({ t, language }: PageProps & { language: Language }) {
+  const copy = cropTimelineCopy[language];
+  const [crop, setCrop] = useState<TimelineCrop | "">("");
+  const [sowingDate, setSowingDate] = useState("");
+  const crops: { id: TimelineCrop; label: string }[] = [
+    { id: "paddy", label: t("cropRice") },
+    { id: "ragi", label: t("cropRagi") },
+    { id: "maize", label: t("cropMaize") },
+    { id: "tomato", label: language === "kn" ? "ಟೊಮೇಟೊ" : language === "hi" ? "टमाटर" : "Tomato" },
+    { id: "cotton", label: language === "kn" ? "ಹತ್ತಿ" : language === "hi" ? "कपास" : "Cotton" },
+    { id: "groundnut", label: language === "kn" ? "ಶೇಂಗಾ" : language === "hi" ? "मूँगफली" : "Groundnut" },
+  ];
+  const baseDate = parseLocalDate(sowingDate);
+  const schedule = crop ? cropTimelineSchedules[crop] : null;
+  const stages = schedule && baseDate ? ([
+    { id: "basal", window: { start: 0, end: schedule.germination.end } },
+    { id: "topDress", window: schedule.topDress },
+    { id: "flowering", window: schedule.flowering },
+    { id: "harvest", window: schedule.harvest },
+  ] satisfies { id: TimelineStageId; window: DayWindow }[]).map((stage) => ({
+    ...stage,
+    startDate: addCalendarDays(baseDate, stage.window.start),
+    endDate: addCalendarDays(baseDate, stage.window.end),
+  })) : [];
+  const formatDate = (date: Date) => new Intl.DateTimeFormat(localeForLanguage(language), {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  }).format(date);
+  const selectedCropName = crops.find((item) => item.id === crop)?.label ?? "";
+  const shareSummary = stages.length === 4
+    ? [
+      copy.shareTitle,
+      `${copy.crop}: ${selectedCropName}`,
+      `${copy.sowingDate}: ${baseDate ? formatDate(baseDate) : ""}`,
+      ...stages.map((stage, index) => `${index + 1}. ${copy.stageTitles[stage.id]}: ${formatDate(stage.startDate)} – ${formatDate(stage.endDate)} (${stage.window.start}–${stage.window.end} ${copy.daysAfterSowing})`),
+      copy.scheduleNote,
+      ...(crop === "tomato" ? [copy.tomatoNote] : []),
+      ...(crop === "cotton" ? [copy.cottonNote] : []),
+    ].join("\n")
+    : "";
+  const speechSummary = stages.length === 4
+    ? `${selectedCropName}. ${copy.sowingDate}: ${baseDate ? formatDate(baseDate) : ""}. ${stages.map((stage, index) => `${index + 1}. ${copy.stageTitles[stage.id]}, ${formatDate(stage.startDate)} to ${formatDate(stage.endDate)}.`).join(" ")} ${copy.scheduleNote}`
+    : "";
+
+  return <section className="panel crop-milestone-widget">
+    <div className="crop-milestone-heading">
+      <div><div className="eyebrow">{language === "kn" ? "ಬೆಳೆ ಯೋಜನೆ" : language === "hi" ? "फसल योजना" : "CROP PLANNING"}</div><h2>{copy.title}</h2><p>{copy.description}</p></div>
+      <span className="profit-result-icon" aria-hidden="true">◷</span>
+    </div>
+    <div className="crop-milestone-inputs">
+      <label htmlFor="milestone-crop">{copy.crop}<select id="milestone-crop" value={crop} onChange={(event) => {
+        const value = event.target.value;
+        if (value === "paddy" || value === "ragi" || value === "maize" || value === "tomato" || value === "cotton" || value === "groundnut") setCrop(value);
+        else setCrop("");
+      }}>
+        <option value="">{copy.chooseCrop}</option>
+        {crops.map((item) => <option value={item.id} key={item.id}>{item.label}</option>)}
+      </select></label>
+      <label htmlFor="milestone-sowing-date">{copy.sowingDate}<input id="milestone-sowing-date" type="date" value={sowingDate} onChange={(event) => setSowingDate(event.target.value)} /></label>
+    </div>
+    {stages.length === 4 ? <ol className="crop-milestone-timeline">
+      {stages.map((stage, index) => <li key={stage.id}>
+        <span className="crop-milestone-marker">{index + 1}</span>
+        <article className="crop-milestone-card">
+          <div className="eyebrow">{language === "kn" ? `ಹಂತ ${index + 1}` : language === "hi" ? `चरण ${index + 1}` : `STAGE ${index + 1}`}</div>
+          <h3>{copy.stageTitles[stage.id]}</h3>
+          <strong className="crop-milestone-dates">{formatDate(stage.startDate)} – {formatDate(stage.endDate)}</strong>
+          <span className="crop-milestone-days">{stage.window.start}–{stage.window.end} {copy.daysAfterSowing}</span>
+          <p>{copy.stageDescriptions[stage.id]}</p>
+        </article>
+      </li>)}
+    </ol> : <p className="crop-milestone-prompt">{copy.datePrompt}</p>}
+    {crop === "tomato" && <p className="crop-milestone-special-note">{copy.tomatoNote}</p>}
+    {crop === "cotton" && <p className="crop-milestone-special-note">{copy.cottonNote}</p>}
+    <div className="crop-milestone-footer">
+      <p className="crop-milestone-disclaimer">{copy.scheduleNote}</p>
+      {stages.length === 4 && <div className="crop-milestone-actions">
+        <SpeakButton textToSpeak={speechSummary} language={language} t={t} />
+        <button type="button" className="button button-outline whatsapp-share" onClick={() => shareOnWhatsApp(shareSummary)}><span aria-hidden="true">◉</span>{t("shareWhatsapp")}</button>
+      </div>}
+    </div>
+  </section>;
 }
 
 function languageOf(t: Translate): Language {
@@ -2076,7 +2292,457 @@ function ProfitCalculator({ t, language, form, onChange, profileVillage }: PageP
         {inviteReady && <button type="button" className="button button-outline whatsapp-share" onClick={() => shareOnWhatsApp(transportInvite)}><span aria-hidden="true">◉</span>{t("shareWhatsapp")}</button>}
       </div>
     </section>
+    <KccLoanInterestSaver language={language} />
+    <SeasonExpenseLedger
+      language={language}
+      onApplyTotals={(totals) => {
+        update("seedExpense", totals.seedExpense.toFixed(2));
+        update("fertilizerExpense", totals.fertilizerExpense.toFixed(2));
+        update("labourExpense", totals.labourExpense.toFixed(2));
+        update("irrigationExpense", totals.irrigationExpense.toFixed(2));
+        update("transportExpense", totals.transportExpense.toFixed(2));
+        update("otherExpense", "0");
+      }}
+    />
   </>;
+}
+
+type LoanOptionId = "kcc" | "cropLoan" | "moneylender";
+type LoanOption = { id: LoanOptionId; rate: number };
+type LoanComparisonCopy = {
+  title: string;
+  description: string;
+  amount: string;
+  tenure: string;
+  months: string;
+  interest: string;
+  repayment: string;
+  savings: string;
+  savedVs: string;
+  invalid: string;
+  kcc: string;
+  cropLoan: string;
+  moneylender: string;
+  kccCondition: string;
+  assumption: string;
+  shareButton: string;
+  shareTitle: string;
+};
+
+const loanComparisonCopy: Record<Language, LoanComparisonCopy> = {
+  en: {
+    title: "KCC & Crop Loan Interest Saver",
+    description: "Compare estimated simple interest over your crop tenure. The 4% KCC rate assumes eligibility and timely repayment.",
+    amount: "Loan amount (₹)",
+    tenure: "Crop tenure",
+    months: "months",
+    interest: "Interest payable",
+    repayment: "Total repayment",
+    savings: "Saved with KCC",
+    savedVs: "Saved with KCC vs.",
+    invalid: "Enter a loan amount above ₹0 and choose a tenure from 3 to 12 whole months.",
+    kcc: "Kisan Credit Card (KCC)",
+    cropLoan: "Cooperative / Bank Crop Loan",
+    moneylender: "Local Moneylender",
+    kccCondition: "4% effective annual rate, only when eligible and repaid on time (assumed rate).",
+    assumption: "Estimate uses simple interest prorated by months (annual rate × loan × months ÷ 12), with interest rounded to paise. Assumes no fees, penalties, compounding, subsidy delays, or other charges. Actual KCC terms, eligibility, interest subvention, and rates can change; confirm with your bank. Not a loan offer or financial advice.",
+    shareButton: "Share loan comparison",
+    shareTitle: "KrishiMitra loan interest comparison",
+  },
+  kn: {
+    title: "KCC ಮತ್ತು ಬೆಳೆ ಸಾಲ ಬಡ್ಡಿ ಉಳಿತಾಯ",
+    description: "ಬೆಳೆ ಅವಧಿಯ ಅಂದಾಜು ಸರಳ ಬಡ್ಡಿಯನ್ನು ಹೋಲಿಸಿ. 4% KCC ದರಕ್ಕೆ ಅರ್ಹತೆ ಮತ್ತು ಸಮಯಕ್ಕೆ ಮರುಪಾವತಿ ಅಗತ್ಯವೆಂದು ಊಹಿಸಲಾಗಿದೆ.",
+    amount: "ಸಾಲದ ಮೊತ್ತ (₹)",
+    tenure: "ಬೆಳೆ ಅವಧಿ",
+    months: "ತಿಂಗಳು",
+    interest: "ಪಾವತಿಸಬೇಕಾದ ಬಡ್ಡಿ",
+    repayment: "ಒಟ್ಟು ಮರುಪಾವತಿ",
+    savings: "KCC ಮೂಲಕ ಉಳಿತಾಯ",
+    savedVs: "ಇದಕ್ಕೆ ಹೋಲಿಸಿದ KCC ಉಳಿತಾಯ:",
+    invalid: "₹0 ಕ್ಕಿಂತ ಹೆಚ್ಚಿನ ಸಾಲದ ಮೊತ್ತ ನಮೂದಿಸಿ ಮತ್ತು 3–12 ಪೂರ್ಣ ತಿಂಗಳು ಆಯ್ಕೆಮಾಡಿ.",
+    kcc: "ಕಿಸಾನ್ ಕ್ರೆಡಿಟ್ ಕಾರ್ಡ್ (KCC)",
+    cropLoan: "ಸಹಕಾರಿ / ಬ್ಯಾಂಕ್ ಬೆಳೆ ಸಾಲ",
+    moneylender: "ಸ್ಥಳೀಯ ಸಾಲದಾತ",
+    kccCondition: "ಅರ್ಹತೆ ಮತ್ತು ಸಮಯಕ್ಕೆ ಮರುಪಾವತಿ ಇದ್ದಾಗ ಮಾತ್ರ 4% ಪರಿಣಾಮಕಾರಿ ವಾರ್ಷಿಕ ದರ (ಊಹಿತ ದರ).",
+    assumption: "ಅಂದಾಜು ತಿಂಗಳಿಗೆ ಹಂಚಿದ ಸರಳ ಬಡ್ಡಿಯನ್ನು ಬಳಸುತ್ತದೆ (ವಾರ್ಷಿಕ ದರ × ಸಾಲ × ತಿಂಗಳು ÷ 12); ಬಡ್ಡಿಯನ್ನು ಪೈಸೆಗೆ ಪೂರ್ಣಗೊಳಿಸಲಾಗಿದೆ. ಶುಲ್ಕ, ದಂಡ, ಚಕ್ರಬಡ್ಡಿ, ಸಹಾಯಧನ ವಿಳಂಬ ಅಥವಾ ಇತರ ವೆಚ್ಚಗಳಿಲ್ಲವೆಂದು ಊಹಿಸಲಾಗಿದೆ. ನೈಜ KCC ನಿಯಮಗಳು, ಅರ್ಹತೆ, ಬಡ್ಡಿ ರಿಯಾಯಿತಿ ಮತ್ತು ದರಗಳು ಬದಲಾಗಬಹುದು; ಬ್ಯಾಂಕ್‌ನಲ್ಲಿ ದೃಢಪಡಿಸಿ. ಇದು ಸಾಲದ ಆಫರ್ ಅಥವಾ ಹಣಕಾಸು ಸಲಹೆಯಲ್ಲ.",
+    shareButton: "ಸಾಲ ಹೋಲಿಕೆ ಹಂಚಿಕೊಳ್ಳಿ",
+    shareTitle: "ಕೃಷಿಮಿತ್ರ ಸಾಲ ಬಡ್ಡಿ ಹೋಲಿಕೆ",
+  },
+  hi: {
+    title: "KCC और फसल ऋण ब्याज बचत",
+    description: "फसल अवधि में अनुमानित साधारण ब्याज की तुलना करें। 4% KCC दर पात्रता और समय पर भुगतान मानती है।",
+    amount: "ऋण राशि (₹)",
+    tenure: "फसल अवधि",
+    months: "महीने",
+    interest: "देय ब्याज",
+    repayment: "कुल भुगतान",
+    savings: "KCC से बचत",
+    savedVs: "की तुलना में KCC बचत:",
+    invalid: "₹0 से अधिक ऋण राशि दर्ज करें और 3 से 12 पूरे महीने चुनें।",
+    kcc: "किसान क्रेडिट कार्ड (KCC)",
+    cropLoan: "सहकारी / बैंक फसल ऋण",
+    moneylender: "स्थानीय साहूकार",
+    kccCondition: "केवल पात्रता और समय पर भुगतान पर 4% प्रभावी वार्षिक दर (मान्य दर)।",
+    assumption: "अनुमान महीनों के अनुपात में साधारण ब्याज उपयोग करता है (वार्षिक दर × ऋण × महीने ÷ 12); ब्याज को पैसे तक पूर्णांकित किया जाता है। इसमें शुल्क, दंड, चक्रवृद्धि, सब्सिडी में देरी या अन्य लागत शामिल नहीं हैं। वास्तविक KCC शर्तें, पात्रता, ब्याज सहायता और दरें बदल सकती हैं; बैंक से पुष्टि करें। यह ऋण प्रस्ताव या वित्तीय सलाह नहीं है।",
+    shareButton: "ऋण तुलना साझा करें",
+    shareTitle: "कृषिमित्र ऋण ब्याज तुलना",
+  },
+};
+
+const loanOptions: LoanOption[] = [
+  { id: "kcc", rate: 4 },
+  { id: "cropLoan", rate: 7 },
+  { id: "moneylender", rate: 18 },
+];
+
+function KccLoanInterestSaver({ language }: { language: Language }) {
+  const copy = loanComparisonCopy[language];
+  const [loanAmount, setLoanAmount] = useState("");
+  const [tenureMonths, setTenureMonths] = useState("6");
+  const principal = Number(loanAmount);
+  const months = Number(tenureMonths);
+  const valid = loanAmount.trim() !== "" && Number.isFinite(principal) && principal > 0 &&
+    Number.isInteger(months) && months >= 3 && months <= 12;
+  const currency = new Intl.NumberFormat(localeForLanguage(language), {
+    style: "currency",
+    currency: "INR",
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+  const results = loanOptions.map((option) => {
+    const rawInterest = valid ? principal * (option.rate / 100) * (months / 12) : 0;
+    const interest = Math.round(rawInterest * 100) / 100;
+    const repayment = valid ? Math.round((principal + interest) * 100) / 100 : 0;
+    const savedVsKcc = valid ? Math.round((interest - (Math.round(principal * 0.04 * (months / 12) * 100) / 100)) * 100) / 100 : 0;
+    const label = option.id === "kcc" ? copy.kcc : option.id === "cropLoan" ? copy.cropLoan : copy.moneylender;
+    return { ...option, label, interest, repayment, savedVsKcc };
+  });
+  const kccResult = results.find((result) => result.id === "kcc");
+  const shareSummary = valid && kccResult
+    ? [
+      copy.shareTitle,
+      `${copy.amount}: ${currency.format(principal)}`,
+      `${copy.tenure}: ${months} ${copy.months}`,
+      ...results.map((result) => `${result.label} (${result.rate}% p.a.) — ${copy.interest}: ${currency.format(result.interest)}; ${copy.repayment}: ${currency.format(result.repayment)}`),
+      `${copy.savedVs} ${copy.moneylender}: ${currency.format(results[2].interest - kccResult.interest)}`,
+      `${copy.savedVs} ${copy.cropLoan}: ${currency.format(results[1].interest - kccResult.interest)}`,
+      copy.assumption,
+    ].join("\n")
+    : "";
+  const optionNames: Record<LoanOptionId, string> = {
+    kcc: copy.kcc,
+    cropLoan: copy.cropLoan,
+    moneylender: copy.moneylender,
+  };
+
+  return <section className="panel loan-saver">
+    <div className="loan-saver-heading">
+      <div><div className="eyebrow">{language === "kn" ? "ಸಾಲದ ಆಯ್ಕೆಗಳು" : language === "hi" ? "ऋण विकल्प" : "LOAN OPTIONS"}</div><h2>{copy.title}</h2><p>{copy.description}</p></div>
+      <span className="profit-result-icon" aria-hidden="true">₹</span>
+    </div>
+    <div className="loan-saver-inputs">
+      <label htmlFor="loan-saver-amount">{copy.amount}<input id="loan-saver-amount" type="number" min="0.01" step="any" value={loanAmount} onChange={(event) => setLoanAmount(event.target.value)} placeholder="e.g. 100000" /></label>
+      <label htmlFor="loan-saver-tenure">{copy.tenure}
+        <select id="loan-saver-tenure" value={tenureMonths} onChange={(event) => setTenureMonths(event.target.value)}>
+          {Array.from({ length: 10 }, (_, index) => index + 3).map((month) => <option value={month} key={month}>{month} {copy.months}</option>)}
+        </select>
+      </label>
+    </div>
+    {!valid && <p className="loan-saver-prompt">{copy.invalid}</p>}
+    <div className="loan-option-grid">
+      {results.map((result) => <article className={`loan-option-card${result.id === "kcc" ? " loan-option-kcc" : ""}`} key={result.id}>
+        <div className="loan-option-title"><h3>{optionNames[result.id]}</h3><span>{result.rate}% p.a.</span></div>
+        <div className="loan-option-metric"><span>{copy.interest}</span><strong>{valid ? currency.format(result.interest) : "—"}</strong></div>
+        <div className="loan-option-metric"><span>{copy.repayment}</span><strong>{valid ? currency.format(result.repayment) : "—"}</strong></div>
+        {valid && result.id !== "kcc" && <div className="loan-option-saving"><span>{copy.savedVs} {result.label}</span><strong>{currency.format(result.savedVsKcc)}</strong></div>}
+        {result.id === "kcc" && <p className="loan-kcc-condition">{copy.kccCondition}</p>}
+      </article>)}
+    </div>
+    <p className="loan-saver-assumption">{copy.assumption}</p>
+    {valid && <div className="loan-saver-share"><button type="button" className="button button-outline whatsapp-share" onClick={() => shareOnWhatsApp(shareSummary)}><span aria-hidden="true">◉</span>{copy.shareButton}</button></div>}
+  </section>;
+}
+
+type LedgerCategory = "seeds" | "fertilizersBioInputs" | "labor" | "irrigationDiesel" | "transport";
+type LedgerExpenseField = "seedExpense" | "fertilizerExpense" | "labourExpense" | "irrigationExpense" | "transportExpense";
+type LedgerExpenseTotals = Record<LedgerExpenseField, number>;
+type SeasonExpenseEntry = { id: string; category: LedgerCategory; amount: number; date: string };
+type LedgerStorageError = "read" | "write" | "";
+type ExpenseLedgerCopy = {
+  title: string;
+  description: string;
+  category: string;
+  amount: string;
+  date: string;
+  add: string;
+  total: string;
+  entries: string;
+  empty: string;
+  delete: string;
+  apply: string;
+  applyNote: string;
+  share: string;
+  shareTitle: string;
+  readError: string;
+  writeError: string;
+  invalidEntry: string;
+  categoryLabels: Record<LedgerCategory, string>;
+  shareTotal: string;
+};
+
+const expenseLedgerCopy: Record<Language, ExpenseLedgerCopy> = {
+  en: {
+    title: "Season Expense Khata (Farm Ledger)",
+    description: "Record dated farm expenses on this device and see how spending adds up by category.",
+    category: "Expense category",
+    amount: "Amount (₹)",
+    date: "Expense date",
+    add: "Add expense",
+    total: "Season total",
+    entries: "Recent entries",
+    empty: "No expenses recorded yet. Add a cost to start your season ledger.",
+    delete: "Delete",
+    apply: "Use Total Cost in Profit Calculator",
+    applyNote: "Applying replaces the Profit Calculator's expense fields with these category totals.",
+    share: "Share ledger summary",
+    shareTitle: "KrishiMitra season expense khata",
+    readError: "Could not load the saved farm ledger. It was left unchanged; check browser storage before continuing.",
+    writeError: "Could not save this ledger in browser storage. Your latest changes may not persist after closing this page.",
+    invalidEntry: "Enter a positive amount up to paise precision and a valid date.",
+    categoryLabels: {
+      seeds: "Seeds",
+      fertilizersBioInputs: "Fertilizers / Bio-Inputs",
+      labor: "Labor",
+      irrigationDiesel: "Irrigation / Diesel",
+      transport: "Transport",
+    },
+    shareTotal: "Season total",
+  },
+  kn: {
+    title: "ಋತು ವೆಚ್ಚ ಖಾತೆ (ಕೃಷಿ ಲೆಡ್ಜರ್)",
+    description: "ಈ ಸಾಧನದಲ್ಲಿ ದಿನಾಂಕದೊಂದಿಗೆ ಕೃಷಿ ವೆಚ್ಚ ದಾಖಲಿಸಿ; ವಿಭಾಗವಾರು ವೆಚ್ಚ ನೋಡಿ.",
+    category: "ವೆಚ್ಚದ ವಿಭಾಗ",
+    amount: "ಮೊತ್ತ (₹)",
+    date: "ವೆಚ್ಚದ ದಿನಾಂಕ",
+    add: "ವೆಚ್ಚ ಸೇರಿಸಿ",
+    total: "ಋತುವಿನ ಒಟ್ಟು",
+    entries: "ಇತ್ತೀಚಿನ ದಾಖಲೆಗಳು",
+    empty: "ಇನ್ನೂ ವೆಚ್ಚ ದಾಖಲಿಸಿಲ್ಲ. ಋತು ಖಾತೆ ಪ್ರಾರಂಭಿಸಲು ವೆಚ್ಚ ಸೇರಿಸಿ.",
+    delete: "ಅಳಿಸಿ",
+    apply: "ಲಾಭ ಲೆಕ್ಕಾಚಾರಕ್ಕೆ ಒಟ್ಟು ವೆಚ್ಚ ಬಳಸಿ",
+    applyNote: "ಬಳಸಿದಾಗ ಲಾಭ ಲೆಕ್ಕಾಚಾರದ ವೆಚ್ಚದ ಜಾಗಗಳು ಈ ವಿಭಾಗಗಳ ಮೊತ್ತದಿಂದ ಬದಲಾಗುತ್ತವೆ.",
+    share: "ಖಾತೆ ಸಾರಾಂಶ ಹಂಚಿಕೊಳ್ಳಿ",
+    shareTitle: "ಕೃಷಿಮಿತ್ರ ಋತು ವೆಚ್ಚ ಖಾತೆ",
+    readError: "ಉಳಿಸಿದ ಕೃಷಿ ಖಾತೆಯನ್ನು ಓದಲು ಸಾಧ್ಯವಾಗಲಿಲ್ಲ. ಅದನ್ನು ಬದಲಾಯಿಸಿಲ್ಲ; ಮುಂದುವರಿಯುವ ಮೊದಲು ಬ್ರೌಸರ್ ಸಂಗ್ರಹ ಪರಿಶೀಲಿಸಿ.",
+    writeError: "ಬ್ರೌಸರ್ ಸಂಗ್ರಹದಲ್ಲಿ ಈ ಖಾತೆಯನ್ನು ಉಳಿಸಲಾಗಲಿಲ್ಲ. ಪುಟ ಮುಚ್ಚಿದ ನಂತರ ಇತ್ತೀಚಿನ ಬದಲಾವಣೆಗಳು ಉಳಿಯದೇ ಇರಬಹುದು.",
+    invalidEntry: "ಪೈಸೆ ನಿಖರತೆಯವರೆಗೆ ಶೂನ್ಯಕ್ಕಿಂತ ಹೆಚ್ಚಿನ ಮೊತ್ತ ಮತ್ತು ಸರಿಯಾದ ದಿನಾಂಕ ನಮೂದಿಸಿ.",
+    categoryLabels: {
+      seeds: "ಬೀಜಗಳು",
+      fertilizersBioInputs: "ಗೊಬ್ಬರ / ಜೈವಿಕ ಒಳಸುರಿಗಳು",
+      labor: "ಕಾರ್ಮಿಕರು",
+      irrigationDiesel: "ನೀರಾವರಿ / ಡೀಸೆಲ್",
+      transport: "ಸಾಗಣೆ",
+    },
+    shareTotal: "ಋತುವಿನ ಒಟ್ಟು",
+  },
+  hi: {
+    title: "मौसम खर्चा खाता (फार्म लेजर)",
+    description: "इस डिवाइस पर तारीख सहित खेती का खर्च दर्ज करें और श्रेणी के अनुसार कुल देखें।",
+    category: "खर्च की श्रेणी",
+    amount: "राशि (₹)",
+    date: "खर्च की तारीख",
+    add: "खर्च जोड़ें",
+    total: "मौसम का कुल खर्च",
+    entries: "हाल की प्रविष्टियाँ",
+    empty: "अभी कोई खर्च दर्ज नहीं है। मौसम का खाता शुरू करने के लिए खर्च जोड़ें।",
+    delete: "हटाएँ",
+    apply: "लाभ कैलकुलेटर में कुल खर्च इस्तेमाल करें",
+    applyNote: "इस्तेमाल करने पर लाभ कैलकुलेटर के खर्च वाले फ़ील्ड इन श्रेणी योगों से बदलेंगे।",
+    share: "खाते का सार साझा करें",
+    shareTitle: "कृषिमित्र मौसम खर्च खाता",
+    readError: "सहेजा गया फार्म खाता पढ़ा नहीं जा सका। इसे बदला नहीं गया; आगे बढ़ने से पहले ब्राउज़र स्टोरेज जाँचें।",
+    writeError: "यह खाता ब्राउज़र स्टोरेज में सहेजा नहीं जा सका। पेज बंद करने के बाद हाल के बदलाव सुरक्षित न रहें।",
+    invalidEntry: "पैसे तक की सटीकता वाली सकारात्मक राशि और सही तारीख दर्ज करें।",
+    categoryLabels: {
+      seeds: "बीज",
+      fertilizersBioInputs: "खाद / जैव-इनपुट",
+      labor: "मजदूरी",
+      irrigationDiesel: "सिंचाई / डीज़ल",
+      transport: "परिवहन",
+    },
+    shareTotal: "मौसम का कुल खर्च",
+  },
+};
+
+const expenseLedgerCategories: { id: LedgerCategory; expenseField: LedgerExpenseField }[] = [
+  { id: "seeds", expenseField: "seedExpense" },
+  { id: "fertilizersBioInputs", expenseField: "fertilizerExpense" },
+  { id: "labor", expenseField: "labourExpense" },
+  { id: "irrigationDiesel", expenseField: "irrigationExpense" },
+  { id: "transport", expenseField: "transportExpense" },
+];
+
+function isSeasonExpenseEntry(value: unknown): value is SeasonExpenseEntry {
+  if (!value || typeof value !== "object") return false;
+  const entry = value as Record<string, unknown>;
+  const categories: LedgerCategory[] = ["seeds", "fertilizersBioInputs", "labor", "irrigationDiesel", "transport"];
+  return typeof entry.id === "string" && entry.id.length > 0 &&
+    typeof entry.category === "string" && categories.includes(entry.category as LedgerCategory) &&
+    typeof entry.amount === "number" && Number.isFinite(entry.amount) && entry.amount > 0 &&
+    Number.isSafeInteger(Math.round(entry.amount * 100)) &&
+    typeof entry.date === "string" && parseLocalDate(entry.date) !== null;
+}
+
+function currentLocalDateInput() {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, "0");
+  const day = String(now.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
+function newExpenseEntryId() {
+  return typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
+    ? crypto.randomUUID()
+    : `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+}
+
+function SeasonExpenseLedger({ language, onApplyTotals }: {
+  language: Language;
+  onApplyTotals: (totals: LedgerExpenseTotals) => void;
+}) {
+  const copy = expenseLedgerCopy[language];
+  const [entries, setEntries] = useState<SeasonExpenseEntry[]>([]);
+  const [loaded, setLoaded] = useState(false);
+  const [storageError, setStorageError] = useState<LedgerStorageError>("");
+  const [category, setCategory] = useState<LedgerCategory>("seeds");
+  const [amount, setAmount] = useState("");
+  const [date, setDate] = useState(currentLocalDateInput);
+  const [entryError, setEntryError] = useState("");
+  const locale = localeForLanguage(language);
+  const currency = new Intl.NumberFormat(locale, { style: "currency", currency: "INR", minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const totals: LedgerExpenseTotals = {
+    seedExpense: 0,
+    fertilizerExpense: 0,
+    labourExpense: 0,
+    irrigationExpense: 0,
+    transportExpense: 0,
+  };
+  for (const entry of entries) {
+    const categoryInfo = expenseLedgerCategories.find((item) => item.id === entry.category);
+    if (categoryInfo) totals[categoryInfo.expenseField] += entry.amount;
+  }
+  const totalCost = Object.values(totals).reduce((sum, value) => sum + value, 0);
+  const sortedEntries = [...entries].sort((first, second) =>
+    second.date.localeCompare(first.date) || second.id.localeCompare(first.id));
+
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(FARM_EXPENSE_LEDGER_KEY);
+      if (saved) {
+        const parsed: unknown = JSON.parse(saved);
+        if (!Array.isArray(parsed) || !parsed.every(isSeasonExpenseEntry)) {
+          throw new Error("Saved farm expense ledger has an invalid format.");
+        }
+        setEntries(parsed);
+      }
+    } catch (error) {
+      console.error("Could not read the farm expense ledger from local storage.", error);
+      setStorageError("read");
+    } finally {
+      setLoaded(true);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!loaded || storageError) return;
+    try {
+      localStorage.setItem(FARM_EXPENSE_LEDGER_KEY, JSON.stringify(entries));
+    } catch (error) {
+      console.error("Could not persist the farm expense ledger to local storage.", error);
+      setStorageError("write");
+    }
+  }, [entries, loaded, storageError]);
+
+  function addExpense(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const parsedAmount = Number(amount);
+    const cents = Math.round(parsedAmount * 100);
+    if (!Number.isFinite(parsedAmount) || parsedAmount <= 0 ||
+      !Number.isSafeInteger(cents) || parseLocalDate(date) === null) {
+      setEntryError(copy.invalidEntry);
+      return;
+    }
+    if (!loaded || storageError) return;
+    setEntryError("");
+    setEntries((current) => [...current, {
+      id: newExpenseEntryId(),
+      category,
+      amount: cents / 100,
+      date,
+    }]);
+    setAmount("");
+  }
+
+  function removeEntry(id: string) {
+    setEntries((current) => current.filter((entry) => entry.id !== id));
+  }
+
+  const shareSummary = [
+    copy.shareTitle,
+    `${copy.total}: ${currency.format(totalCost)}`,
+    ...expenseLedgerCategories.map((item) => `${copy.categoryLabels[item.id]}: ${currency.format(totals[item.expenseField])}`),
+    `${copy.entries}: ${entries.length}`,
+  ].join("\n");
+  const categoryLabelById: Record<LedgerCategory, string> = copy.categoryLabels;
+
+  return <section className="panel expense-ledger">
+    <div className="expense-ledger-heading">
+      <div><div className="eyebrow">{language === "kn" ? "ವೆಚ್ಚ ದಾಖಲೆ" : language === "hi" ? "खर्च रिकॉर्ड" : "FARM EXPENSE RECORD"}</div><h2>{copy.title}</h2><p>{copy.description}</p></div>
+      <span className="profit-result-icon" aria-hidden="true">₹</span>
+    </div>
+    <form className="expense-ledger-form" onSubmit={addExpense}>
+      <label htmlFor="ledger-category">{copy.category}<select id="ledger-category" value={category} onChange={(event) => {
+        const value = event.target.value;
+        if (value === "seeds" || value === "fertilizersBioInputs" || value === "labor" || value === "irrigationDiesel" || value === "transport") setCategory(value);
+      }}>
+        {expenseLedgerCategories.map((item) => <option value={item.id} key={item.id}>{copy.categoryLabels[item.id]}</option>)}
+      </select></label>
+      <label htmlFor="ledger-amount">{copy.amount}<input id="ledger-amount" type="number" min="0.01" step="0.01" value={amount} onChange={(event) => setAmount(event.target.value)} required /></label>
+      <label htmlFor="ledger-date">{copy.date}<input id="ledger-date" type="date" value={date} onChange={(event) => setDate(event.target.value)} required /></label>
+      <button type="submit" className="button button-primary" disabled={!loaded || Boolean(storageError)}>{copy.add}</button>
+    </form>
+    {entryError && <p className="expense-ledger-error" role="alert">{entryError}</p>}
+    {storageError && <p className="expense-ledger-error" role="alert">{storageError === "read" ? copy.readError : copy.writeError}</p>}
+    <div className="expense-ledger-summary">
+      <article className="expense-ledger-total"><span>{copy.total}</span><strong>{currency.format(totalCost)}</strong><small>{entries.length} {copy.entries.toLocaleLowerCase(locale)}</small></article>
+      <div className="expense-ledger-breakdown" aria-label={copy.title}>
+        {expenseLedgerCategories.map((item) => {
+          const value = totals[item.expenseField];
+          const width = totalCost > 0 ? value / totalCost * 100 : 0;
+          return <div className="expense-ledger-category" key={item.id}>
+            <div className="expense-ledger-category-label"><span>{copy.categoryLabels[item.id]}</span><strong>{currency.format(value)}</strong></div>
+            <div className="expense-ledger-track" role="img" aria-label={`${copy.categoryLabels[item.id]}: ${currency.format(value)}`}><i style={{ width: `${width}%` }} /></div>
+          </div>;
+        })}
+      </div>
+    </div>
+    <div className="expense-ledger-list-heading"><h3>{copy.entries}</h3>
+      {entries.length > 0 && <button type="button" className="button button-outline whatsapp-share" onClick={() => shareOnWhatsApp(shareSummary)}><span aria-hidden="true">◉</span>{copy.share}</button>}
+    </div>
+    {sortedEntries.length > 0 ? <ul className="expense-ledger-list">
+      {sortedEntries.map((entry) => <li key={entry.id}>
+        <div className="expense-ledger-entry-icon" aria-hidden="true">₹</div>
+        <div className="expense-ledger-entry-copy"><strong>{categoryLabelById[entry.category]}</strong><small>{new Date(`${entry.date}T12:00:00`).toLocaleDateString(locale, { year: "numeric", month: "short", day: "numeric" })}</small></div>
+        <strong className="expense-ledger-entry-amount">{currency.format(entry.amount)}</strong>
+        <button type="button" className="expense-ledger-delete" onClick={() => removeEntry(entry.id)} aria-label={`${copy.delete} ${categoryLabelById[entry.category]} ${currency.format(entry.amount)}`}>×</button>
+      </li>)}
+    </ul> : <p className="expense-ledger-empty">{copy.empty}</p>}
+    <div className="expense-ledger-apply">
+      <p>{copy.applyNote}</p>
+      <button type="button" className="button button-primary" disabled={!entries.length || totalCost <= 0 || !loaded || Boolean(storageError)} onClick={() => onApplyTotals(totals)}>{copy.apply}</button>
+    </div>
+  </section>;
 }
 
 type HarvestCrop = "tomato" | "onion" | "potato" | "paddy" | "ragi" | "chilli";
@@ -2187,7 +2853,163 @@ function PostHarvestAdvisor({ t, language, forecast }: PageProps & {
   </section>;
 }
 
-function SmartFarm({ t, language, profile, location, forecast, profitInputs, onProfitInputChange, mandiSnapshot, navigate }: PageProps & {
+type FarmerReportCopy = {
+  generate: string;
+  title: string;
+  subtitle: string;
+  profile: string;
+  crop: string;
+  weather: string;
+  soilPlan: string;
+  profit: string;
+  noProfile: string;
+  noCrop: string;
+  noForecast: string;
+  noAlerts: string;
+  noSoil: string;
+  selectedBioInput: string;
+  areaBasis: string;
+  seedBasis: string;
+  missingBasis: string;
+  noEstimate: string;
+  name: string;
+  village: string;
+  district: string;
+  land: string;
+  soil: string;
+  irrigation: string;
+  cropName: string;
+  activeAlerts: string;
+  noAlertLabel: string;
+  estimatedYield: string;
+  revenue: string;
+  expenses: string;
+  estimatedProfit: string;
+  profitPerAcre: string;
+  print: string;
+  share: string;
+  close: string;
+  reportDisclaimer: string;
+};
+
+const farmerReportCopy: Record<Language, FarmerReportCopy> = {
+  en: {
+    generate: "Generate Farmer Smart Report",
+    title: "Farmer Smart Report",
+    subtitle: "A snapshot of your saved farm details and current app estimates.",
+    profile: "Farmer profile",
+    crop: "Selected crop",
+    weather: "Weather alert",
+    soilPlan: "Soil & bio-input plan",
+    profit: "Latest Profit Calculator estimate",
+    noProfile: "No farmer profile saved.",
+    noCrop: "No crop selected in Smart Farm.",
+    noForecast: "No live forecast is loaded; weather alerts cannot be assessed.",
+    noAlerts: "No configured weather alert is active in the available forecast.",
+    noSoil: "No soil type is saved in the farmer profile.",
+    selectedBioInput: "Selected bio-input",
+    areaBasis: "planned for {area} acres",
+    seedBasis: "seed treatment for {quantity} kg of seed",
+    missingBasis: "No valid acreage or seed-batch quantity is entered in the Bio-Input Calculator.",
+    noEstimate: "Complete crop, area, yield and selling price in Profit Calculator to generate an estimate.",
+    name: "Farmer",
+    village: "Village",
+    district: "District",
+    land: "Saved land area",
+    soil: "Saved soil type",
+    irrigation: "Irrigation source",
+    cropName: "Crop",
+    activeAlerts: "Active forecast-based alerts",
+    noAlertLabel: "Status",
+    estimatedYield: "Expected yield",
+    revenue: "Expected revenue",
+    expenses: "Total expenses",
+    estimatedProfit: "Estimated profit",
+    profitPerAcre: "Profit per acre",
+    print: "Print / Save as PDF",
+    share: "Share Report on WhatsApp",
+    close: "Close report",
+    reportDisclaimer: "This is a summary of saved profile details, available forecast alerts, and estimates entered in KrishiMitra. It is not a verified agronomic, financial, or yield prediction.",
+  },
+  kn: {
+    generate: "ರೈತರ ಸ್ಮಾರ್ಟ್ ವರದಿ ರಚಿಸಿ",
+    title: "ರೈತರ ಸ್ಮಾರ್ಟ್ ವರದಿ",
+    subtitle: "ಉಳಿಸಿದ ಕೃಷಿ ವಿವರಗಳು ಮತ್ತು ಪ್ರಸ್ತುತ ಅಪ್ಲಿಕೇಶನ್ ಅಂದಾಜುಗಳ ಸಾರಾಂಶ.",
+    profile: "ರೈತರ ಪ್ರೊಫೈಲ್",
+    crop: "ಆಯ್ಕೆ ಮಾಡಿದ ಬೆಳೆ",
+    weather: "ಹವಾಮಾನ ಎಚ್ಚರಿಕೆ",
+    soilPlan: "ಮಣ್ಣು ಮತ್ತು ಜೈವಿಕ ಒಳಸುರಿ ಯೋಜನೆ",
+    profit: "ಲಾಭ ಲೆಕ್ಕಾಚಾರದ ಇತ್ತೀಚಿನ ಅಂದಾಜು",
+    noProfile: "ರೈತರ ಪ್ರೊಫೈಲ್ ಉಳಿಸಿಲ್ಲ.",
+    noCrop: "ಸ್ಮಾರ್ಟ್ ಕೃಷಿಯಲ್ಲಿ ಬೆಳೆ ಆಯ್ಕೆಮಾಡಿಲ್ಲ.",
+    noForecast: "ನೈಜ ಮುನ್ಸೂಚನೆ ಲೋಡ್ ಆಗಿಲ್ಲ; ಹವಾಮಾನ ಎಚ್ಚರಿಕೆ ಅಳೆಯಲು ಸಾಧ್ಯವಿಲ್ಲ.",
+    noAlerts: "ಲಭ್ಯ ಮುನ್ಸೂಚನೆಯಲ್ಲಿ ಯಾವುದೇ ನಿಗದಿತ ಹವಾಮಾನ ಎಚ್ಚರಿಕೆ ಸಕ್ರಿಯವಿಲ್ಲ.",
+    noSoil: "ರೈತರ ಪ್ರೊಫೈಲ್‌ನಲ್ಲಿ ಮಣ್ಣಿನ ಪ್ರಕಾರ ಉಳಿಸಿಲ್ಲ.",
+    selectedBioInput: "ಆಯ್ಕೆ ಮಾಡಿದ ಜೈವಿಕ ಒಳಸುರಿ",
+    areaBasis: "{area} ಎಕರೆಗೆ ಯೋಜಿಸಲಾಗಿದೆ",
+    seedBasis: "{quantity} ಕೆಜಿ ಬೀಜಕ್ಕೆ ಬೀಜ ಸಂಸ್ಕರಣೆ",
+    missingBasis: "ಜೈವಿಕ ಒಳಸುರಿ ಲೆಕ್ಕಾಚಾರದಲ್ಲಿ ಮಾನ್ಯ ಭೂಮಿ ಅಥವಾ ಬೀಜದ ಪ್ರಮಾಣ ನಮೂದಿಸಿಲ್ಲ.",
+    noEstimate: "ಅಂದಾಜು ಪಡೆಯಲು ಲಾಭ ಲೆಕ್ಕಾಚಾರದಲ್ಲಿ ಬೆಳೆ, ಭೂಮಿ, ಇಳುವರಿ ಮತ್ತು ಮಾರಾಟದ ಬೆಲೆ ನಮೂದಿಸಿ.",
+    name: "ರೈತ",
+    village: "ಗ್ರಾಮ",
+    district: "ಜಿಲ್ಲೆ",
+    land: "ಉಳಿಸಿದ ಭೂಮಿ",
+    soil: "ಉಳಿಸಿದ ಮಣ್ಣಿನ ಪ್ರಕಾರ",
+    irrigation: "ನೀರಾವರಿ ಮೂಲ",
+    cropName: "ಬೆಳೆ",
+    activeAlerts: "ಮುನ್ಸೂಚನೆ ಆಧಾರಿತ ಸಕ್ರಿಯ ಎಚ್ಚರಿಕೆಗಳು",
+    noAlertLabel: "ಸ್ಥಿತಿ",
+    estimatedYield: "ನಿರೀಕ್ಷಿತ ಇಳುವರಿ",
+    revenue: "ನಿರೀಕ್ಷಿತ ಆದಾಯ",
+    expenses: "ಒಟ್ಟು ವೆಚ್ಚ",
+    estimatedProfit: "ಅಂದಾಜು ಲಾಭ",
+    profitPerAcre: "ಪ್ರತಿ ಎಕರೆಗೆ ಲಾಭ",
+    print: "ಮುದ್ರಿಸಿ / PDF ಆಗಿ ಉಳಿಸಿ",
+    share: "ವರದಿಯನ್ನು WhatsApp ನಲ್ಲಿ ಹಂಚಿಕೊಳ್ಳಿ",
+    close: "ವರದಿ ಮುಚ್ಚಿ",
+    reportDisclaimer: "ಇದು ಉಳಿಸಿದ ಪ್ರೊಫೈಲ್ ವಿವರಗಳು, ಲಭ್ಯ ಮುನ್ಸೂಚನೆ ಎಚ್ಚರಿಕೆಗಳು ಮತ್ತು ಕೃಷಿಮಿತ್ರದಲ್ಲಿ ನಮೂದಿಸಿದ ಅಂದಾಜುಗಳ ಸಾರಾಂಶ ಮಾತ್ರ. ಇದು ದೃಢಪಟ್ಟ ಕೃಷಿ, ಹಣಕಾಸು ಅಥವಾ ಇಳುವರಿ ಮುನ್ಸೂಚನೆಯಲ್ಲ.",
+  },
+  hi: {
+    generate: "किसान स्मार्ट रिपोर्ट बनाएँ",
+    title: "किसान स्मार्ट रिपोर्ट",
+    subtitle: "सहेजे गए खेत के विवरण और ऐप के मौजूदा अनुमानों का सारांश।",
+    profile: "किसान प्रोफ़ाइल",
+    crop: "चुनी गई फसल",
+    weather: "मौसम चेतावनी",
+    soilPlan: "मृदा और जैव-इनपुट योजना",
+    profit: "लाभ कैलकुलेटर का नवीनतम अनुमान",
+    noProfile: "किसान प्रोफ़ाइल सहेजी नहीं गई है।",
+    noCrop: "स्मार्ट कृषि में कोई फसल नहीं चुनी गई है।",
+    noForecast: "लाइव पूर्वानुमान लोड नहीं है; मौसम चेतावनियों का आकलन नहीं किया जा सकता।",
+    noAlerts: "उपलब्ध पूर्वानुमान में कोई निर्धारित मौसम चेतावनी सक्रिय नहीं है।",
+    noSoil: "किसान प्रोफ़ाइल में मिट्टी का प्रकार सहेजा नहीं है।",
+    selectedBioInput: "चुना गया जैव-इनपुट",
+    areaBasis: "{area} एकड़ के लिए योजना",
+    seedBasis: "{quantity} किग्रा बीज के लिए बीज उपचार",
+    missingBasis: "बायो-इनपुट कैलकुलेटर में मान्य क्षेत्र या बीज मात्रा दर्ज नहीं है।",
+    noEstimate: "अनुमान पाने के लिए लाभ कैलकुलेटर में फसल, क्षेत्र, उपज और बिक्री मूल्य भरें।",
+    name: "किसान",
+    village: "गाँव",
+    district: "ज़िला",
+    land: "सहेजा गया भूमि क्षेत्र",
+    soil: "सहेजी गई मिट्टी",
+    irrigation: "सिंचाई स्रोत",
+    cropName: "फसल",
+    activeAlerts: "पूर्वानुमान आधारित सक्रिय चेतावनियाँ",
+    noAlertLabel: "स्थिति",
+    estimatedYield: "अनुमानित उपज",
+    revenue: "अनुमानित आय",
+    expenses: "कुल खर्च",
+    estimatedProfit: "अनुमानित लाभ",
+    profitPerAcre: "प्रति एकड़ लाभ",
+    print: "प्रिंट / PDF में सहेजें",
+    share: "रिपोर्ट WhatsApp पर साझा करें",
+    close: "रिपोर्ट बंद करें",
+    reportDisclaimer: "यह सहेजी गई प्रोफ़ाइल, उपलब्ध पूर्वानुमान चेतावनियों और कृषिमित्र में दर्ज अनुमानों का सारांश है। यह सत्यापित कृषि, वित्तीय या उपज पूर्वानुमान नहीं है।",
+  },
+};
+
+function SmartFarm({ t, language, profile, location, forecast, profitInputs, onProfitInputChange, mandiSnapshot, bioInputPlan, navigate }: PageProps & {
   language: Language;
   profile: FarmerProfile | null;
   location: WeatherLocation | null;
@@ -2195,8 +3017,10 @@ function SmartFarm({ t, language, profile, location, forecast, profitInputs, onP
   profitInputs: ProfitInputs;
   onProfitInputChange: (field: keyof ProfitInputs, value: string) => void;
   mandiSnapshot: MandiSnapshot | null;
+  bioInputPlan: BioInputPlan;
   navigate: (screen: Screen) => void;
 }) {
+  const [showFarmerReport, setShowFarmerReport] = useState(false);
   const cropOptions = [
     { value: "cropRice", label: t("cropRice") },
     { value: "cropRagi", label: t("cropRagi") },
@@ -2315,6 +3139,10 @@ function SmartFarm({ t, language, profile, location, forecast, profitInputs, onP
       <div><span>{t("soilChoice")}</span><strong>{soilName}</strong><small>{profile?.soil ? t("profileSoilNote") : t("noProfile")}</small></div>
       <div><span>{t("locationUnset")}</span><strong>{profile ? `${profile.village}, ${profile.district}` : location?.name ?? t("noProfile")}</strong><small>{location ? locationLabel(location) : t("noForecastForFarm")}</small></div>
     </section>
+    <section className="panel smart-report-launch">
+      <div><div className="eyebrow">{language === "kn" ? "ನಿಮ್ಮ ಕೃಷಿ ಸಾರಾಂಶ" : language === "hi" ? "आपके खेत का सार" : "YOUR FARM SUMMARY"}</div><p>{farmerReportCopy[language].subtitle}</p></div>
+      <button type="button" className="button button-primary" onClick={() => setShowFarmerReport(true)}>{farmerReportCopy[language].generate}</button>
+    </section>
 
     <div className="smart-farm-grid">
       <section className="panel smart-farm-weather">
@@ -2408,7 +3236,136 @@ function SmartFarm({ t, language, profile, location, forecast, profitInputs, onP
         </article>)}</div>
       </section>
     </div>
+    {showFarmerReport && <FarmerSmartReport
+      t={t}
+      language={language}
+      profile={profile}
+      cropName={selectedCrop?.label ?? null}
+      weatherLocation={location ? locationLabel(location) : ""}
+      hasForecast={Boolean(forecast)}
+      alerts={weatherAlertCopy.map(({ title, body }) => ({ title, body }))}
+      soilName={profile?.soil ? soilName : null}
+      bioInputPlan={bioInputPlan}
+      calculation={calculation}
+      onClose={() => setShowFarmerReport(false)}
+    />}
   </>;
+}
+
+function FarmerSmartReport({ t, language, profile, cropName, weatherLocation, hasForecast, alerts, soilName, bioInputPlan, calculation, onClose }: PageProps & {
+  language: Language;
+  profile: FarmerProfile | null;
+  cropName: string | null;
+  weatherLocation: string;
+  hasForecast: boolean;
+  alerts: { title: string; body: string }[];
+  soilName: string | null;
+  bioInputPlan: BioInputPlan;
+  calculation: ReturnType<typeof calculateFarmProfit>;
+  onClose: () => void;
+}) {
+  const copy = farmerReportCopy[language];
+  const locale = localeForLanguage(language);
+  const formatMoney = (value: number) => new Intl.NumberFormat(locale, {
+    style: "currency",
+    currency: "INR",
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(value);
+  const formatNumber = (value: number) => new Intl.NumberFormat(locale, { maximumFractionDigits: 2 }).format(value);
+  const bioArea = Number(bioInputPlan.area);
+  const seedBatch = Number(bioInputPlan.seedBatch);
+  const bioBasis = bioInputPlan.recipe === "beejamrutha"
+    ? bioInputPlan.seedBatch.trim() && Number.isFinite(seedBatch) && seedBatch > 0
+      ? fillTemplate(copy.seedBasis, { "{quantity}": formatNumber(seedBatch) })
+      : copy.missingBasis
+    : bioInputPlan.area.trim() && Number.isFinite(bioArea) && bioArea > 0
+      ? fillTemplate(copy.areaBasis, { "{area}": formatNumber(bioArea) })
+      : copy.missingBasis;
+  const sections: { title: string; rows: { label: string; value: string }[] }[] = [
+    {
+      title: copy.profile,
+      rows: profile ? [
+        { label: copy.name, value: profile.name || "—" },
+        { label: copy.village, value: profile.village || "—" },
+        { label: copy.district, value: profile.district || "—" },
+        { label: copy.land, value: profile.land ? `${profile.land} ${t("acres")}` : "—" },
+        { label: copy.soil, value: soilName ?? copy.noSoil },
+        { label: copy.irrigation, value: profile.irrigation || "—" },
+      ] : [{ label: copy.profile, value: copy.noProfile }],
+    },
+    {
+      title: copy.crop,
+      rows: [{ label: copy.cropName, value: cropName ?? copy.noCrop }],
+    },
+    {
+      title: copy.weather,
+      rows: [
+        ...(weatherLocation ? [{ label: t("locationUnset"), value: weatherLocation }] : []),
+        ...(hasForecast
+          ? alerts.length
+            ? alerts.map((alert, index) => ({ label: `${copy.activeAlerts} ${index + 1}`, value: `${alert.title}\n${alert.body}` }))
+            : [{ label: copy.noAlertLabel, value: copy.noAlerts }]
+          : [{ label: copy.noAlertLabel, value: copy.noForecast }]),
+      ],
+    },
+    {
+      title: copy.soilPlan,
+      rows: [
+        { label: copy.soil, value: soilName ?? copy.noSoil },
+        { label: copy.selectedBioInput, value: `${localizedBioRecipeName(bioInputPlan.recipe, language)} — ${bioBasis}` },
+      ],
+    },
+    {
+      title: copy.profit,
+      rows: calculation.valid ? [
+        { label: copy.estimatedYield, value: `${formatNumber(calculation.totalYield)} ${t("quintals")}` },
+        { label: copy.revenue, value: formatMoney(calculation.revenue) },
+        { label: copy.expenses, value: formatMoney(calculation.totalExpenses) },
+        { label: copy.estimatedProfit, value: formatMoney(calculation.profit) },
+        { label: copy.profitPerAcre, value: formatMoney(calculation.profitPerAcre) },
+      ] : [{ label: copy.profit, value: copy.noEstimate }],
+    },
+  ];
+  const shareSummary = [
+    copy.title,
+    ...sections.flatMap((section) => [
+      `\n${section.title}`,
+      ...section.rows.map((row) => `${row.label}: ${row.value}`),
+    ]),
+    `\n${copy.reportDisclaimer}`,
+  ].join("\n");
+
+  useEffect(() => {
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", closeOnEscape);
+    return () => window.removeEventListener("keydown", closeOnEscape);
+  }, [onClose]);
+
+  return <div className="farmer-report-overlay" onClick={(event) => {
+    if (event.target === event.currentTarget) onClose();
+  }}>
+    <section className="farmer-report-dialog" role="dialog" aria-modal="true" aria-labelledby="farmer-report-title">
+      <header className="farmer-report-header">
+        <div><div className="eyebrow">{language === "kn" ? "ಕೃಷಿ ಸಾರಾಂಶ" : language === "hi" ? "खेत का सार" : "FARM SUMMARY"}</div><h2 id="farmer-report-title">{copy.title}</h2><p>{copy.subtitle}</p></div>
+        <button type="button" className="farmer-report-close" onClick={onClose} aria-label={copy.close}>×</button>
+      </header>
+      <div className="farmer-report-sections">
+        {sections.map((section) => <section key={section.title} className="farmer-report-section">
+          <h3>{section.title}</h3>
+          <dl>{section.rows.map((row, index) => <div key={`${row.label}-${index}`}><dt>{row.label}</dt><dd>{row.value}</dd></div>)}</dl>
+        </section>)}
+      </div>
+      <p className="farmer-report-disclaimer">{copy.reportDisclaimer}</p>
+      <footer className="farmer-report-actions">
+        <button type="button" className="button button-outline" onClick={() => window.print()}><span aria-hidden="true">▣</span>{copy.print}</button>
+        <button type="button" className="button button-outline whatsapp-share" onClick={() => shareOnWhatsApp(shareSummary)}><span aria-hidden="true">◉</span>{copy.share}</button>
+        <button type="button" className="button button-primary" onClick={onClose}>{copy.close}</button>
+      </footer>
+    </section>
+  </div>;
 }
 
 function Soil({ t, profile }: PageProps & { profile: FarmerProfile | null }) {
@@ -2424,6 +3381,17 @@ function Soil({ t, profile }: PageProps & { profile: FarmerProfile | null }) {
 }
 
 type BioRecipeId = "jeevamrutha" | "beejamrutha" | "neemastra" | "vermicompost";
+type BioInputPlan = { recipe: BioRecipeId; area: string; seedBatch: string };
+
+function localizedBioRecipeName(id: BioRecipeId, language: Language) {
+  return ({
+    jeevamrutha: language === "kn" ? "ಜೀವಾಮೃತ" : language === "hi" ? "जीवामृत" : "Jeevamrutha",
+    beejamrutha: language === "kn" ? "ಬೀಜಾಮೃತ" : language === "hi" ? "बीजामृत" : "Beejamrutha",
+    neemastra: language === "kn" ? "ನೀಮಾಸ್ತ್ರ" : language === "hi" ? "नीमास्त्र" : "Neemastra",
+    vermicompost: language === "kn" ? "ಎರೆಹುಳು ಗೊಬ್ಬರ" : language === "hi" ? "वर्मीकम्पೋस्ट" : "Vermicompost",
+  }[id]);
+}
+
 type BioRecipeCopy = {
   title: string;
   subtitle: string;
@@ -2542,11 +3510,16 @@ const bioRecipeCopy: Record<Language, BioRecipeCopy> = {
 
 type BioIngredient = { name: string; quantity: string; unit: string };
 
-function OrganicBioInputCalculator({ t, language, profileArea }: PageProps & { language: Language; profileArea: string }) {
+function OrganicBioInputCalculator({ t, language, recipe, onRecipeChange, area, onAreaChange, seedBatch, onSeedBatchChange }: PageProps & {
+  language: Language;
+  recipe: BioRecipeId;
+  onRecipeChange: (recipe: BioRecipeId) => void;
+  area: string;
+  onAreaChange: (area: string) => void;
+  seedBatch: string;
+  onSeedBatchChange: (seedBatch: string) => void;
+}) {
   const copy = bioRecipeCopy[language];
-  const [recipe, setRecipe] = useState<BioRecipeId>("jeevamrutha");
-  const [area, setArea] = useState(profileArea);
-  const [seedBatch, setSeedBatch] = useState("");
   const [organicCost, setOrganicCost] = useState("");
   const [npkCost, setNpkCost] = useState("");
   const locale = localeForLanguage(language);
@@ -2632,13 +3605,7 @@ function OrganicBioInputCalculator({ t, language, profileArea }: PageProps & { l
     : language === "hi"
       ? "बीजामृत की मात्रा बीज के वजन पर निर्भर है; क्षेत्रफल से बीज की मात्रा का अनुमान नहीं लगाया गया।"
       : "Beejamrutha is scaled by seed weight; seed quantity is not inferred from acreage.";
-  const nameForRecipe = (id: BioRecipeId) => ({
-    jeevamrutha: language === "kn" ? "ಜೀವಾಮೃತ" : language === "hi" ? "जीवामृत" : "Jeevamrutha",
-    beejamrutha: language === "kn" ? "ಬೀಜಾಮೃತ" : language === "hi" ? "बीजामृत" : "Beejamrutha",
-    neemastra: language === "kn" ? "ನೀಮಾಸ್ತ್ರ" : language === "hi" ? "नीमास्त्र" : "Neemastra",
-    vermicompost: language === "kn" ? "ಎರೆಹುಳು ಗೊಬ್ಬರ" : language === "hi" ? "वर्मीकम्पोस्ट" : "Vermicompost",
-  }[id]);
-  const recipeName = nameForRecipe(recipe);
+  const recipeName = localizedBioRecipeName(recipe, language);
   const quantitySummary = ingredients.map((item) => `${item.name}: ${item.quantity} ${item.unit}`).join("\n");
   const shareMessage = [
     copy.shareTitle,
@@ -2660,13 +3627,13 @@ function OrganicBioInputCalculator({ t, language, profileArea }: PageProps & { l
       <label htmlFor="bio-recipe-select">{language === "kn" ? "ಸಾವಯವ ತಯಾರಿ" : language === "hi" ? "जैविक तैयारी" : "Organic preparation"}
         <select id="bio-recipe-select" value={recipe} onChange={(event) => {
           const value = event.target.value;
-          if (value === "jeevamrutha" || value === "beejamrutha" || value === "neemastra" || value === "vermicompost") setRecipe(value);
+          if (value === "jeevamrutha" || value === "beejamrutha" || value === "neemastra" || value === "vermicompost") onRecipeChange(value);
         }}>
-          {(["jeevamrutha", "beejamrutha", "neemastra", "vermicompost"] as const).map((id) => <option value={id} key={id}>{nameForRecipe(id)}</option>)}
+          {(["jeevamrutha", "beejamrutha", "neemastra", "vermicompost"] as const).map((id) => <option value={id} key={id}>{localizedBioRecipeName(id, language)}</option>)}
         </select>
       </label>
-      <label htmlFor="bio-area">{copy.areaLabel}<input id="bio-area" type="number" min="0.01" step="any" value={area} onChange={(event) => setArea(event.target.value)} /></label>
-      {recipe === "beejamrutha" && <label htmlFor="bio-seed-batch">{copy.seedBatchLabel}<input id="bio-seed-batch" type="number" min="0.01" step="any" value={seedBatch} onChange={(event) => setSeedBatch(event.target.value)} placeholder="100" /></label>}
+      <label htmlFor="bio-area">{copy.areaLabel}<input id="bio-area" type="number" min="0.01" step="any" value={area} onChange={(event) => onAreaChange(event.target.value)} /></label>
+      {recipe === "beejamrutha" && <label htmlFor="bio-seed-batch">{copy.seedBatchLabel}<input id="bio-seed-batch" type="number" min="0.01" step="any" value={seedBatch} onChange={(event) => onSeedBatchChange(event.target.value)} placeholder="100" /></label>}
     </div>
     <div className="bio-recipe-results" aria-live="polite">
       <section className="bio-recipe-ingredients">

@@ -673,7 +673,111 @@ td:first-child { color: #455b49; font-weight: 600; }
 .profit-chart-track i.net-profit.negative { background: #bf765d; }
 .profit-prompt { margin: 14px 0 0; padding: 11px; border-radius: 8px; color: #758276; background: #f5f7f1; font-size: 9px; line-height: 1.5; }
 .profit-disclaimer { margin: 12px 0 0; color: #929b91; font-size: 8px; line-height: 1.5; }
+.loan-saver { display: grid; gap: 14px; padding: 18px; margin-top: 15px; }
+.loan-saver-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.loan-saver-heading h2 { margin: 5px 0 0; color: #344d39; font: 700 15px "Manrope", sans-serif; }
+.loan-saver-heading p { max-width: 720px; margin: 6px 0 0; color: #849087; font-size: 9px; line-height: 1.55; }
+.loan-saver-inputs { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 11px; }
+.loan-saver-inputs label { display: grid; gap: 6px; min-width: 0; color: #607065; font-size: 9px; font-weight: 700; line-height: 1.45; }
+.loan-saver-inputs input, .loan-saver-inputs select { width: 100%; min-width: 0; min-height: 38px; padding: 0 10px; border: 1px solid #e5e9e1; border-radius: 7px; color: #4c6251; background: #fff; font-size: 10px; }
+.loan-option-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.loan-option-card { min-width: 0; padding: 13px; border: 1px solid #e9eee5; border-radius: 9px; background: #fbfcf9; }
+.loan-option-kcc { border-color: #cddfc7; background: #f3f8ef; }
+.loan-option-title { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; min-height: 42px; }
+.loan-option-title h3 { margin: 0; color: #435d47; font: 700 11px "Manrope", sans-serif; line-height: 1.45; }
+.loan-option-title span { flex: 0 0 auto; padding: 5px 7px; border-radius: 12px; color: #5d7b55; background: #e8f0e2; font-size: 8px; font-weight: 700; white-space: nowrap; }
+.loan-option-metric { display: flex; justify-content: space-between; gap: 8px; padding: 8px 0; border-top: 1px solid #e9eee5; }
+.loan-option-metric span { color: #7c897e; font-size: 8px; line-height: 1.4; }
+.loan-option-metric strong { color: #425f47; font-size: 9px; text-align: right; white-space: nowrap; }
+.loan-option-saving { display: grid; gap: 4px; margin-top: 4px; padding: 8px; border-radius: 7px; color: #58744e; background: #edf4e8; }
+.loan-option-saving span { font-size: 7px; line-height: 1.4; }
+.loan-option-saving strong { font-size: 12px; }
+.loan-kcc-condition { margin: 7px 0 0; color: #7e8d77; font-size: 7px; line-height: 1.5; }
+.loan-saver-prompt, .loan-saver-assumption { margin: 0; color: #849087; font-size: 8px; line-height: 1.55; }
+.loan-saver-prompt { padding: 9px 10px; border-radius: 7px; color: #8a7147; background: #faf6ea; }
+.loan-saver-assumption { padding-top: 2px; }
+.loan-saver-share { display: flex; justify-content: flex-end; }
+.crop-milestone-widget { display: grid; gap: 14px; padding: 18px; margin-top: 15px; }
+.crop-milestone-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.crop-milestone-heading h2 { margin: 5px 0 0; color: #344d39; font: 700 15px "Manrope", sans-serif; }
+.crop-milestone-heading p { max-width: 720px; margin: 6px 0 0; color: #849087; font-size: 9px; line-height: 1.55; }
+.crop-milestone-inputs { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 11px; }
+.crop-milestone-inputs label { display: grid; gap: 6px; min-width: 0; color: #607065; font-size: 9px; font-weight: 700; line-height: 1.45; }
+.crop-milestone-inputs input, .crop-milestone-inputs select { width: 100%; min-width: 0; min-height: 38px; padding: 0 10px; border: 1px solid #e5e9e1; border-radius: 7px; color: #4c6251; background: #fff; font-size: 10px; }
+.crop-milestone-timeline { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0; margin: 4px 0 0; padding: 0; list-style: none; }
+.crop-milestone-timeline > li { position: relative; min-width: 0; padding: 35px 6px 0; }
+.crop-milestone-timeline > li + li::before { position: absolute; top: 12px; left: -50%; width: 100%; height: 2px; content: ""; background: #dce7d7; }
+.crop-milestone-marker { position: absolute; z-index: 1; top: 0; left: 50%; display: grid; place-items: center; width: 25px; height: 25px; border: 3px solid #fff; border-radius: 50%; color: #fff; background: #5e8a5c; box-shadow: 0 0 0 1px #dce7d7; font-size: 9px; font-weight: 700; transform: translateX(-50%); }
+.crop-milestone-card { height: 100%; min-height: 190px; padding: 12px; border: 1px solid #e9eee5; border-radius: 9px; background: #fbfcf9; }
+.crop-milestone-card .eyebrow { font-size: 7px; }
+.crop-milestone-card h3 { margin: 7px 0; color: #435d47; font: 700 10px "Manrope", sans-serif; line-height: 1.45; }
+.crop-milestone-dates, .crop-milestone-days { display: block; }
+.crop-milestone-dates { color: #47764b; font-size: 10px; line-height: 1.5; }
+.crop-milestone-days { margin-top: 3px; color: #89958a; font-size: 7px; }
+.crop-milestone-card p { margin: 9px 0 0; color: #7d897f; font-size: 8px; line-height: 1.55; }
+.crop-milestone-prompt { margin: 0; padding: 12px; border-radius: 8px; color: #758276; background: #f5f7f1; font-size: 9px; line-height: 1.5; }
+.crop-milestone-footer { display: grid; gap: 10px; padding-top: 10px; border-top: 1px solid #eef1eb; }
+.crop-milestone-disclaimer, .crop-milestone-special-note { margin: 0; color: #827a64; font-size: 8px; line-height: 1.6; }
+.crop-milestone-special-note { padding: 9px 10px; border-radius: 7px; background: #f8f5eb; }
+.crop-milestone-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; }
+.expense-ledger { display: grid; gap: 14px; padding: 18px; margin-top: 15px; }
+.expense-ledger-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.expense-ledger-heading h2 { margin: 5px 0 0; color: #344d39; font: 700 15px "Manrope", sans-serif; }
+.expense-ledger-heading p { max-width: 720px; margin: 6px 0 0; color: #849087; font-size: 9px; line-height: 1.55; }
+.expense-ledger-form { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(120px, .75fr) minmax(130px, .85fr) auto; align-items: end; gap: 10px; }
+.expense-ledger-form label { display: grid; gap: 6px; min-width: 0; color: #607065; font-size: 9px; font-weight: 700; line-height: 1.45; }
+.expense-ledger-form input, .expense-ledger-form select { width: 100%; min-width: 0; min-height: 38px; padding: 0 10px; border: 1px solid #e5e9e1; border-radius: 7px; color: #4c6251; background: #fff; font-size: 10px; }
+.expense-ledger-form > .button { min-height: 38px; white-space: nowrap; }
+.expense-ledger-error { margin: 0; padding: 9px 10px; border-radius: 7px; color: #925b49; background: #fbf0eb; font-size: 8px; line-height: 1.5; }
+.expense-ledger-summary { display: grid; grid-template-columns: minmax(160px, .7fr) minmax(0, 1.5fr); gap: 12px; }
+.expense-ledger-total { display: grid; align-content: center; gap: 5px; min-width: 0; padding: 13px; border: 1px solid #dfe9d9; border-radius: 9px; background: #f2f7ee; }
+.expense-ledger-total span { color: #7b897c; font-size: 8px; }
+.expense-ledger-total strong { color: #3e6245; font: 700 19px "Manrope", sans-serif; overflow-wrap: anywhere; }
+.expense-ledger-total small { color: #899589; font-size: 7px; }
+.expense-ledger-breakdown { display: grid; gap: 8px; padding: 11px 13px; border: 1px solid #e9eee5; border-radius: 9px; background: #fbfcf9; }
+.expense-ledger-category { min-width: 0; }
+.expense-ledger-category-label { display: flex; justify-content: space-between; gap: 8px; margin-bottom: 4px; }
+.expense-ledger-category-label span { min-width: 0; color: #778579; font-size: 8px; }
+.expense-ledger-category-label strong { flex: 0 0 auto; color: #526a56; font-size: 8px; }
+.expense-ledger-track { height: 6px; overflow: hidden; border-radius: 6px; background: #edf0e9; }
+.expense-ledger-track i { display: block; height: 100%; border-radius: inherit; background: #78a16e; transition: width .2s ease; }
+.expense-ledger-list-heading { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding-top: 4px; }
+.expense-ledger-list-heading h3 { margin: 0; color: #4c634f; font: 700 11px "Manrope", sans-serif; }
+.expense-ledger-list-heading .button { min-height: 30px; padding: 0 9px; font-size: 8px; }
+.expense-ledger-list { display: grid; gap: 6px; max-height: 300px; overflow: auto; margin: -4px 0 0; padding: 0; list-style: none; }
+.expense-ledger-list li { display: grid; grid-template-columns: 30px minmax(0, 1fr) auto 29px; align-items: center; gap: 9px; min-width: 0; padding: 8px; border: 1px solid #edf0e9; border-radius: 8px; background: #fff; }
+.expense-ledger-entry-icon { display: grid; place-items: center; width: 28px; height: 28px; border-radius: 8px; color: #62815c; background: #eaf1e5; font-size: 12px; font-weight: 700; }
+.expense-ledger-entry-copy { display: grid; min-width: 0; gap: 3px; }
+.expense-ledger-entry-copy strong { overflow: hidden; color: #556b58; font-size: 8px; text-overflow: ellipsis; white-space: nowrap; }
+.expense-ledger-entry-copy small { color: #929d93; font-size: 7px; }
+.expense-ledger-entry-amount { color: #425f47; font-size: 9px; text-align: right; white-space: nowrap; }
+.expense-ledger-delete { display: grid; place-items: center; width: 27px; height: 27px; border: 1px solid #eee8e2; border-radius: 7px; color: #a26b56; background: #fffaf7; font-size: 17px; line-height: 1; }
+.expense-ledger-delete:hover { border-color: #e3c9bb; background: #fdf0e9; }
+.expense-ledger-empty { margin: 0; padding: 12px; border-radius: 8px; color: #758276; background: #f5f7f1; font-size: 9px; line-height: 1.5; }
+.expense-ledger-apply { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-top: 11px; border-top: 1px solid #eef1eb; }
+.expense-ledger-apply p { margin: 0; color: #879287; font-size: 8px; line-height: 1.5; }
+.expense-ledger-apply .button { flex: 0 0 auto; }
+
 .smart-farm-context { display: grid; grid-template-columns: 1.1fr 1fr 1fr; align-items: center; gap: 14px; padding: 14px 16px; margin-bottom: 14px; background: #f1f4e9; }
+.smart-report-launch { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 13px 15px; margin-bottom: 14px; background: #f2f6ed; }
+.smart-report-launch p { margin: 5px 0 0; color: #849087; font-size: 9px; line-height: 1.5; }
+.smart-report-launch .button { flex: 0 0 auto; }
+.farmer-report-overlay { position: fixed; z-index: 100; inset: 0; display: grid; place-items: center; padding: 22px; background: #13251dcc; }
+.farmer-report-dialog { width: min(840px, 100%); max-height: calc(100vh - 44px); overflow: auto; padding: 22px; border: 1px solid #e8ebe2; border-radius: 14px; background: #fff; box-shadow: 0 22px 70px #11241855; }
+.farmer-report-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 14px; padding-bottom: 15px; border-bottom: 1px solid #e9eee5; }
+.farmer-report-header h2 { margin: 6px 0 0; color: #2f4d38; font: 700 20px "Manrope", sans-serif; }
+.farmer-report-header p { margin: 5px 0 0; color: #849087; font-size: 9px; line-height: 1.5; }
+.farmer-report-close { flex: 0 0 auto; width: 32px; height: 32px; border: 1px solid #e5e9e1; border-radius: 8px; color: #607065; background: #fff; font-size: 20px; line-height: 1; }
+.farmer-report-sections { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; padding-top: 14px; }
+.farmer-report-section { min-width: 0; padding: 12px; border: 1px solid #e9eee5; border-radius: 9px; background: #fbfcf9; }
+.farmer-report-section h3 { margin: 0 0 8px; color: #49624c; font: 700 11px "Manrope", sans-serif; }
+.farmer-report-section dl { display: grid; gap: 0; margin: 0; }
+.farmer-report-section dl > div { display: grid; grid-template-columns: minmax(80px, .75fr) minmax(0, 1.25fr); gap: 10px; padding: 7px 0; border-top: 1px solid #eef1eb; }
+.farmer-report-section dt { color: #879287; font-size: 8px; line-height: 1.5; }
+.farmer-report-section dd { margin: 0; color: #526a56; font-size: 8px; font-weight: 600; line-height: 1.55; overflow-wrap: anywhere; white-space: pre-line; }
+.farmer-report-disclaimer { margin: 12px 0 0; padding: 10px; border-radius: 8px; color: #827a64; background: #f8f5eb; font-size: 8px; line-height: 1.6; }
+.farmer-report-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; margin-top: 14px; }
+.farmer-report-actions .button { min-height: 34px; }
 .smart-farm-context label, .smart-farm-context > div { min-width: 0; display: grid; gap: 5px; }
 .smart-farm-context label, .smart-farm-context > div > span { color: #7d8b7b; font-size: 8px; font-weight: 600; }
 .smart-farm-context select { width: 100%; min-width: 0; height: 36px; padding: 0 9px; border: 1px solid #dfe7d9; border-radius: 7px; color: #4c6251; background: #fff; font-size: 9px; }
@@ -812,6 +916,11 @@ td:first-child { color: #455b49; font-weight: 600; }
   .settings-card { padding: 14px; gap: 10px; }.settings-icon { width: 32px; height: 32px; flex-basis: 32px; }.settings-card h2, .about-card h2 { font-size: 12px; }.language-options { flex-wrap: wrap; }.language-options button { min-width: 90px; flex: 1; }.about-card { padding: 14px; }
   .profit-layout { grid-template-columns: 1fr; gap: 10px; }.profit-input-panel, .profit-results-panel { padding: 14px; }.profit-input-grid { gap: 9px; }.profit-metric > strong { font-size: 14px; }
   .transport-pooling-card { padding: 14px; }.transport-pooling-inputs { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 9px; }.transport-pooling-results { grid-template-columns: 1fr; gap: 7px; }.transport-pooling-results article { padding: 10px; }.transport-invite { align-items: flex-start; flex-direction: column; }
+  .loan-saver { gap: 11px; padding: 14px; }.loan-option-grid { grid-template-columns: 1fr; gap: 8px; }.loan-option-title { min-height: 0; margin-bottom: 8px; }.loan-option-card { padding: 11px; }
+  .crop-milestone-widget { gap: 11px; padding: 14px; }.crop-milestone-timeline { grid-template-columns: repeat(2, minmax(0, 1fr)); row-gap: 8px; }.crop-milestone-timeline > li:nth-child(3)::before { display: none; }.crop-milestone-card { min-height: 170px; padding: 10px; }
+  .smart-report-launch { align-items: stretch; flex-direction: column; padding: 12px; }.smart-report-launch .button { width: 100%; }
+  .farmer-report-overlay { align-items: end; padding: 0; }.farmer-report-dialog { width: 100%; max-height: 92vh; padding: 16px; border-radius: 14px 14px 0 0; }.farmer-report-sections { grid-template-columns: 1fr; gap: 8px; }.farmer-report-header h2 { font-size: 17px; }.farmer-report-actions { display: grid; grid-template-columns: 1fr; }.farmer-report-actions .button { width: 100%; }
+  .expense-ledger { gap: 11px; padding: 14px; }.expense-ledger-form { grid-template-columns: repeat(2, minmax(0, 1fr)); }.expense-ledger-form > .button { justify-self: start; }.expense-ledger-summary { grid-template-columns: 1fr; gap: 8px; }
   .smart-farm-context { grid-template-columns: 1fr; gap: 10px; padding: 13px; }.smart-farm-grid { grid-template-columns: 1fr; gap: 10px; }.smart-farm-grid > .panel { padding: 13px; }.smart-farm-panel-heading h2 { font-size: 12px; }.farm-alert-list li { grid-template-columns: 22px minmax(0, 1fr) auto; gap: 6px; }.smart-farm-panel-heading > .demo-badge { max-width: 52%; font-size: 6px; }
   .post-harvest-layout { grid-template-columns: 1fr; gap: 10px; }.post-harvest-advisor .smart-farm-panel-heading { align-items: flex-start; }.post-harvest-advisor .smart-farm-panel-heading h2 { max-width: 275px; }.post-harvest-inputs { gap: 8px; }
   .crop-doctor-intro { gap: 14px; padding: 13px; }.crop-doctor-tags { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; }.crop-doctor-tag { min-height: 41px; padding: 7px; font-size: 8px; }.crop-doctor-result { padding: 12px; }.crop-doctor-result-heading { gap: 7px; }.crop-doctor-result-heading h2 { font-size: 12px; }.crop-doctor-severity { min-width: 65px; padding: 6px; }.crop-doctor-advice-grid { grid-template-columns: 1fr; gap: 7px; }.crop-doctor-advice-grid > section { padding: 9px; }.crop-doctor-disclaimer { padding: 10px; }
@@ -832,9 +941,23 @@ td:first-child { color: #455b49; font-weight: 600; }
   .bio-recipe-actions { justify-content: stretch; }
   .bio-recipe-actions > .button { flex: 1 1 100%; }
 }
+@media print {
+  @page { margin: 14mm; }
+  body * { visibility: hidden !important; }
+  .farmer-report-overlay, .farmer-report-overlay * { visibility: visible !important; }
+  .farmer-report-overlay { position: absolute !important; inset: 0 auto auto 0 !important; display: block !important; width: 100% !important; padding: 0 !important; background: #fff !important; }
+  .farmer-report-dialog { width: 100% !important; max-height: none !important; overflow: visible !important; padding: 0 !important; border: 0 !important; border-radius: 0 !important; box-shadow: none !important; }
+  .farmer-report-close, .farmer-report-actions { display: none !important; }
+  .farmer-report-sections { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+  .farmer-report-section { break-inside: avoid; page-break-inside: avoid; }
+  .farmer-report-header h2 { font-size: 18pt; }
+}
 @media (max-width: 380px) {
   .main-area { padding-right: 12px; padding-left: 12px; }.mobile-brand { font-size: 11px; }.offline-pill { max-width: 72px; padding: 4px 5px; font-size: 6px; }.top-actions { gap: 3px; }.language-toggle { font-size: 6px; }.language-toggle button { padding: 3px 4px; }
   .transport-pooling-inputs { grid-template-columns: 1fr; }
+  .loan-saver-inputs { grid-template-columns: 1fr; }
+  .crop-milestone-inputs { grid-template-columns: 1fr; }.crop-milestone-timeline { grid-template-columns: 1fr; gap: 7px; }.crop-milestone-timeline > li { padding: 0 0 0 34px; }.crop-milestone-timeline > li + li::before { display: none; }.crop-milestone-marker { top: 12px; left: 12px; transform: none; }.crop-milestone-card { min-height: 0; }.crop-milestone-actions { justify-content: stretch; }.crop-milestone-actions > .button { flex: 1 1 100%; }
+  .expense-ledger-form { grid-template-columns: 1fr; }.expense-ledger-form > .button { width: 100%; }.expense-ledger-apply { align-items: stretch; flex-direction: column; }.expense-ledger-apply .button { width: 100%; }.expense-ledger-list li { grid-template-columns: 28px minmax(0, 1fr) auto 27px; gap: 6px; padding: 7px 6px; }.expense-ledger-entry-amount { font-size: 8px; }
   .overview-card { padding-right: 9px; padding-left: 9px; }.market-price { font-size: 19px; }.mini-stats { font-size: 7px; }.weather-facts div { display: block; padding-left: 6px; }.weather-facts div > span { display: none; }.weather-facts small { display: block; line-height: 1.4; }.weather-facts strong { display: block; }
   .soil-summary .demo-badge { padding: 5px; letter-spacing: 0; }.crop-grid { grid-template-columns: 1fr; }.crop-art { height: 94px; }.crop-content > p { min-height: 0; }.crop-facts { grid-template-columns: 1fr 1fr; }.crop-content .button { font-size: 9px; }.profit-input-grid { grid-template-columns: 1fr; }.profit-crop-field { grid-column: auto; }.profit-metrics { grid-template-columns: 1fr 1fr; }.profit-metric:last-child { grid-column: 1 / -1; }.profile-form { grid-template-columns: 1fr; }.form-footer { grid-column: 1; }.language-options button { min-width: 84px; padding: 8px 7px; font-size: 8px; }
   .crop-doctor-tags { grid-template-columns: 1fr; }.crop-doctor-result-heading { align-items: flex-start; flex-wrap: wrap; }.crop-doctor-result-heading > div { min-width: calc(100% - 55px); }.crop-doctor-severity { margin-left: 45px; }
