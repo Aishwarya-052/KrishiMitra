@@ -1,5 +1,6 @@
 export const MANDI_RESOURCE_ID = "9ef84268-d588-465a-a308-a864a43d0070";
 export const MANDI_SOURCE_URL = `https://api.data.gov.in/resource/${MANDI_RESOURCE_ID}`;
+const DEFAULT_DATA_GOV_KEY = "579b464db66ec23bdd0000018db2b0111bce4d7d7fd7e1f420d51236";
 
 const FIELD_ALIASES = {
   state: ["state"],
@@ -84,18 +85,18 @@ export async function handleMandiRequest(request, apiKey, fetcher = fetch, optio
   if (request.method !== "GET") {
     return jsonResponse(405, { error: "method_not_allowed" });
   }
-  if (!apiKey?.trim()) {
-    return jsonResponse(503, { error: "missing_credentials" });
-  }
+
+  const resolvedKey = (apiKey?.trim() && apiKey.trim() !== "your_actual_api_key")
+    ? apiKey.trim()
+    : DEFAULT_DATA_GOV_KEY;
 
   const requestUrl = new URL(request.url);
   const upstreamUrl = new URL(MANDI_SOURCE_URL);
   const limit = Number.isInteger(options.limit) && options.limit > 0 ? options.limit : 1000;
-  upstreamUrl.searchParams.set("api-key", apiKey.trim());
+  upstreamUrl.searchParams.set("api-key", resolvedKey);
   upstreamUrl.searchParams.set("format", "json");
   upstreamUrl.searchParams.set("limit", String(limit));
   upstreamUrl.searchParams.set("offset", "0");
-  upstreamUrl.searchParams.set("sort[Arrival_Date]", "desc");
 
   const filters = [
     ["state", "State"],
@@ -112,7 +113,7 @@ export async function handleMandiRequest(request, apiKey, fetcher = fetch, optio
   try {
     upstream = await fetcher(upstreamUrl, {
       headers: { Accept: "application/json" },
-      signal: AbortSignal.timeout(20000),
+      signal: AbortSignal.timeout(25000),
     });
   } catch {
     return jsonResponse(502, { error: "upstream_unavailable" });
@@ -136,7 +137,11 @@ export async function handleMandiRequest(request, apiKey, fetcher = fetch, optio
     return jsonResponse(502, { error: "invalid_upstream_response" });
   }
 
-  const records = payload.records.map(normalizeMandiRecord).filter(Boolean);
+  const records = payload.records
+    .map(normalizeMandiRecord)
+    .filter(Boolean)
+    .sort((a, b) => b.arrivalDate.localeCompare(a.arrivalDate));
+
   if (payload.records.length > 0 && records.length === 0) {
     return jsonResponse(502, {
       error: "unrecognized_upstream_fields",
