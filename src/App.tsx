@@ -5897,15 +5897,115 @@ function Settings({ t, language, setLanguage, profile, clearProfile, navigate }:
   </>;
 }
 
+type ProfileLocationSuggestion = {
+  id: string;
+  name: string;
+  district: string | null;
+  state: string | null;
+};
+
+const defaultVillageSuggestions: ProfileLocationSuggestion[] = [
+  { id: "default-village-srirangapatna", name: "Srirangapatna", district: "Mandya", state: "Karnataka" },
+  { id: "default-village-nanjangud", name: "Nanjangud", district: "Mysuru", state: "Karnataka" },
+  { id: "default-village-maddur", name: "Maddur", district: "Mandya", state: "Karnataka" },
+  { id: "default-village-hunsur", name: "Hunsur", district: "Mysuru", state: "Karnataka" },
+  { id: "default-village-bengaluru", name: "Bengaluru", district: "Bengaluru Urban", state: "Karnataka" },
+  { id: "default-village-mysuru", name: "Mysuru", district: "Mysuru", state: "Karnataka" },
+  { id: "default-village-hubballi", name: "Hubballi", district: "Dharwad", state: "Karnataka" },
+  { id: "default-village-mangaluru", name: "Mangaluru", district: "Dakshina Kannada", state: "Karnataka" },
+  { id: "default-village-pune", name: "Pune", district: "Pune", state: "Maharashtra" },
+  { id: "default-village-hyderabad", name: "Hyderabad", district: "Hyderabad", state: "Telangana" },
+];
+
+const defaultDistrictSuggestions: ProfileLocationSuggestion[] = [
+  { id: "default-district-bengaluru-urban", name: "Bengaluru Urban", district: "Bengaluru Urban", state: "Karnataka" },
+  { id: "default-district-mysuru", name: "Mysuru", district: "Mysuru", state: "Karnataka" },
+  { id: "default-district-mandya", name: "Mandya", district: "Mandya", state: "Karnataka" },
+  { id: "default-district-hassan", name: "Hassan", district: "Hassan", state: "Karnataka" },
+  { id: "default-district-tumakuru", name: "Tumakuru", district: "Tumakuru", state: "Karnataka" },
+  { id: "default-district-kolar", name: "Kolar", district: "Kolar", state: "Karnataka" },
+  { id: "default-district-dharwad", name: "Dharwad", district: "Dharwad", state: "Karnataka" },
+  { id: "default-district-belagavi", name: "Belagavi", district: "Belagavi", state: "Karnataka" },
+  { id: "default-district-dakshina-kannada", name: "Dakshina Kannada", district: "Dakshina Kannada", state: "Karnataka" },
+  { id: "default-district-pune", name: "Pune", district: "Pune", state: "Maharashtra" },
+];
+
 type LocationSuggestionState = {
   query: string;
-  results: WeatherLocation[];
+  results: ProfileLocationSuggestion[];
   loading: boolean;
   searched: boolean;
   error: string;
 };
 
-function useIndianLocationSuggestions(query: string, active: boolean): LocationSuggestionState {
+function isLocationRecord(value: unknown): value is Record<string, unknown> {
+  return Boolean(value) && typeof value === "object" && !Array.isArray(value);
+}
+
+async function searchIndianPostOffices(query: string, signal: AbortSignal): Promise<ProfileLocationSuggestion[]> {
+  let response: Response;
+  try {
+    response = await fetch(`https://api.postalpincode.in/postoffice/${encodeURIComponent(query)}`, { signal });
+  } catch (error) {
+    if (error instanceof DOMException && error.name === "AbortError") throw error;
+    throw new Error("India Post location search could not be reached.");
+  }
+  if (!response.ok) throw new Error(`India Post location search failed with status ${response.status}.`);
+
+  let payload: unknown;
+  try {
+    payload = await response.json();
+  } catch {
+    throw new Error("India Post location search returned invalid JSON.");
+  }
+  if (!Array.isArray(payload)) throw new Error("India Post location search returned an unexpected response.");
+
+  const successfulResponse = payload.find((item) => isLocationRecord(item) && item.Status === "Success");
+  if (!successfulResponse || !isLocationRecord(successfulResponse)) return [];
+  if (successfulResponse.PostOffice === null) return [];
+  if (!Array.isArray(successfulResponse.PostOffice)) throw new Error("India Post location search returned an invalid post-office list.");
+
+  const seen = new Set<string>();
+  return successfulResponse.PostOffice.flatMap((item: unknown) => {
+    if (!isLocationRecord(item)) return [];
+    const name = typeof item.Name === "string" ? item.Name.trim() : "";
+    const district = typeof item.District === "string" ? item.District.trim() : "";
+    const state = typeof item.State === "string" ? item.State.trim() : "";
+    if (!name || !district || !state) return [];
+    if (typeof item.Country === "string" && item.Country !== "India") return [];
+    const id = `post:${name}|${district}|${state}`.toLocaleLowerCase();
+    if (seen.has(id)) return [];
+    seen.add(id);
+    return [{ id, name, district, state }];
+  }).slice(0, 10);
+}
+
+async function searchProfileIndianLocations(query: string, signal: AbortSignal): Promise<ProfileLocationSuggestion[]> {
+  let postalError: unknown;
+  try {
+    const postOffices = await searchIndianPostOffices(query, signal);
+    if (postOffices.length > 0) return postOffices;
+  } catch (error) {
+    if (signal.aborted) throw error;
+    postalError = error;
+  }
+
+  try {
+    const locations = await searchWeatherLocations(query, signal, "IN");
+    return locations.map((location) => ({
+      id: `geocoding:${location.id}`,
+      name: location.name,
+      district: location.admin2,
+      state: location.admin1,
+    }));
+  } catch (error) {
+    if (signal.aborted) throw error;
+    if (postalError) console.error("India Post and Open-Meteo location searches both failed.", postalError, error);
+    throw error;
+  }
+}
+
+function useIndianLocationSuggestions(query: string, active: boolean, showDefaults: boolean, field: "village" | "district"): LocationSuggestionState {
   const [state, setState] = useState<LocationSuggestionState>({
     query: "",
     results: [],
@@ -5916,16 +6016,25 @@ function useIndianLocationSuggestions(query: string, active: boolean): LocationS
 
   useEffect(() => {
     const trimmedQuery = query.trim();
-    if (!active || trimmedQuery.length < 2) {
+    if (!active) {
       setState({ query: trimmedQuery, results: [], loading: false, searched: false, error: "" });
+      return;
+    }
+    if (showDefaults || trimmedQuery.length < 2) {
+      setState({
+        query: trimmedQuery,
+        results: field === "village" ? defaultVillageSuggestions : defaultDistrictSuggestions,
+        loading: false,
+        searched: true,
+        error: "",
+      });
       return;
     }
 
     const controller = new AbortController();
-    setState({ query: trimmedQuery, results: [], loading: false, searched: false, error: "" });
+    setState({ query: trimmedQuery, results: [], loading: true, searched: false, error: "" });
     const timeout = window.setTimeout(() => {
-      setState((current) => current.query === trimmedQuery ? { ...current, loading: true } : current);
-      void searchWeatherLocations(trimmedQuery, controller.signal, "IN")
+      void searchProfileIndianLocations(trimmedQuery, controller.signal)
         .then((results) => {
           if (controller.signal.aborted) return;
           setState({ query: trimmedQuery, results, loading: false, searched: true, error: "" });
@@ -5947,10 +6056,22 @@ function useIndianLocationSuggestions(query: string, active: boolean): LocationS
       window.clearTimeout(timeout);
       controller.abort();
     };
-  }, [query, active]);
+  }, [query, active, showDefaults, field]);
 
-  if (!active || state.query !== query.trim()) {
+  if (!active) {
     return { query: query.trim(), results: [], loading: false, searched: false, error: "" };
+  }
+  if (showDefaults || query.trim().length < 2) {
+    return {
+      query: query.trim(),
+      results: field === "village" ? defaultVillageSuggestions : defaultDistrictSuggestions,
+      loading: false,
+      searched: true,
+      error: "",
+    };
+  }
+  if (state.query !== query.trim()) {
+    return { query: query.trim(), results: [], loading: true, searched: false, error: "" };
   }
   return state;
 }
@@ -5959,30 +6080,35 @@ function ProfileForm({ t, profile, saveProfile }: PageProps & { profile: FarmerP
   const [form, setForm] = useState<FarmerProfile>(profile ?? { name: "", village: "", district: "", land: "", soil: "", irrigation: "" });
   const [villageActive, setVillageActive] = useState(false);
   const [districtActive, setDistrictActive] = useState(false);
-  const villageSearch = useIndianLocationSuggestions(form.village, villageActive);
-  const districtSearch = useIndianLocationSuggestions(form.district, districtActive);
+  const [villageShowDefaults, setVillageShowDefaults] = useState(false);
+  const [districtShowDefaults, setDistrictShowDefaults] = useState(false);
+  const villageSearch = useIndianLocationSuggestions(form.village, villageActive, villageShowDefaults, "village");
+  const districtSearch = useIndianLocationSuggestions(form.district, districtActive, districtShowDefaults, "district");
   function update(field: keyof FarmerProfile, value: string) {
     setForm((current) => ({ ...current, [field]: value }));
   }
-  function chooseVillage(location: WeatherLocation) {
+  function chooseVillage(location: ProfileLocationSuggestion) {
     setForm((current) => ({
       ...current,
       village: location.name,
-      ...(location.admin2 ? { district: location.admin2 } : {}),
+      ...(location.district ? { district: location.district } : {}),
     }));
     setVillageActive(false);
+    setVillageShowDefaults(false);
   }
-  function chooseDistrict(location: WeatherLocation) {
-    setForm((current) => ({ ...current, district: location.admin2 ?? location.name }));
+  function chooseDistrict(location: ProfileLocationSuggestion) {
+    setForm((current) => ({ ...current, district: location.district ?? location.name }));
     setDistrictActive(false);
+    setDistrictShowDefaults(false);
   }
   function renderLocationSuggestions(
     field: "village" | "district",
     search: LocationSuggestionState,
     active: boolean,
-    selectLocation: (location: WeatherLocation) => void,
+    selectLocation: (location: ProfileLocationSuggestion) => void,
   ) {
-    const isOpen = active && (search.loading || search.searched || Boolean(search.error));
+    const showDefaults = field === "village" ? villageShowDefaults : districtShowDefaults;
+    const isOpen = active && (showDefaults || form[field].trim().length < 2 || search.loading || search.searched || Boolean(search.error));
     if (!isOpen) return null;
     return <div className="location-results weather-location-suggestions profile-location-suggestions" id={`profile-${field}-suggestions`} role="listbox" aria-label={t("selectLocation")}>
       <strong>{t("selectLocation")}</strong>
@@ -5990,7 +6116,7 @@ function ProfileForm({ t, profile, saveProfile }: PageProps & { profile: FarmerP
       {search.error && <span className="profile-location-error" role="alert">{weatherErrorMessage(search.error, t)}</span>}
       {!search.loading && !search.error && search.results.map((result) =>
         <button type="button" className="location-result" role="option" aria-selected={false} key={result.id} onClick={() => selectLocation(result)}>
-          <span className="result-pin" aria-hidden="true">⌖</span><span>{locationLabel(result)}</span><b aria-hidden="true">→</b>
+          <span className="result-pin" aria-hidden="true">⌖</span><span>{[result.name, result.district, result.state].filter((part, index, parts): part is string => Boolean(part) && parts.indexOf(part) === index).join(", ")}</span><b aria-hidden="true">→</b>
         </button>,
       )}
       {search.searched && !search.error && search.results.length === 0 && <span className="profile-location-status">{t("noLocationResults")}</span>}
@@ -6003,19 +6129,19 @@ function ProfileForm({ t, profile, saveProfile }: PageProps & { profile: FarmerP
       <label>{t("fullName")} *<input value={form.name} onChange={(event) => update("name", event.target.value)} placeholder={languageOf(t) === "kn" ? "ಉದಾ. ಲಕ್ಷ್ಮಿ" : languageOf(t) === "hi" ? "उदा. लक्ष्मी" : "e.g. Lakshmi"} required /></label>
       <div className="profile-location-field">
         <label htmlFor="profile-village">{t("village")} *</label>
-        <div className="profile-location-input" onFocus={() => setVillageActive(true)} onBlur={(event) => {
+        <div className="profile-location-input" onFocus={() => { setVillageActive(true); setVillageShowDefaults(true); }} onBlur={(event) => {
           if (!(event.relatedTarget instanceof Node) || !event.currentTarget.contains(event.relatedTarget)) setVillageActive(false);
         }}>
-          <input id="profile-village" role="combobox" aria-autocomplete="list" aria-expanded={villageActive && (villageSearch.loading || villageSearch.searched || Boolean(villageSearch.error))} aria-controls="profile-village-suggestions" value={form.village} onChange={(event) => update("village", event.target.value)} placeholder={languageOf(t) === "kn" ? "ನಿಮ್ಮ ಗ್ರಾಮ" : languageOf(t) === "hi" ? "आपका गाँव" : "Your village"} required />
+          <input id="profile-village" role="combobox" aria-autocomplete="list" aria-expanded={villageActive && (villageShowDefaults || villageSearch.loading || villageSearch.searched || Boolean(villageSearch.error))} aria-controls="profile-village-suggestions" value={form.village} onChange={(event) => { setVillageShowDefaults(false); update("village", event.target.value); }} placeholder={languageOf(t) === "kn" ? "ನಿಮ್ಮ ಗ್ರಾಮ" : languageOf(t) === "hi" ? "आपका गाँव" : "Your village"} required />
           {renderLocationSuggestions("village", villageSearch, villageActive, chooseVillage)}
         </div>
       </div>
       <div className="profile-location-field">
         <label htmlFor="profile-district">{t("district")} *</label>
-        <div className="profile-location-input" onFocus={() => setDistrictActive(true)} onBlur={(event) => {
+        <div className="profile-location-input" onFocus={() => { setDistrictActive(true); setDistrictShowDefaults(true); }} onBlur={(event) => {
           if (!(event.relatedTarget instanceof Node) || !event.currentTarget.contains(event.relatedTarget)) setDistrictActive(false);
         }}>
-          <input id="profile-district" role="combobox" aria-autocomplete="list" aria-expanded={districtActive && (districtSearch.loading || districtSearch.searched || Boolean(districtSearch.error))} aria-controls="profile-district-suggestions" value={form.district} onChange={(event) => update("district", event.target.value)} placeholder={languageOf(t) === "kn" ? "ನಿಮ್ಮ ಜಿಲ್ಲೆ" : languageOf(t) === "hi" ? "आपका जिला" : "Your district"} required />
+          <input id="profile-district" role="combobox" aria-autocomplete="list" aria-expanded={districtActive && (districtShowDefaults || districtSearch.loading || districtSearch.searched || Boolean(districtSearch.error))} aria-controls="profile-district-suggestions" value={form.district} onChange={(event) => { setDistrictShowDefaults(false); update("district", event.target.value); }} placeholder={languageOf(t) === "kn" ? "ನಿಮ್ಮ ಜಿಲ್ಲೆ" : languageOf(t) === "hi" ? "आपका जिला" : "Your district"} required />
           {renderLocationSuggestions("district", districtSearch, districtActive, chooseDistrict)}
         </div>
       </div>
