@@ -612,6 +612,7 @@ function readSavedWeatherLocation(): WeatherLocation | null {
       id: value.id,
       name: value.name,
       country: value.country,
+      countryCode: "countryCode" in value && typeof value.countryCode === "string" ? value.countryCode : null,
       latitude: value.latitude,
       longitude: value.longitude,
       admin1: "admin1" in value && typeof value.admin1 === "string" ? value.admin1 : null,
@@ -5896,18 +5897,128 @@ function Settings({ t, language, setLanguage, profile, clearProfile, navigate }:
   </>;
 }
 
+type LocationSuggestionState = {
+  query: string;
+  results: WeatherLocation[];
+  loading: boolean;
+  searched: boolean;
+  error: string;
+};
+
+function useIndianLocationSuggestions(query: string, active: boolean): LocationSuggestionState {
+  const [state, setState] = useState<LocationSuggestionState>({
+    query: "",
+    results: [],
+    loading: false,
+    searched: false,
+    error: "",
+  });
+
+  useEffect(() => {
+    const trimmedQuery = query.trim();
+    if (!active || trimmedQuery.length < 2) {
+      setState({ query: trimmedQuery, results: [], loading: false, searched: false, error: "" });
+      return;
+    }
+
+    const controller = new AbortController();
+    setState({ query: trimmedQuery, results: [], loading: false, searched: false, error: "" });
+    const timeout = window.setTimeout(() => {
+      setState((current) => current.query === trimmedQuery ? { ...current, loading: true } : current);
+      void searchWeatherLocations(trimmedQuery, controller.signal, "IN")
+        .then((results) => {
+          if (controller.signal.aborted) return;
+          setState({ query: trimmedQuery, results, loading: false, searched: true, error: "" });
+        })
+        .catch((caught: unknown) => {
+          if (controller.signal.aborted) return;
+          console.error("Could not search Indian farm locations.", caught);
+          setState({
+            query: trimmedQuery,
+            results: [],
+            loading: false,
+            searched: true,
+            error: caught instanceof WeatherServiceError ? caught.message : "invalid-response",
+          });
+        });
+    }, 300);
+
+    return () => {
+      window.clearTimeout(timeout);
+      controller.abort();
+    };
+  }, [query, active]);
+
+  if (!active || state.query !== query.trim()) {
+    return { query: query.trim(), results: [], loading: false, searched: false, error: "" };
+  }
+  return state;
+}
+
 function ProfileForm({ t, profile, saveProfile }: PageProps & { profile: FarmerProfile | null; saveProfile: (profile: FarmerProfile) => boolean }) {
   const [form, setForm] = useState<FarmerProfile>(profile ?? { name: "", village: "", district: "", land: "", soil: "", irrigation: "" });
+  const [villageActive, setVillageActive] = useState(false);
+  const [districtActive, setDistrictActive] = useState(false);
+  const villageSearch = useIndianLocationSuggestions(form.village, villageActive);
+  const districtSearch = useIndianLocationSuggestions(form.district, districtActive);
   function update(field: keyof FarmerProfile, value: string) {
     setForm((current) => ({ ...current, [field]: value }));
+  }
+  function chooseVillage(location: WeatherLocation) {
+    setForm((current) => ({
+      ...current,
+      village: location.name,
+      ...(location.admin2 ? { district: location.admin2 } : {}),
+    }));
+    setVillageActive(false);
+  }
+  function chooseDistrict(location: WeatherLocation) {
+    setForm((current) => ({ ...current, district: location.admin2 ?? location.name }));
+    setDistrictActive(false);
+  }
+  function renderLocationSuggestions(
+    field: "village" | "district",
+    search: LocationSuggestionState,
+    active: boolean,
+    selectLocation: (location: WeatherLocation) => void,
+  ) {
+    const isOpen = active && (search.loading || search.searched || Boolean(search.error));
+    if (!isOpen) return null;
+    return <div className="location-results weather-location-suggestions profile-location-suggestions" id={`profile-${field}-suggestions`} role="listbox" aria-label={t("selectLocation")}>
+      <strong>{t("selectLocation")}</strong>
+      {search.loading && <span className="profile-location-status" role="status">{t("searching")}</span>}
+      {search.error && <span className="profile-location-error" role="alert">{weatherErrorMessage(search.error, t)}</span>}
+      {!search.loading && !search.error && search.results.map((result) =>
+        <button type="button" className="location-result" role="option" aria-selected={false} key={result.id} onClick={() => selectLocation(result)}>
+          <span className="result-pin" aria-hidden="true">⌖</span><span>{locationLabel(result)}</span><b aria-hidden="true">→</b>
+        </button>,
+      )}
+      {search.searched && !search.error && search.results.length === 0 && <span className="profile-location-status">{t("noLocationResults")}</span>}
+    </div>;
   }
   const soilOptions = [{ value: "Red soil", label: t("typeRed") }, { value: "Black soil", label: t("typeBlack") }, { value: "Sandy soil", label: t("typeSandy") }, { value: "Loamy soil", label: t("typeLoamy") }];
   const waterOptions = [{ value: "Canal", label: t("waterCanal") }, { value: "Borewell", label: t("waterBorewell") }, { value: "Rainfed", label: t("waterRainfed") }, { value: "Other", label: t("waterOther") }];
   return <section className="panel profile-form-panel" id="profile-form"><div className="profile-form-heading"><div className="profile-icon">♧</div><div><div className="eyebrow">{t("profileBadge")}</div><h2>{t("profileTitle")}</h2><p>{t("profileSub")}</p></div></div>
     <form className="profile-form" onSubmit={(event: FormEvent) => { event.preventDefault(); saveProfile(form); }}>
       <label>{t("fullName")} *<input value={form.name} onChange={(event) => update("name", event.target.value)} placeholder={languageOf(t) === "kn" ? "ಉದಾ. ಲಕ್ಷ್ಮಿ" : languageOf(t) === "hi" ? "उदा. लक्ष्मी" : "e.g. Lakshmi"} required /></label>
-      <label>{t("village")} *<input value={form.village} onChange={(event) => update("village", event.target.value)} placeholder={languageOf(t) === "kn" ? "ನಿಮ್ಮ ಗ್ರಾಮ" : languageOf(t) === "hi" ? "आपका गाँव" : "Your village"} required /></label>
-      <label>{t("district")} *<input value={form.district} onChange={(event) => update("district", event.target.value)} placeholder={languageOf(t) === "kn" ? "ನಿಮ್ಮ ಜಿಲ್ಲೆ" : languageOf(t) === "hi" ? "आपका जिला" : "Your district"} required /></label>
+      <div className="profile-location-field">
+        <label htmlFor="profile-village">{t("village")} *</label>
+        <div className="profile-location-input" onFocus={() => setVillageActive(true)} onBlur={(event) => {
+          if (!(event.relatedTarget instanceof Node) || !event.currentTarget.contains(event.relatedTarget)) setVillageActive(false);
+        }}>
+          <input id="profile-village" role="combobox" aria-autocomplete="list" aria-expanded={villageActive && (villageSearch.loading || villageSearch.searched || Boolean(villageSearch.error))} aria-controls="profile-village-suggestions" value={form.village} onChange={(event) => update("village", event.target.value)} placeholder={languageOf(t) === "kn" ? "ನಿಮ್ಮ ಗ್ರಾಮ" : languageOf(t) === "hi" ? "आपका गाँव" : "Your village"} required />
+          {renderLocationSuggestions("village", villageSearch, villageActive, chooseVillage)}
+        </div>
+      </div>
+      <div className="profile-location-field">
+        <label htmlFor="profile-district">{t("district")} *</label>
+        <div className="profile-location-input" onFocus={() => setDistrictActive(true)} onBlur={(event) => {
+          if (!(event.relatedTarget instanceof Node) || !event.currentTarget.contains(event.relatedTarget)) setDistrictActive(false);
+        }}>
+          <input id="profile-district" role="combobox" aria-autocomplete="list" aria-expanded={districtActive && (districtSearch.loading || districtSearch.searched || Boolean(districtSearch.error))} aria-controls="profile-district-suggestions" value={form.district} onChange={(event) => update("district", event.target.value)} placeholder={languageOf(t) === "kn" ? "ನಿಮ್ಮ ಜಿಲ್ಲೆ" : languageOf(t) === "hi" ? "आपका जिला" : "Your district"} required />
+          {renderLocationSuggestions("district", districtSearch, districtActive, chooseDistrict)}
+        </div>
+      </div>
       <label>{t("land")}<input type="number" min="0" step="0.1" value={form.land} onChange={(event) => update("land", event.target.value)} placeholder="e.g. 2.5" /></label>
       <label>{t("soilChoice")}<select value={form.soil} onChange={(event) => update("soil", event.target.value)}><option value="">{t("chooseOne")}</option>{soilOptions.map((option) => <option value={option.value} key={option.value}>{option.label}</option>)}</select></label>
       <label>{t("irrigation")}<select value={form.irrigation} onChange={(event) => update("irrigation", event.target.value)}><option value="">{t("chooseOne")}</option>{waterOptions.map((option) => <option value={option.value} key={option.value}>{option.label}</option>)}</select></label>

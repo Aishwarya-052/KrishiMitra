@@ -4,6 +4,7 @@ export type WeatherLocation = {
   admin1: string | null;
   admin2: string | null;
   country: string;
+  countryCode: string | null;
   latitude: number;
   longitude: number;
 };
@@ -83,17 +84,19 @@ function stringValue(value: unknown): string | null {
   return typeof value === "string" && value.length > 0 ? value : null;
 }
 
-export async function searchWeatherLocations(query: string, signal?: AbortSignal): Promise<WeatherLocation[]> {
+export async function searchWeatherLocations(query: string, signal?: AbortSignal, countryCodeFilter?: string): Promise<WeatherLocation[]> {
   const trimmedQuery = query.trim();
   if (trimmedQuery.length < 2) return [];
 
   const url = new URL("https://geocoding-api.open-meteo.com/v1/search");
-  url.search = new URLSearchParams({
+  const searchParams = new URLSearchParams({
     name: trimmedQuery,
     count: "10",
     language: "en",
     format: "json",
-  }).toString();
+  });
+  if (countryCodeFilter) searchParams.set("countryCode", countryCodeFilter);
+  url.search = searchParams.toString();
 
   const response = await getJson(url, signal);
   if (response.results === undefined) return [];
@@ -103,15 +106,18 @@ export async function searchWeatherLocations(query: string, signal?: AbortSignal
     if (!isRecord(result)) return [];
     const name = stringValue(result.name);
     const country = stringValue(result.country);
+    const countryCode = stringValue(result.country_code);
     const latitude = numberValue(result.latitude);
     const longitude = numberValue(result.longitude);
     if (!name || !country || latitude === null || longitude === null) return [];
+    if (countryCodeFilter && countryCode !== countryCodeFilter) return [];
     return [{
       id: `${latitude},${longitude}`,
       name,
       admin1: stringValue(result.admin1),
       admin2: stringValue(result.admin2),
       country,
+      countryCode,
       latitude,
       longitude,
     }];
