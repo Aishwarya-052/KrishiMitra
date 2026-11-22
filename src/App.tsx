@@ -2669,8 +2669,11 @@ function SevenDayWeatherChart({ days, locale, t }: {
     top + (temperatureMax - value) / (temperatureMax - temperatureMin) * (temperatureBottom - top);
   const formatValue = (value: number | null, maximumFractionDigits = 0) =>
     value === null ? "—" : new Intl.NumberFormat(locale, { maximumFractionDigits }).format(value);
-  const dateLabels = days.map((day) =>
-    new Date(`${day.date}T12:00:00`).toLocaleDateString(locale, { weekday: "short", day: "numeric" }),
+  const dayLabels = days.map((day) =>
+    new Date(`${day.date}T12:00:00`).toLocaleDateString(locale, { weekday: "short" }),
+  );
+  const fullDateLabels = days.map((day) =>
+    new Date(`${day.date}T12:00:00`).toLocaleDateString(locale, { weekday: "long", day: "numeric", month: "short" }),
   );
 
   function makeLinePath(getValue: (index: number) => number | null) {
@@ -2770,12 +2773,13 @@ function SevenDayWeatherChart({ days, locale, t }: {
         const x = xFor(index);
         const highY = day.temperatureMax === null ? null : yForTemperature(day.temperatureMax);
         const lowY = day.temperatureMin === null ? null : yForTemperature(day.temperatureMin);
-        const dateLabel = dateLabels[index] ?? day.date;
-        const accessibleLabel = `${dateLabel}: ${t("high")} ${formatValue(day.temperatureMax, 1)}°C, ${t("low")} ${formatValue(day.temperatureMin, 1)}°C, ${t("rainChance")} ${formatValue(day.precipitationProbability)}%`;
+        const dayLabel = dayLabels[index] ?? day.date;
+        const fullDateLabel = fullDateLabels[index] ?? day.date;
+        const accessibleLabel = `${fullDateLabel}: ${t("high")} ${formatValue(day.temperatureMax, 1)}°C, ${t("low")} ${formatValue(day.temperatureMin, 1)}°C, ${t("rainChance")} ${formatValue(day.precipitationProbability)}%`;
         return <g key={`weather-point-${day.date}`}>
           {highY !== null && <circle className="weather-chart-high-point" cx={x} cy={highY} r="4" />}
           {lowY !== null && <circle className="weather-chart-low-point" cx={x} cy={lowY} r="4" />}
-          <text className="weather-chart-date" x={x} y={dateY} textAnchor="middle">{dateLabel}</text>
+          <text className="weather-chart-date" x={x} y={dateY} textAnchor="middle">{dayLabel}</text>
           <rect
             className="weather-chart-hit-area"
             x={x - (right - left) / Math.max(days.length - 1, 1) / 2}
@@ -2799,7 +2803,7 @@ function SevenDayWeatherChart({ days, locale, t }: {
       role="status"
       aria-live="polite"
     >
-      <strong>{dateLabels[activeIndex] ?? activeDay.date}</strong>
+      <strong>{fullDateLabels[activeIndex] ?? activeDay.date}</strong>
       <span>{t("high")}: {formatValue(activeDay.temperatureMax, 1)}°C</span>
       <span>{t("low")}: {formatValue(activeDay.temperatureMin, 1)}°C</span>
       <span>{t("rainChance")}: {formatValue(activeDay.precipitationProbability)}%</span>
