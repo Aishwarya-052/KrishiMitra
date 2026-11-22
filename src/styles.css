@@ -230,6 +230,11 @@ h1, h2, p { margin-top: 0; }
 .weather-search-row input::placeholder { color: #a4aea5; }
 .weather-search-row .button { min-height: 33px; white-space: nowrap; }
 .weather-search-row .button:disabled { cursor: not-allowed; opacity: .7; }
+.location-detect-row { display: flex; flex-wrap: wrap; align-items: center; gap: 9px; margin-top: 10px; }
+.location-detect-row .button { display: inline-flex; align-items: center; gap: 7px; min-height: 34px; }
+.location-detect-row .button:disabled { cursor: wait; opacity: .7; }
+.location-attribution { color: #849184; font-size: 8px; text-decoration: none; }
+.location-attribution:hover { color: #527452; text-decoration: underline; }
 .weather-search-help { margin: 8px 0 0; color: #919c91; font-size: 8px; }
 .weather-status { display: flex; align-items: center; gap: 8px; margin-top: 11px; color: #718071; font-size: 9px; }
 .weather-alert { padding: 10px 12px; border: 1px solid #f0d7cb; border-radius: 8px; color: #945a43; background: #fff7f2; font-size: 9px; line-height: 1.5; }
@@ -644,6 +649,9 @@ td:first-child { color: #455b49; font-weight: 600; }
 .profile-form-heading { display: flex; align-items: center; gap: 12px; padding-bottom: 16px; border-bottom: 1px solid #eff1eb; }.profile-icon { width: 40px; height: 40px; display: grid; place-items: center; border-radius: 12px; color: #63835b; background: #e9f0e3; font-size: 22px; }.profile-form-heading .eyebrow { margin-bottom: 4px; }.profile-form-heading h2 { margin: 0; color: #3b5140; font: 700 15px "Manrope", sans-serif; }.profile-form-heading p { margin: 4px 0 0; color: #8d988f; font-size: 9px; }
 .profile-form { display: grid; grid-template-columns: repeat(2, 1fr); gap: 13px; padding-top: 16px; }.profile-form label { display: grid; gap: 6px; color: #607065; font-size: 9px; font-weight: 600; }.profile-form input, .profile-form select { width: 100%; min-height: 36px; padding: 0 10px; border: 1px solid #e5e9e1; border-radius: 7px; color: #4c6251; background: #fff; font-size: 10px; }.profile-form input::placeholder { color: #abb3ab; }.profile-form select:invalid { color: #aab1aa; }.form-footer { display: flex; grid-column: 1 / -1; align-items: center; justify-content: space-between; gap: 12px; padding-top: 4px; }.form-footer > span { color: #9aa39a; font-size: 8px; }
 .profile-location-field { min-width: 0; display: grid; gap: 6px; color: #607065; font-size: 9px; font-weight: 600; }
+.profile-location-detect { grid-column: 1 / -1; margin-top: 0; }
+.profile-location-detect > .profile-location-error { flex: 1 0 100%; padding: 0; }
+.profile-location-detected { flex: 1 0 100%; color: #527452; font-size: 9px; line-height: 1.5; }
 .profile-location-input { position: relative; min-width: 0; }
 .profile-location-input input { display: block; }
 .profile-location-suggestions { z-index: 25; }

@@ -84,6 +84,8 @@ const text = {
     dashboardWeatherNote: "Weather is live from Open-Meteo. Mandi prices remain demo data.",
     weatherSource: "OPEN-METEO", live: "LIVE", searchLocation: "Find your location",
     searchPlaceholder: "Search a city, district or village", search: "Search", searching: "Searching…",
+    detectLocation: "Detect my location", detectingLocation: "Detecting location…",
+    locationAttribution: "Location lookup by © OpenStreetMap contributors.", locationDetected: "Location found",
     noLocationResults: "No locations found. Try a nearby town or district.",
     selectLocation: "Select the correct location", selectedLocation: "Selected location",
     clearLocation: "Change location", currentTemperature: "Temperature", rainfall: "Rainfall",
@@ -93,7 +95,12 @@ const text = {
     refreshWeather: "Refresh weather", refreshing: "Updating…", loadingWeather: "Fetching live weather…",
     chooseWeatherLocation: "Choose a location to see its live weather.",
     noWeatherData: "Weather data is not available right now.",
-    weatherSearchHelp: "Search results come from Open-Meteo. Your device location is never requested.",
+    weatherSearchHelp: "Search results come from Open-Meteo. Your device location is used only when you choose Detect my location.",
+    locationPermissionError: "Location permission was denied. Allow location access in your browser, or search for a place manually.",
+    locationUnavailableError: "Your device could not determine a location. Check location services, or search manually.",
+    locationTimeoutError: "Location detection timed out. Try again or search for a place manually.",
+    locationUnsupportedError: "Location detection needs a supported browser and a secure connection (HTTPS or localhost).",
+    locationServiceError: "Could not identify the locality, district, and state. Search for a place manually and try again.",
     farmingAdvisory: "Farming weather advisory", noAdvisories: "No weather-triggered reminders for this forecast.",
     advisoryRain: "Rain is forecast. Check your irrigation requirements.",
     advisoryHeavyRain: "Heavy rainfall is forecast. Check field drainage.",
@@ -336,6 +343,8 @@ const text = {
     dashboardWeatherNote: "ಹವಾಮಾನ Open-Meteo ನಿಂದ ನೈಜವಾಗಿ ಬರುತ್ತದೆ. ಮಾರುಕಟ್ಟೆ ದರಗಳು ಡೆಮೋ ಮಾಹಿತಿಯೇ.",
     weatherSource: "OPEN-METEO", live: "ನೈಜ", searchLocation: "ನಿಮ್ಮ ಸ್ಥಳ ಹುಡುಕಿ",
     searchPlaceholder: "ನಗರ, ಜಿಲ್ಲೆ ಅಥವಾ ಗ್ರಾಮ ಹುಡುಕಿ", search: "ಹುಡುಕಿ", searching: "ಹುಡುಕಲಾಗುತ್ತಿದೆ…",
+    detectLocation: "ನನ್ನ ಸ್ಥಳ ಪತ್ತೆಹಚ್ಚಿ", detectingLocation: "ಸ್ಥಳ ಪತ್ತೆಹಚ್ಚಲಾಗುತ್ತಿದೆ…",
+    locationAttribution: "ಸ್ಥಳ ಮಾಹಿತಿ: © OpenStreetMap contributors", locationDetected: "ಸ್ಥಳ ಕಂಡುಬಂದಿದೆ",
     noLocationResults: "ಸ್ಥಳಗಳು ಕಂಡುಬಂದಿಲ್ಲ. ಹತ್ತಿರದ ಪಟ್ಟಣ ಅಥವಾ ಜಿಲ್ಲೆಯನ್ನು ಪ್ರಯತ್ನಿಸಿ.",
     selectLocation: "ಸರಿಯಾದ ಸ್ಥಳವನ್ನು ಆಯ್ಕೆಮಾಡಿ", selectedLocation: "ಆಯ್ಕೆ ಮಾಡಿದ ಸ್ಥಳ",
     clearLocation: "ಸ್ಥಳ ಬದಲಿಸಿ", currentTemperature: "ತಾಪಮಾನ", rainfall: "ಮಳೆ ಪ್ರಮಾಣ",
@@ -345,7 +354,12 @@ const text = {
     refreshWeather: "ಹವಾಮಾನ ನವೀಕರಿಸಿ", refreshing: "ನವೀಕರಿಸಲಾಗುತ್ತಿದೆ…", loadingWeather: "ನೈಜ ಹವಾಮಾನ ಪಡೆಯಲಾಗುತ್ತಿದೆ…",
     chooseWeatherLocation: "ನೈಜ ಹವಾಮಾನ ನೋಡಲು ಸ್ಥಳ ಆಯ್ಕೆಮಾಡಿ.",
     noWeatherData: "ಈಗ ಹವಾಮಾನ ಮಾಹಿತಿ ಲಭ್ಯವಿಲ್ಲ.",
-    weatherSearchHelp: "ಹುಡುಕಾಟ ಫಲಿತಾಂಶಗಳು Open-Meteo ನಿಂದ ಬರುತ್ತವೆ. ನಿಮ್ಮ ಸಾಧನದ ಸ್ಥಳವನ್ನು ಕೇಳುವುದಿಲ್ಲ.",
+    weatherSearchHelp: "ಹುಡುಕಾಟ ಫಲಿತಾಂಶಗಳು Open-Meteo ನಿಂದ ಬರುತ್ತವೆ. ನೀವು ನನ್ನ ಸ್ಥಳ ಪತ್ತೆಹಚ್ಚಿ ಆಯ್ಕೆ ಮಾಡಿದಾಗ ಮಾತ್ರ ಸಾಧನದ ಸ್ಥಳ ಬಳಸಲಾಗುತ್ತದೆ.",
+    locationPermissionError: "ಸ್ಥಳ ಅನುಮತಿಯನ್ನು ನಿರಾಕರಿಸಲಾಗಿದೆ. ಬ್ರೌಸರ್‌ನಲ್ಲಿ ಅನುಮತಿಸಿ ಅಥವಾ ಸ್ಥಳವನ್ನು ಕೈಯಾರೆ ಹುಡುಕಿ.",
+    locationUnavailableError: "ನಿಮ್ಮ ಸಾಧನದಿಂದ ಸ್ಥಳ ಪತ್ತೆಯಾಗಲಿಲ್ಲ. ಸ್ಥಳ ಸೇವೆಗಳನ್ನು ಪರಿಶೀಲಿಸಿ ಅಥವಾ ಕೈಯಾರೆ ಹುಡುಕಿ.",
+    locationTimeoutError: "ಸ್ಥಳ ಪತ್ತೆ ಸಮಯ ಮೀರಿದೆ. ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ ಅಥವಾ ಸ್ಥಳವನ್ನು ಕೈಯಾರೆ ಹುಡುಕಿ.",
+    locationUnsupportedError: "ಸ್ಥಳ ಪತ್ತೆಗೆ ಬೆಂಬಲಿತ ಬ್ರೌಸರ್ ಮತ್ತು ಸುರಕ್ಷಿತ ಸಂಪರ್ಕ (HTTPS ಅಥವಾ localhost) ಅಗತ್ಯ.",
+    locationServiceError: "ಪ್ರದೇಶ, ಜಿಲ್ಲೆ ಮತ್ತು ರಾಜ್ಯವನ್ನು ಗುರುತಿಸಲಾಗಲಿಲ್ಲ. ಸ್ಥಳವನ್ನು ಕೈಯಾರೆ ಹುಡುಕಿ ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ.",
     farmingAdvisory: "ಕೃಷಿ ಹವಾಮಾನ ಸಲಹೆ", noAdvisories: "ಈ ಮುನ್ಸೂಚನೆಯಲ್ಲಿ ಹವಾಮಾನ ಆಧಾರಿತ ನೆನಪುಗಳಿಲ್ಲ.",
     advisoryRain: "ಮಳೆ ಮುನ್ಸೂಚನೆ ಇದೆ. ನೀರಾವರಿ ಅಗತ್ಯಗಳನ್ನು ಪರಿಶೀಲಿಸಿ.",
     advisoryHeavyRain: "ಭಾರಿ ಮಳೆ ಮುನ್ಸೂಚನೆ ಇದೆ. ಹೊಲದ ಒಳಚರಂಡಿ ಪರಿಶೀಲಿಸಿ.",
@@ -735,12 +749,20 @@ const hindiText: Partial<Record<keyof typeof text.en, string>> = {
   high: "अधिकतम", low: "न्यूनतम", expectedRain: "अनुमानित बारिश",
   weatherSource: "ओपन-मेटियो", live: "लाइव", searchLocation: "अपना स्थान खोजें",
   searchPlaceholder: "शहर, जिला या गाँव खोजें", search: "खोजें", searching: "खोज रहे हैं…",
+  detectLocation: "मेरा स्थान पहचानें", detectingLocation: "स्थान पता किया जा रहा है…",
+  locationAttribution: "स्थान जानकारी: © OpenStreetMap contributors", locationDetected: "स्थान मिल गया",
   selectLocation: "सही स्थान चुनें", selectedLocation: "चुना गया स्थान",
   clearLocation: "स्थान बदलें", currentTemperature: "तापमान", rainfall: "बारिश",
   todayRainProbability: "आज बारिश की संभावना", lastUpdated: "अंतिम अपडेट",
   refreshWeather: "मौसम अपडेट करें", refreshing: "अपडेट हो रहा है…",
   loadingWeather: "लाइव मौसम प्राप्त हो रहा है…", chooseWeatherLocation: "लाइव मौसम देखने के लिए स्थान चुनें।",
   noWeatherData: "अभी मौसम की जानकारी उपलब्ध नहीं है।",
+  weatherSearchHelp: "खोज परिणाम Open-Meteo से आते हैं। डिवाइस का स्थान केवल मेरा स्थान पहचानें चुनने पर उपयोग होता है।",
+  locationPermissionError: "स्थान की अनुमति नहीं मिली। ब्राउज़र में अनुमति दें या जगह को स्वयं खोजें।",
+  locationUnavailableError: "आपके डिवाइस का स्थान पता नहीं चल सका। स्थान सेवाएँ जाँचें या स्वयं खोजें।",
+  locationTimeoutError: "स्थान पता करने में समय समाप्त हुआ। फिर कोशिश करें या जगह स्वयं खोजें।",
+  locationUnsupportedError: "स्थान पहचानने के लिए समर्थित ब्राउज़र और सुरक्षित कनेक्शन (HTTPS या localhost) चाहिए।",
+  locationServiceError: "इलाका, जिला और राज्य की पहचान नहीं हो सकी। जगह स्वयं खोजकर फिर कोशिश करें।",
   farmingAdvisory: "मौसम आधारित कृषि सलाह", noAdvisories: "इस पूर्वानुमान के लिए कोई मौसम चेतावनी नहीं है।",
   advisoryRain: "बारिश का पूर्वानुमान है। सिंचाई से पहले मिट्टी की नमी जाँचें।",
   advisoryHeavyRain: "भारी बारिश का पूर्वानुमान है। खेत की जल-निकासी जाँचें।",
@@ -888,6 +910,8 @@ const teluguText: CompleteAppTranslations = {
   dashboardWeatherNote: "వాతావరణ సమాచారం Open-Meteo నుంచి ప్రత్యక్షంగా వస్తుంది. మార్కెట్ ధరలు నమూనా సమాచారం.",
   weatherSource: "OPEN-METEO", live: "ప్రత్యక్షం", searchLocation: "మీ ప్రాంతాన్ని వెతకండి",
   searchPlaceholder: "నగరం, జిల్లా లేదా గ్రామం వెతకండి", search: "వెతకండి", searching: "వెతుకుతోంది…",
+  detectLocation: "నా స్థానాన్ని గుర్తించండి", detectingLocation: "స్థానాన్ని గుర్తిస్తోంది…",
+  locationAttribution: "స్థాన సమాచారం: © OpenStreetMap contributors", locationDetected: "స్థానం గుర్తించబడింది",
   noLocationResults: "ప్రాంతాలు కనబడలేదు. దగ్గరలోని పట్టణం లేదా జిల్లాను ప్రయత్నించండి.",
   selectLocation: "సరైన ప్రాంతాన్ని ఎంచుకోండి", selectedLocation: "ఎంచుకున్న ప్రాంతం", clearLocation: "ప్రాంతం మార్చండి",
   currentTemperature: "ఉష్ణోగ్రత", rainfall: "వర్షపాతం", currentRain: "ప్రస్తుతం వర్షం",
@@ -896,7 +920,12 @@ const teluguText: CompleteAppTranslations = {
   dataSource: "సమాచార మూలం", refreshWeather: "వాతావరణాన్ని నవీకరించండి", refreshing: "నవీకరిస్తోంది…",
   loadingWeather: "ప్రత్యక్ష వాతావరణ సమాచారం పొందుతోంది…", chooseWeatherLocation: "ప్రత్యక్ష వాతావరణం కోసం ప్రాంతాన్ని ఎంచుకోండి.",
   noWeatherData: "ప్రస్తుతం వాతావరణ సమాచారం అందుబాటులో లేదు.",
-  weatherSearchHelp: "శోధన ఫలితాలు Open-Meteo నుంచి వస్తాయి. మీ పరికరం స్థానాన్ని సేకరించదు.",
+  weatherSearchHelp: "శోధన ఫలితాలు Open-Meteo నుంచి వస్తాయి. నా స్థానాన్ని గుర్తించండి ఎంచుకున్నప్పుడే మీ పరికరం స్థానం ఉపయోగించబడుతుంది.",
+  locationPermissionError: "స్థాన అనుమతి నిరాకరించబడింది. బ్రౌజర్‌లో అనుమతించండి లేదా ప్రాంతాన్ని స్వయంగా వెతకండి.",
+  locationUnavailableError: "మీ పరికరం స్థానాన్ని గుర్తించలేకపోయింది. స్థాన సేవలను తనిఖీ చేయండి లేదా స్వయంగా వెతకండి.",
+  locationTimeoutError: "స్థానాన్ని గుర్తించే సమయం ముగిసింది. మళ్లీ ప్రయత్నించండి లేదా ప్రాంతాన్ని స్వయంగా వెతకండి.",
+  locationUnsupportedError: "స్థాన గుర్తింపుకు మద్దతు ఉన్న బ్రౌజర్, సురక్షిత కనెక్షన్ (HTTPS లేదా localhost) అవసరం.",
+  locationServiceError: "ప్రాంతం, జిల్లా, రాష్ట్రాన్ని గుర్తించలేకపోయాం. ప్రాంతాన్ని స్వయంగా వెతికి మళ్లీ ప్రయత్నించండి.",
   farmingAdvisory: "వ్యవసాయ వాతావరణ సూచన", noAdvisories: "ఈ అంచనాలో వాతావరణ హెచ్చరికలు లేవు.",
   advisoryRain: "వర్షం పడే అవకాశం ఉంది. నీటిపారుదల అవసరాన్ని పరిశీలించండి.",
   advisoryHeavyRain: "భారీ వర్షం పడే అవకాశం ఉంది. పొలంలో నీరు బయటకు వెళ్లే మార్గాలను పరిశీలించండి.",
@@ -1162,6 +1191,8 @@ const tamilText: CompleteAppTranslations = {
   dashboardWeatherNote: "வானிலை Open-Meteo இலிருந்து நேரடியாகப் பெறப்படுகிறது. சந்தை விலைகள் மாதிரித் தரவு.",
   weatherSource: "OPEN-METEO", live: "நேரடி", searchLocation: "உங்கள் இடத்தைத் தேடுங்கள்",
   searchPlaceholder: "நகரம், மாவட்டம் அல்லது கிராமத்தைத் தேடுங்கள்", search: "தேடு", searching: "தேடுகிறது…",
+  detectLocation: "எனது இருப்பிடத்தைக் கண்டறி", detectingLocation: "இருப்பிடம் கண்டறியப்படுகிறது…",
+  locationAttribution: "இருப்பிடத் தகவல்: © OpenStreetMap contributors", locationDetected: "இருப்பிடம் கண்டறியப்பட்டது",
   noLocationResults: "இடங்கள் கிடைக்கவில்லை. அருகிலுள்ள நகரம் அல்லது மாவட்டத்தை முயற்சிக்கவும்.",
   selectLocation: "சரியான இடத்தைத் தேர்ந்தெடுக்கவும்", selectedLocation: "தேர்ந்தெடுத்த இடம்",
   clearLocation: "இடத்தை மாற்றவும்", currentTemperature: "வெப்பநிலை", rainfall: "மழைப்பொழிவு",
@@ -1171,7 +1202,12 @@ const tamilText: CompleteAppTranslations = {
   dataSource: "தரவு மூலம்", refreshWeather: "வானிலையைப் புதுப்பிக்கவும்", refreshing: "புதுப்பிக்கிறது…",
   loadingWeather: "நேரடி வானிலை பெறப்படுகிறது…", chooseWeatherLocation: "நேரடி வானிலையைப் பார்க்க இடத்தைத் தேர்ந்தெடுக்கவும்.",
   noWeatherData: "தற்போது வானிலைத் தகவல் கிடைக்கவில்லை.",
-  weatherSearchHelp: "தேடல் முடிவுகள் Open-Meteo இலிருந்து வருகின்றன. உங்கள் சாதனத்தின் இருப்பிடம் கோரப்படாது.",
+  weatherSearchHelp: "தேடல் முடிவுகள் Open-Meteo இலிருந்து வருகின்றன. எனது இருப்பிடத்தைக் கண்டறி என்பதைத் தேர்ந்தெடுத்தால் மட்டுமே சாதன இருப்பிடம் பயன்படுத்தப்படும்.",
+  locationPermissionError: "இருப்பிட அனுமதி மறுக்கப்பட்டது. உலாவியில் அனுமதிக்கவும் அல்லது இடத்தைத் தேடவும்.",
+  locationUnavailableError: "சாதனத்தின் இருப்பிடத்தைக் கண்டறிய முடியவில்லை. இருப்பிடச் சேவையைச் சரிபார்க்கவும் அல்லது தேடவும்.",
+  locationTimeoutError: "இருப்பிடத்தைக் கண்டறியும் நேரம் முடிந்தது. மீண்டும் முயற்சிக்கவும் அல்லது இடத்தைத் தேடவும்.",
+  locationUnsupportedError: "இருப்பிடத்தைக் கண்டறிய ஆதரிக்கப்படும் உலாவியும் பாதுகாப்பான இணைப்பும் (HTTPS அல்லது localhost) தேவை.",
+  locationServiceError: "வட்டாரம், மாவட்டம் மற்றும் மாநிலத்தைக் கண்டறிய முடியவில்லை. இடத்தைத் தேடி மீண்டும் முயற்சிக்கவும்.",
   farmingAdvisory: "விவசாய வானிலை ஆலோசனை", noAdvisories: "இந்த முன்னறிவிப்பில் வானிலை எச்சரிக்கைகள் இல்லை.",
   advisoryRain: "மழை பெய்ய வாய்ப்புள்ளது. நீர்ப்பாசனத் தேவையைச் சரிபார்க்கவும்.",
   advisoryHeavyRain: "கனமழை பெய்ய வாய்ப்புள்ளது. வயல் வடிகால்களைச் சரிபார்க்கவும்.",
@@ -1447,6 +1483,8 @@ const marathiText: CompleteAppTranslations = {
   dashboardWeatherNote: "हवामान Open-Meteo वरून थेट मिळते. बाजारभाव नमुना माहिती आहे.",
   weatherSource: "OPEN-METEO", live: "थेट", searchLocation: "तुमचे ठिकाण शोधा",
   searchPlaceholder: "शहर, जिल्हा किंवा गाव शोधा", search: "शोधा", searching: "शोधत आहे…",
+  detectLocation: "माझे ठिकाण शोधा", detectingLocation: "ठिकाण शोधत आहे…",
+  locationAttribution: "ठिकाणाची माहिती: © OpenStreetMap contributors", locationDetected: "ठिकाण सापडले",
   noLocationResults: "ठिकाणे सापडली नाहीत. जवळचे शहर किंवा जिल्हा वापरून पाहा.",
   selectLocation: "योग्य ठिकाण निवडा", selectedLocation: "निवडलेले ठिकाण", clearLocation: "ठिकाण बदला",
   currentTemperature: "तापमान", rainfall: "पर्जन्यमान", currentRain: "सध्या पाऊस",
@@ -1455,7 +1493,12 @@ const marathiText: CompleteAppTranslations = {
   dataSource: "माहितीचा स्रोत", refreshWeather: "हवामान अद्यतनित करा", refreshing: "अद्यतनित होत आहे…",
   loadingWeather: "थेट हवामान मिळवत आहे…", chooseWeatherLocation: "थेट हवामान पाहण्यासाठी ठिकाण निवडा.",
   noWeatherData: "सध्या हवामानाची माहिती उपलब्ध नाही.",
-  weatherSearchHelp: "शोध परिणाम Open-Meteo वरून येतात. तुमच्या उपकरणाचे ठिकाण मागितले जात नाही.",
+  weatherSearchHelp: "शोध परिणाम Open-Meteo वरून येतात. माझे ठिकाण शोधा निवडल्यावरच उपकरणाचे ठिकाण वापरले जाते.",
+  locationPermissionError: "ठिकाणाची परवानगी नाकारली गेली. ब्राउझरमध्ये परवानगी द्या किंवा ठिकाण स्वतः शोधा.",
+  locationUnavailableError: "तुमच्या उपकरणाचे ठिकाण शोधता आले नाही. ठिकाण सेवा तपासा किंवा स्वतः शोधा.",
+  locationTimeoutError: "ठिकाण शोधण्याची वेळ संपली. पुन्हा प्रयत्न करा किंवा ठिकाण स्वतः शोधा.",
+  locationUnsupportedError: "ठिकाण शोधण्यासाठी समर्थित ब्राउझर आणि सुरक्षित जोडणी (HTTPS किंवा localhost) आवश्यक आहे.",
+  locationServiceError: "वस्ती, जिल्हा आणि राज्य ओळखता आले नाही. ठिकाण स्वतः शोधून पुन्हा प्रयत्न करा.",
   farmingAdvisory: "हवामानानुसार शेती सूचना", noAdvisories: "या अंदाजात हवामान सूचना नाहीत.",
   advisoryRain: "पावसाची शक्यता आहे. सिंचनाची गरज तपासा.",
   advisoryHeavyRain: "मुसळधार पावसाची शक्यता आहे. शेतातील निचरा तपासा.",
@@ -2577,6 +2620,158 @@ function weatherAdvisories(forecast: WeatherForecast, t: Translate) {
   return advisories;
 }
 
+type DetectedFarmLocation = {
+  weatherLocation: WeatherLocation;
+  village: string;
+  district: string;
+  state: string;
+};
+
+type LocationDetectionError =
+  | "locationPermissionError"
+  | "locationUnavailableError"
+  | "locationTimeoutError"
+  | "locationUnsupportedError"
+  | "locationServiceError";
+
+function getCurrentCoordinates(): Promise<{ latitude: number; longitude: number }> {
+  if (!navigator.geolocation) return Promise.reject(new Error("locationUnsupportedError"));
+  return new Promise((resolve, reject) => {
+    navigator.geolocation.getCurrentPosition(
+      ({ coords }) => resolve({ latitude: coords.latitude, longitude: coords.longitude }),
+      (error) => reject(new Error(
+        error.code === error.PERMISSION_DENIED ? "locationPermissionError"
+          : error.code === error.TIMEOUT ? "locationTimeoutError"
+            : "locationUnavailableError",
+      )),
+      { enableHighAccuracy: true, timeout: 20000, maximumAge: 60000 },
+    );
+  });
+}
+
+function addressPart(address: Record<string, unknown>, keys: string[]): string | null {
+  for (const key of keys) {
+    const value = address[key];
+    if (typeof value === "string" && value.trim()) return value.trim();
+  }
+  return null;
+}
+
+async function reverseGeocodeCoordinates(latitude: number, longitude: number, signal: AbortSignal): Promise<DetectedFarmLocation> {
+  const url = new URL("https://nominatim.openstreetmap.org/reverse");
+  url.search = new URLSearchParams({
+    format: "jsonv2",
+    lat: String(latitude),
+    lon: String(longitude),
+    zoom: "16",
+    addressdetails: "1",
+  }).toString();
+
+  let response: Response;
+  try {
+    response = await fetch(url, { signal, headers: { Accept: "application/json" } });
+  } catch (error) {
+    if (signal.aborted) throw error;
+    throw new Error("locationServiceError");
+  }
+  if (!response.ok) throw new Error("locationServiceError");
+
+  let payload: unknown;
+  try {
+    payload = await response.json();
+  } catch {
+    throw new Error("locationServiceError");
+  }
+  if (!isLocationRecord(payload) || !isLocationRecord(payload.address)) throw new Error("locationServiceError");
+
+  const address = payload.address;
+  const village = addressPart(address, ["village", "town", "city", "hamlet", "municipality", "locality", "suburb", "neighbourhood", "quarter"]);
+  const district = addressPart(address, ["state_district", "district", "county", "city_district"]);
+  const state = addressPart(address, ["state", "province", "region"]);
+  if (!village || !district || !state) throw new Error("locationServiceError");
+
+  const country = addressPart(address, ["country"]) ?? "";
+  const countryCode = addressPart(address, ["country_code"])?.toUpperCase() ?? null;
+  return {
+    village,
+    district,
+    state,
+    weatherLocation: {
+      id: `${latitude},${longitude}`,
+      name: village,
+      admin1: state,
+      admin2: district,
+      country,
+      countryCode,
+      latitude,
+      longitude,
+    },
+  };
+}
+
+function locationDetectionErrorKey(error: unknown): LocationDetectionError {
+  if (error instanceof Error) {
+    switch (error.message) {
+      case "locationPermissionError":
+      case "locationUnavailableError":
+      case "locationTimeoutError":
+      case "locationUnsupportedError":
+      case "locationServiceError":
+        return error.message;
+    }
+  }
+  return "locationServiceError";
+}
+
+function useCurrentLocationDetection() {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<LocationDetectionError | "">("");
+  const [detectedPlace, setDetectedPlace] = useState<DetectedFarmLocation | null>(null);
+  const requestId = useRef(0);
+  const reverseController = useRef<AbortController | null>(null);
+
+  useEffect(() => () => {
+    requestId.current += 1;
+    reverseController.current?.abort();
+  }, []);
+
+  async function detectCurrentLocation(): Promise<DetectedFarmLocation | null> {
+    const activeRequest = ++requestId.current;
+    reverseController.current?.abort();
+    reverseController.current = null;
+    setLoading(true);
+    setError("");
+    setDetectedPlace(null);
+    try {
+      const coordinates = await getCurrentCoordinates();
+      if (requestId.current !== activeRequest) return null;
+      const controller = new AbortController();
+      reverseController.current = controller;
+      const place = await reverseGeocodeCoordinates(coordinates.latitude, coordinates.longitude, controller.signal);
+      if (requestId.current !== activeRequest || controller.signal.aborted) return null;
+      setDetectedPlace(place);
+      return place;
+    } catch (caught) {
+      if (requestId.current !== activeRequest) return null;
+      setError(locationDetectionErrorKey(caught));
+      return null;
+    } finally {
+      if (requestId.current === activeRequest) setLoading(false);
+    }
+  }
+
+  function cancelDetection() {
+    requestId.current += 1;
+    reverseController.current?.abort();
+    reverseController.current = null;
+    setLoading(false);
+    setError("");
+    setDetectedPlace(null);
+  }
+
+  return { loading, error, detectedPlace, detectCurrentLocation, cancelDetection };
+}
+
 type FarmWeatherAlert = {
   kind: "heavyRain" | "rain" | "heat" | "wind";
   date: string | null;
@@ -2832,6 +3027,7 @@ function Weather({ t, language, location, forecast, loading, error, updatedAt, i
   const [searched, setSearched] = useState(false);
   const searchController = useRef<AbortController | null>(null);
   const searchDebounce = useRef<number | null>(null);
+  const locationDetection = useCurrentLocationDetection();
 
   useEffect(() => {
     const trimmedQuery = query.trim();
@@ -2908,6 +3104,7 @@ function Weather({ t, language, location, forecast, loading, error, updatedAt, i
   }
 
   function chooseLocation(result: WeatherLocation) {
+    locationDetection.cancelDetection();
     if (searchDebounce.current !== null) {
       window.clearTimeout(searchDebounce.current);
       searchDebounce.current = null;
@@ -2918,6 +3115,23 @@ function Weather({ t, language, location, forecast, loading, error, updatedAt, i
     setSearchError("");
     setSearched(false);
     onSelectLocation(result);
+  }
+
+  async function detectWeatherLocation() {
+    const place = await locationDetection.detectCurrentLocation();
+    if (place) {
+      if (searchDebounce.current !== null) {
+        window.clearTimeout(searchDebounce.current);
+        searchDebounce.current = null;
+      }
+      searchController.current?.abort();
+      searchController.current = null;
+      setQuery("");
+      setResults([]);
+      setSearchError("");
+      setSearched(false);
+      onSelectLocation(place.weatherLocation);
+    }
   }
 
   const advisories = forecast ? weatherAdvisories(forecast, t) : [];
@@ -2961,11 +3175,18 @@ function Weather({ t, language, location, forecast, loading, error, updatedAt, i
           </div>}
         </div>
       </form>
+      <div className="location-detect-row">
+        <button type="button" className="button button-outline" disabled={locationDetection.loading} aria-busy={locationDetection.loading} onClick={() => void detectWeatherLocation()}>
+          {locationDetection.loading ? <><span className="spinner" />{t("detectingLocation")}</> : t("detectLocation")}
+        </button>
+        <a className="location-attribution" href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">{t("locationAttribution")}</a>
+      </div>
       <p className="weather-search-help">ⓘ &nbsp;{t("weatherSearchHelp")}</p>
       {searching && <div className="weather-status" role="status"><span className="spinner" />{t("searching")}</div>}
       {searchError && <div className="weather-alert" role="alert">{weatherErrorMessage(searchError, t)}</div>}
+      {locationDetection.error && <div className="weather-alert" role="alert">{t(locationDetection.error)}</div>}
       {searched && !searchError && results.length === 0 && <div className="weather-empty-results">{t("noLocationResults")}</div>}
-      {location && <div className="selected-location"><span className="location-pin">⌖</span><div><small>{t("selectedLocation")}</small><strong>{locationLabel(location)}</strong></div><button type="button" onClick={onClearLocation}>{t("clearLocation")}</button></div>}
+      {location && <div className="selected-location"><span className="location-pin">⌖</span><div><small>{t("selectedLocation")}</small><strong>{locationLabel(location)}</strong></div><button type="button" onClick={() => { locationDetection.cancelDetection(); onClearLocation(); }}>{t("clearLocation")}</button></div>}
     </section>
 
     {error && <div className="weather-alert weather-fetch-alert" role="alert"><strong>{t("weatherError")}</strong><span>{weatherErrorMessage(error, t)}</span></div>}
@@ -6082,12 +6303,14 @@ function ProfileForm({ t, profile, saveProfile }: PageProps & { profile: FarmerP
   const [districtActive, setDistrictActive] = useState(false);
   const [villageShowDefaults, setVillageShowDefaults] = useState(false);
   const [districtShowDefaults, setDistrictShowDefaults] = useState(false);
+  const locationDetection = useCurrentLocationDetection();
   const villageSearch = useIndianLocationSuggestions(form.village, villageActive, villageShowDefaults, "village");
   const districtSearch = useIndianLocationSuggestions(form.district, districtActive, districtShowDefaults, "district");
   function update(field: keyof FarmerProfile, value: string) {
     setForm((current) => ({ ...current, [field]: value }));
   }
   function chooseVillage(location: ProfileLocationSuggestion) {
+    locationDetection.cancelDetection();
     setForm((current) => ({
       ...current,
       village: location.name,
@@ -6097,9 +6320,18 @@ function ProfileForm({ t, profile, saveProfile }: PageProps & { profile: FarmerP
     setVillageShowDefaults(false);
   }
   function chooseDistrict(location: ProfileLocationSuggestion) {
+    locationDetection.cancelDetection();
     setForm((current) => ({ ...current, district: location.district ?? location.name }));
     setDistrictActive(false);
     setDistrictShowDefaults(false);
+  }
+  async function detectProfileLocation() {
+    const place = await locationDetection.detectCurrentLocation();
+    if (place) {
+      setForm((current) => ({ ...current, village: place.village, district: place.district }));
+      setVillageActive(false);
+      setDistrictActive(false);
+    }
   }
   function renderLocationSuggestions(
     field: "village" | "district",
@@ -6127,12 +6359,22 @@ function ProfileForm({ t, profile, saveProfile }: PageProps & { profile: FarmerP
   return <section className="panel profile-form-panel" id="profile-form"><div className="profile-form-heading"><div className="profile-icon">♧</div><div><div className="eyebrow">{t("profileBadge")}</div><h2>{t("profileTitle")}</h2><p>{t("profileSub")}</p></div></div>
     <form className="profile-form" onSubmit={(event: FormEvent) => { event.preventDefault(); saveProfile(form); }}>
       <label>{t("fullName")} *<input value={form.name} onChange={(event) => update("name", event.target.value)} placeholder={languageOf(t) === "kn" ? "ಉದಾ. ಲಕ್ಷ್ಮಿ" : languageOf(t) === "hi" ? "उदा. लक्ष्मी" : "e.g. Lakshmi"} required /></label>
+      <div className="profile-location-detect location-detect-row">
+        <button type="button" className="button button-outline" disabled={locationDetection.loading} aria-busy={locationDetection.loading} onClick={() => void detectProfileLocation()}>
+          {locationDetection.loading ? <><span className="spinner" />{t("detectingLocation")}</> : t("detectLocation")}
+        </button>
+        <a className="location-attribution" href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">{t("locationAttribution")}</a>
+        {locationDetection.error && <span className="profile-location-error" role="alert">{t(locationDetection.error)}</span>}
+        {locationDetection.detectedPlace && <span className="profile-location-detected" role="status">
+          {t("locationDetected")}: {locationDetection.detectedPlace.village}, {locationDetection.detectedPlace.district}, {locationDetection.detectedPlace.state}
+        </span>}
+      </div>
       <div className="profile-location-field">
         <label htmlFor="profile-village">{t("village")} *</label>
         <div className="profile-location-input" onFocus={() => { setVillageActive(true); setVillageShowDefaults(true); }} onBlur={(event) => {
           if (!(event.relatedTarget instanceof Node) || !event.currentTarget.contains(event.relatedTarget)) setVillageActive(false);
         }}>
-          <input id="profile-village" role="combobox" aria-autocomplete="list" aria-expanded={villageActive && (villageShowDefaults || villageSearch.loading || villageSearch.searched || Boolean(villageSearch.error))} aria-controls="profile-village-suggestions" value={form.village} onChange={(event) => { setVillageShowDefaults(false); update("village", event.target.value); }} placeholder={languageOf(t) === "kn" ? "ನಿಮ್ಮ ಗ್ರಾಮ" : languageOf(t) === "hi" ? "आपका गाँव" : "Your village"} required />
+          <input id="profile-village" role="combobox" aria-autocomplete="list" aria-expanded={villageActive && (villageShowDefaults || villageSearch.loading || villageSearch.searched || Boolean(villageSearch.error))} aria-controls="profile-village-suggestions" value={form.village} onChange={(event) => { locationDetection.cancelDetection(); setVillageShowDefaults(false); update("village", event.target.value); }} placeholder={languageOf(t) === "kn" ? "ನಿಮ್ಮ ಗ್ರಾಮ" : languageOf(t) === "hi" ? "आपका गाँव" : "Your village"} required />
           {renderLocationSuggestions("village", villageSearch, villageActive, chooseVillage)}
         </div>
       </div>
@@ -6141,7 +6383,7 @@ function ProfileForm({ t, profile, saveProfile }: PageProps & { profile: FarmerP
         <div className="profile-location-input" onFocus={() => { setDistrictActive(true); setDistrictShowDefaults(true); }} onBlur={(event) => {
           if (!(event.relatedTarget instanceof Node) || !event.currentTarget.contains(event.relatedTarget)) setDistrictActive(false);
         }}>
-          <input id="profile-district" role="combobox" aria-autocomplete="list" aria-expanded={districtActive && (districtShowDefaults || districtSearch.loading || districtSearch.searched || Boolean(districtSearch.error))} aria-controls="profile-district-suggestions" value={form.district} onChange={(event) => { setDistrictShowDefaults(false); update("district", event.target.value); }} placeholder={languageOf(t) === "kn" ? "ನಿಮ್ಮ ಜಿಲ್ಲೆ" : languageOf(t) === "hi" ? "आपका जिला" : "Your district"} required />
+          <input id="profile-district" role="combobox" aria-autocomplete="list" aria-expanded={districtActive && (districtShowDefaults || districtSearch.loading || districtSearch.searched || Boolean(districtSearch.error))} aria-controls="profile-district-suggestions" value={form.district} onChange={(event) => { locationDetection.cancelDetection(); setDistrictShowDefaults(false); update("district", event.target.value); }} placeholder={languageOf(t) === "kn" ? "ನಿಮ್ಮ ಜಿಲ್ಲೆ" : languageOf(t) === "hi" ? "आपका जिला" : "Your district"} required />
           {renderLocationSuggestions("district", districtSearch, districtActive, chooseDistrict)}
         </div>
       </div>
