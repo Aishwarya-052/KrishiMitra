@@ -107,6 +107,7 @@ const text = {
     viewMarket: "Explore prices", yourFarm: "Your farm profile", addFarm: "Add your farm details",
     editProfile: "Edit profile", setupPrompt: "Personalise your suggestions by adding a few farm details.",
     completeProfile: "Set up your profile", quickActions: "Quick actions", askMitra: "Ask KrishiMitra",
+    quickHelp: "HERE TO HELP", quickAskSubtitle: "A question on your mind?", quickSoilSubtitle: "Know your soil better", quickCropSubtitle: "Ideas for the season",
     soilCheck: "Check soil guide", cropPlanner: "Explore crop ideas", fieldNote: "A little care today goes a long way.",
     weatherTitle: "Weather outlook", weatherSub: "Search a city, district or village for current conditions and a seven-day forecast.",
     currentConditions: "CURRENT CONDITIONS", feelsLike: "Feels like", wind: "Wind",
@@ -368,6 +369,7 @@ const text = {
     viewMarket: "ದರಗಳನ್ನು ನೋಡಿ", yourFarm: "ನಿಮ್ಮ ಕೃಷಿ ಪ್ರೊಫೈಲ್", addFarm: "ನಿಮ್ಮ ಕೃಷಿ ವಿವರ ಸೇರಿಸಿ",
     editProfile: "ಪ್ರೊಫೈಲ್ ತಿದ್ದು", setupPrompt: "ನಿಮ್ಮ ಸಲಹೆಗಳಿಗೆ ಕೆಲವು ಕೃಷಿ ವಿವರಗಳನ್ನು ಸೇರಿಸಿ.",
     completeProfile: "ಪ್ರೊಫೈಲ್ ಸಿದ್ಧಪಡಿಸಿ", quickActions: "ತ್ವರಿತ ಆಯ್ಕೆಗಳು", askMitra: "ಕೃಷಿಮಿತ್ರನನ್ನು ಕೇಳಿ",
+    quickHelp: "ನಿಮ್ಮ ನೆರವಿಗೆ", quickAskSubtitle: "ನಿಮ್ಮ ಪ್ರಶ್ನೆ ಕೇಳಿ", quickSoilSubtitle: "ನಿಮ್ಮ ಮಣ್ಣನ್ನು ತಿಳಿಯಿರಿ", quickCropSubtitle: "ಈ ಹಂಗಾಮಿನ ಕಲ್ಪನೆಗಳು",
     soilCheck: "ಮಣ್ಣಿನ ಮಾರ್ಗದರ್ಶಿ", cropPlanner: "ಬೆಳೆ ಕಲ್ಪನೆಗಳನ್ನು ನೋಡಿ", fieldNote: "ಇಂದಿನ ಚಿಕ್ಕ ಕಾಳಜಿ ನಾಳೆ ಉತ್ತಮ ಫಲ ನೀಡುತ್ತದೆ.",
     weatherTitle: "ಹವಾಮಾನ ಮುನ್ಸೂಚನೆ", weatherSub: "ಪ್ರಸ್ತುತ ಹವಾಮಾನ ಮತ್ತು ಏಳು ದಿನಗಳ ಮುನ್ಸೂಚನೆಗಾಗಿ ನಗರ, ಜಿಲ್ಲೆ ಅಥವಾ ಗ್ರಾಮ ಹುಡುಕಿ.",
     currentConditions: "ಪ್ರಸ್ತುತ ಸ್ಥಿತಿ", feelsLike: "ಅನುಭವದ ತಾಪಮಾನ", wind: "ಗಾಳಿ",
@@ -780,6 +782,7 @@ const hindiText: Partial<Record<keyof typeof text.en, string>> = {
   todayAt: "आज की मुख्य जानकारी", weatherCard: "मौसम का हाल", marketCard: "मंडी का हाल",
   rainChance: "बारिश की संभावना", humidity: "नमी", viewWeather: "मौसम देखें",
   viewMarket: "मंडी भाव देखें", yourFarm: "आपका खेत", quickActions: "त्वरित विकल्प",
+  quickHelp: "मदद के लिए", quickAskSubtitle: "मन में कोई सवाल?", quickSoilSubtitle: "अपनी मिट्टी को बेहतर जानें", quickCropSubtitle: "इस मौसम के लिए सुझाव",
   weatherTitle: "मौसम का हाल", weatherSub: "मौजूदा मौसम और सात दिन का पूर्वानुमान देखने के लिए शहर, जिला या गाँव खोजें।",
   currentConditions: "मौजूदा स्थिति", wind: "हवा", forecastTitle: "सात दिन का पूर्वानुमान",
   high: "अधिकतम", low: "न्यूनतम", expectedRain: "अनुमानित बारिश",
@@ -939,6 +942,7 @@ const teluguText: CompleteAppTranslations = {
   viewMarket: "ధరలు చూడండి", yourFarm: "మీ వ్యవసాయ ప్రొఫైల్", addFarm: "వ్యవసాయ వివరాలు జోడించండి",
   editProfile: "ప్రొఫైల్ సవరించండి", setupPrompt: "వ్యక్తిగత సూచనల కోసం మీ వ్యవసాయ వివరాలు జోడించండి.",
   completeProfile: "ప్రొఫైల్ ఏర్పాటు చేయండి", quickActions: "త్వరిత ఎంపికలు", askMitra: "కృషిమిత్రను అడగండి",
+  quickHelp: "మీకు సహాయం", quickAskSubtitle: "మీకు ఏదైనా ప్రశ్న ఉందా?", quickSoilSubtitle: "మీ నేల గురించి తెలుసుకోండి", quickCropSubtitle: "ఈ సీజన్‌కు పంట ఆలోచనలు",
   soilCheck: "నేల మార్గదర్శిని చూడండి", cropPlanner: "పంట సూచనలు చూడండి", fieldNote: "ఈరోజు చిన్న శ్రద్ధ రేపటి మంచి ఫలితానికి తోడ్పడుతుంది.",
   weatherTitle: "వాతావరణ అంచనా", weatherSub: "ప్రస్తుత పరిస్థితులు, ఏడు రోజుల అంచనా కోసం నగరం, జిల్లా లేదా గ్రామాన్ని వెతకండి.",
   currentConditions: "ప్రస్తుత పరిస్థితులు", feelsLike: "అనుభూతి ఉష్ణోగ్రత", wind: "గాలి",
@@ -1221,6 +1225,7 @@ const tamilText: CompleteAppTranslations = {
   viewMarket: "விலைகளைப் பார்க்கவும்", yourFarm: "உங்கள் பண்ணை விவரம்", addFarm: "பண்ணை விவரங்களைச் சேர்க்கவும்",
   editProfile: "விவரத்தைத் திருத்தவும்", setupPrompt: "உங்களுக்கு ஏற்ற பரிந்துரைகளுக்கு பண்ணை விவரங்களைச் சேர்க்கவும்.",
   completeProfile: "விவரத்தை அமைக்கவும்", quickActions: "விரைவு செயல்கள்", askMitra: "கிருஷிமித்ராவிடம் கேளுங்கள்",
+  quickHelp: "உங்களுக்கு உதவ", quickAskSubtitle: "உங்கள் மனதில் கேள்வி உள்ளதா?", quickSoilSubtitle: "உங்கள் மண்ணை நன்றாக அறியுங்கள்", quickCropSubtitle: "இந்தப் பருவத்திற்கான யோசனைகள்",
   soilCheck: "மண் வழிகாட்டியைப் பார்க்கவும்", cropPlanner: "பயிர் யோசனைகளைப் பார்க்கவும்",
   fieldNote: "இன்றைய சிறு கவனம் நாளைய நல்ல விளைச்சலுக்கு உதவும்.",
   weatherTitle: "வானிலை முன்னறிவிப்பு", weatherSub: "தற்போதைய நிலை மற்றும் ஏழு நாள் முன்னறிவிப்புக்காக நகரம், மாவட்டம் அல்லது கிராமத்தைத் தேடுங்கள்.",
@@ -1515,6 +1520,7 @@ const marathiText: CompleteAppTranslations = {
   viewMarket: "भाव पाहा", yourFarm: "तुमची शेतकरी माहिती", addFarm: "शेतीची माहिती जोडा",
   editProfile: "माहिती संपादित करा", setupPrompt: "वैयक्तिक सूचना मिळवण्यासाठी शेतीची माहिती जोडा.",
   completeProfile: "माहिती भरा", quickActions: "जलद पर्याय", askMitra: "कृषिमित्रला विचारा",
+  quickHelp: "मदतीसाठी", quickAskSubtitle: "मनात काही प्रश्न आहे का?", quickSoilSubtitle: "तुमची माती अधिक जाणून घ्या", quickCropSubtitle: "या हंगामासाठी कल्पना",
   soilCheck: "माती मार्गदर्शक पाहा", cropPlanner: "पीक कल्पना पाहा",
   fieldNote: "आजची छोटी काळजी उद्याच्या चांगल्या परिणामाला मदत करते.",
   weatherTitle: "हवामानाचा अंदाज", weatherSub: "सध्याची स्थिती आणि सात दिवसांचा अंदाज पाहण्यासाठी शहर, जिल्हा किंवा गाव शोधा.",
@@ -2392,11 +2398,11 @@ function Dashboard({ t, profile, navigate, weatherLocation, weatherForecast, wea
             <><p className="panel-copy">{t("setupPrompt")}</p><button className="button button-primary" onClick={() => navigate("settings")}>{t("completeProfile")} <span>→</span></button></>}
         </section>
         <section className="panel actions-panel">
-          <div className="panel-heading"><div><div className="eyebrow">{languageOf(t) === "kn" ? "ನಿಮ್ಮ ನೆರವಿಗೆ" : "HERE TO HELP"}</div><h2>{t("quickActions")}</h2></div><span className="action-spark">✳</span></div>
+          <div className="panel-heading"><div><div className="eyebrow">{t("quickHelp")}</div><h2>{t("quickActions")}</h2></div><span className="action-spark">✳</span></div>
           <div className="quick-actions">
-            <button onClick={() => navigate("advisory")}><span className="action-icon chat-icon">✳</span><span><strong>{t("askMitra")}</strong><small>{languageOf(t) === "kn" ? "ನಿಮ್ಮ ಪ್ರಶ್ನೆ ಕೇಳಿ" : "A question on your mind?"}</small></span><b>→</b></button>
-            <button onClick={() => navigate("soil")}><span className="action-icon soil-icon">◉</span><span><strong>{t("soilCheck")}</strong><small>{languageOf(t) === "kn" ? "ನಿಮ್ಮ ಮಣ್ಣನ್ನು ತಿಳಿಯಿರಿ" : "Know your soil better"}</small></span><b>→</b></button>
-            <button onClick={() => navigate("crops")}><span className="action-icon crop-icon">❋</span><span><strong>{t("cropPlanner")}</strong><small>{languageOf(t) === "kn" ? "ಈ ಹಂಗಾಮಿನ ಕಲ್ಪನೆಗಳು" : "Ideas for the season"}</small></span><b>→</b></button>
+            <button onClick={() => navigate("advisory")}><span className="action-icon chat-icon">✳</span><span><strong>{t("askMitra")}</strong><small>{t("quickAskSubtitle")}</small></span><b>→</b></button>
+            <button onClick={() => navigate("soil")}><span className="action-icon soil-icon">◉</span><span><strong>{t("soilCheck")}</strong><small>{t("quickSoilSubtitle")}</small></span><b>→</b></button>
+            <button onClick={() => navigate("crops")}><span className="action-icon crop-icon">❋</span><span><strong>{t("cropPlanner")}</strong><small>{t("quickCropSubtitle")}</small></span><b>→</b></button>
           </div>
         </section>
       </div>
@@ -2426,11 +2432,14 @@ const cropTimelineSchedules: Record<TimelineCrop, CropTimelineSchedule> = {
 };
 
 const cropTimelineCopy: LocalizedCopy<{
+  eyebrow: string;
   title: string;
   description: string;
   crop: string;
+  crops: Record<TimelineCrop, string>;
   sowingDate: string;
   chooseCrop: string;
+  stageLabel: string;
   daysAfterSowing: string;
   stageTitles: Record<TimelineStageId, string>;
   stageDescriptions: Record<TimelineStageId, string>;
@@ -2441,11 +2450,14 @@ const cropTimelineCopy: LocalizedCopy<{
   shareTitle: string;
 }> = {
   en: {
+    eyebrow: "CROP PLANNING",
     title: "Interactive Crop Milestone & Harvest Timeline",
     description: "See estimated calendar dates for key crop milestones, calculated from your sowing date.",
     crop: "Crop",
+    crops: { paddy: "Paddy", ragi: "Ragi", maize: "Maize", tomato: "Tomato", cotton: "Cotton", groundnut: "Groundnut" },
     sowingDate: "Sowing date",
     chooseCrop: "Choose a crop",
+    stageLabel: "STAGE",
     daysAfterSowing: "days after sowing",
     stageTitles: {
       basal: "Basal Fertilizer & Germination",
@@ -2466,11 +2478,14 @@ const cropTimelineCopy: LocalizedCopy<{
     shareTitle: "KrishiMitra crop milestone timeline",
   },
   kn: {
+    eyebrow: "ಬೆಳೆ ಯೋಜನೆ",
     title: "ಬೆಳೆ ಮೈಲಿಗಲ್ಲು ಮತ್ತು ಕೊಯ್ಲು ಸಮಯರೇಖೆ",
     description: "ನೀವು ನೀಡಿದ ಬಿತ್ತನೆ ದಿನಾಂಕದಿಂದ ಪ್ರಮುಖ ಹಂತಗಳ ಅಂದಾಜು ಕ್ಯಾಲೆಂಡರ್ ದಿನಾಂಕಗಳನ್ನು ನೋಡಿ.",
     crop: "ಬೆಳೆ",
+    crops: { paddy: "ಭತ್ತ", ragi: "ರಾಗಿ", maize: "ಮೆಕ್ಕೆಜೋಳ", tomato: "ಟೊಮೇಟೊ", cotton: "ಹತ್ತಿ", groundnut: "ಶೇಂಗಾ" },
     sowingDate: "ಬಿತ್ತನೆ ದಿನಾಂಕ",
     chooseCrop: "ಬೆಳೆ ಆಯ್ಕೆಮಾಡಿ",
+    stageLabel: "ಹಂತ",
     daysAfterSowing: "ಬಿತ್ತನೆಯ ನಂತರದ ದಿನಗಳು",
     stageTitles: {
       basal: "ಮೂಲ ಗೊಬ್ಬರ ಮತ್ತು ಮೊಳಕೆ",
@@ -2491,11 +2506,14 @@ const cropTimelineCopy: LocalizedCopy<{
     shareTitle: "ಕೃಷಿಮಿತ್ರ ಬೆಳೆ ಹಂತಗಳ ಸಮಯರೇಖೆ",
   },
   hi: {
+    eyebrow: "फसल योजना",
     title: "फसल चरण और कटाई समयरेखा",
     description: "आपकी बुवाई की तारीख से प्रमुख चरणों की अनुमानित कैलेंडर तिथियाँ देखें।",
     crop: "फसल",
+    crops: { paddy: "धान", ragi: "रागी", maize: "मक्का", tomato: "टमाटर", cotton: "कपास", groundnut: "मूँगफली" },
     sowingDate: "बुवाई की तारीख",
     chooseCrop: "फसल चुनें",
+    stageLabel: "चरण",
     daysAfterSowing: "बुवाई के बाद दिन",
     stageTitles: {
       basal: "आधार खाद और अंकुरण",
@@ -2514,6 +2532,90 @@ const cropTimelineCopy: LocalizedCopy<{
     tomatoNote: "टमाटर का अनुमान दर्ज बुवाई तिथि से शुरू होता है; नर्सरी अवधि और रोपाई की तारीख खेत के चरणों को बदल सकती है।",
     cottonNote: "कपास की तुड़ाई आमतौर पर कई बार होती है; यह अवधि पहली तुड़ाई की अनुमानित शुरुआत है।",
     shareTitle: "कृषिमित्र फसल चरण समयरेखा",
+  },
+  te: {
+    eyebrow: "పంట ప్రణాళిక",
+    title: "పంట కీలక దశలు మరియు కోత కాలక్రమం",
+    description: "మీరు నమోదు చేసిన విత్తిన తేదీ ఆధారంగా పంట ముఖ్య దశల అంచనా తేదీలను చూడండి.",
+    crop: "పంట",
+    crops: { paddy: "వరి", ragi: "రాగి", maize: "మొక్కజొన్న", tomato: "టమాటా", cotton: "పత్తి", groundnut: "వేరుశెనగ" },
+    sowingDate: "విత్తిన తేదీ",
+    chooseCrop: "పంటను ఎంచుకోండి",
+    stageLabel: "దశ",
+    daysAfterSowing: "విత్తిన తర్వాత రోజులు",
+    stageTitles: {
+      basal: "మూల ఎరువు మరియు మొలకెత్తడం",
+      topDress: "మొదటి పై ఎరువు మరియు కలుపు తీయడం",
+      flowering: "పుష్పించే దశ మరియు కీలక నీటిపారుదల దశ",
+      harvest: "అంచనా కోత కాలం",
+    },
+    stageDescriptions: {
+      basal: "మూల ఎరువును సాధారణంగా విత్తే సమయంలో వేస్తారు; మొలకెత్తే సమయం అంచనా మాత్రమే.",
+      topDress: "ఇది ప్రణాళిక కోసం సూచన మాత్రమే. మీ పంట, పొలానికి ఎరువు మరియు కలుపు నియంత్రణ సమయాన్ని నిర్ధారించండి.",
+      flowering: "పంట దశ, నేల తేమను గమనించండి. నీటిపారుదల అవసరం వర్షం, నేల, పొలం పరిస్థితులపై ఆధారపడి ఉంటుంది.",
+      harvest: "ఇది సూచనాత్మక పరిపక్వత కాలం మాత్రమే, హామీ కాదు. కోతకు ముందు పంట పరిపక్వత, స్థానిక సూచనలు పరిశీలించండి.",
+    },
+    datePrompt: "దశల తేదీలను లెక్కించడానికి పంట, విత్తిన తేదీ ఎంచుకోండి.",
+    scheduleNote: "క్యాలెండర్ తేదీలు ఉదాహరణాత్మకంగా విత్తిన తర్వాతి రోజుల ఆధారంగా లెక్కించబడ్డాయి; ఇవి స్థానిక సూచనలు కావు. రకం, సీజన్, నాటే విధానం, వాతావరణం, పొలం పరిస్థితుల వల్ల సమయం మారవచ్చు. ఎరువు, నీటిపారుదల, కోత నిర్ణయాలను స్థానిక KVK లేదా వ్యవసాయ అధికారితో నిర్ధారించండి.",
+    tomatoNote: "టమాటా అంచనా మీరు నమోదు చేసిన విత్తిన తేదీ నుంచి ప్రారంభమవుతుంది; నర్సరీ కాలం, నాటే తేదీ వల్ల పొలంలోని దశలు మారవచ్చు.",
+    cottonNote: "పత్తిని సాధారణంగా పలుమార్లు ఏరుతారు; ఈ పరిధి మొదటి ఏరుడుకు సూచనాత్మక ప్రారంభ సమయం మాత్రమే.",
+    shareTitle: "కృషిమిత్ర పంట దశల కాలక్రమం",
+  },
+  ta: {
+    eyebrow: "பயிர் திட்டமிடல்",
+    title: "பயிர் முக்கிய நிலைகள் மற்றும் அறுவடை காலவரிசை",
+    description: "நீங்கள் உள்ளிட்ட விதைத்த தேதியிலிருந்து பயிரின் முக்கிய நிலைகளுக்கான தோராயமான தேதிகளைப் பார்க்கவும்.",
+    crop: "பயிர்",
+    crops: { paddy: "நெல்", ragi: "கேழ்வரகு", maize: "மக்காச்சோளம்", tomato: "தக்காளி", cotton: "பருத்தி", groundnut: "நிலக்கடலை" },
+    sowingDate: "விதைத்த தேதி",
+    chooseCrop: "பயிரைத் தேர்ந்தெடுக்கவும்",
+    stageLabel: "நிலை",
+    daysAfterSowing: "விதைத்த பின் நாட்கள்",
+    stageTitles: {
+      basal: "அடிப்படை உரம் மற்றும் முளைப்பு",
+      topDress: "முதல் மேலுரம் மற்றும் களையெடுத்தல்",
+      flowering: "பூக்கும் நிலை மற்றும் முக்கியப் பாசன நிலை",
+      harvest: "எதிர்பார்க்கப்படும் அறுவடை காலம்",
+    },
+    stageDescriptions: {
+      basal: "அடிப்படை உரம் பொதுவாக விதைக்கும் போது இடப்படும்; முளைக்கும் காலம் ஒரு மதிப்பீடு மட்டுமே.",
+      topDress: "இது திட்டமிடுவதற்கான நினைவூட்டல் மட்டுமே. உங்கள் பயிர் மற்றும் வயலுக்கான உரம், களைக் கட்டுப்பாட்டு நேரத்தை உறுதிப்படுத்தவும்.",
+      flowering: "பயிர் நிலை மற்றும் மண் ஈரப்பதத்தைக் கண்காணிக்கவும். பாசனத் தேவை மழை, மண் மற்றும் வயல் நிலையைப் பொறுத்தது.",
+      harvest: "இது முதிர்ச்சிக்கான தோராயமான காலம் மட்டுமே; கணிப்பு அல்ல. அறுவடைக்கு முன் பயிர் முதிர்ச்சியையும் உள்ளூர் ஆலோசனையையும் சரிபார்க்கவும்.",
+    },
+    datePrompt: "நிலைகளின் தேதிகளைக் கணக்கிட பயிரையும் விதைத்த தேதியையும் தேர்ந்தெடுக்கவும்.",
+    scheduleNote: "காலண்டர் தேதிகள் எடுத்துக்காட்டு விதைத்த பின் நாட்களை அடிப்படையாகக் கொண்டவை; உள்ளூர் பரிந்துரை அல்ல. ரகம், பருவம், நடவு முறை, வானிலை மற்றும் வயல் நிலை நேரத்தை மாற்றலாம். உரம், பாசனம், அறுவடை முடிவுகளை உள்ளூர் KVK அல்லது வேளாண்மை அலுவலரிடம் உறுதிப்படுத்தவும்.",
+    tomatoNote: "தக்காளிக்கான மதிப்பீடு உள்ளிட்ட விதைத்த தேதியிலிருந்து தொடங்குகிறது; நாற்றங்கால் காலமும் நடவு தேதியும் வயல் நிலைகளின் நேரத்தை மாற்றலாம்.",
+    cottonNote: "பருத்தி பொதுவாக பலமுறை பறிக்கப்படும்; இந்தக் காலம் முதல் பறிப்புக்கான தோராயமான தொடக்கத்தைக் குறிக்கிறது.",
+    shareTitle: "கிருஷிமித்ரா பயிர் நிலை காலவரிசை",
+  },
+  mr: {
+    eyebrow: "पीक नियोजन",
+    title: "पीक टप्पे आणि काढणीची कालरेषा",
+    description: "नोंदवलेल्या पेरणीच्या तारखेवरून पिकाच्या महत्त्वाच्या टप्प्यांच्या अंदाजित तारखा पाहा.",
+    crop: "पीक",
+    crops: { paddy: "भात", ragi: "नाचणी", maize: "मका", tomato: "टोमॅटो", cotton: "कापूस", groundnut: "भुईमूग" },
+    sowingDate: "पेरणीची तारीख",
+    chooseCrop: "पीक निवडा",
+    stageLabel: "टप्पा",
+    daysAfterSowing: "पेरणीनंतरचे दिवस",
+    stageTitles: {
+      basal: "बेसल खत आणि उगवण",
+      topDress: "पहिले वरखत आणि खुरपणी",
+      flowering: "फुलोरा आणि पाण्याचा महत्त्वाचा टप्पा",
+      harvest: "अंदाजित काढणीचा कालावधी",
+    },
+    stageDescriptions: {
+      basal: "बेसल खत साधारणपणे पेरणीच्या वेळी दिले जाते; उगवणीचा कालावधी हा अंदाज आहे.",
+      topDress: "हा केवळ नियोजनासाठीचा टप्पा आहे. तुमच्या पिकासाठी व शेतासाठी खत आणि तणनियंत्रणाची वेळ निश्चित करा.",
+      flowering: "पिकाचा टप्पा आणि जमिनीतील ओलावा पाहा. पाण्याची गरज पाऊस, जमीन आणि शेताच्या स्थितीवर अवलंबून असते.",
+      harvest: "हा परिपक्वतेचा सूचक कालावधी आहे, भाकीत नाही. काढणीपूर्वी पिकाची परिपक्वता आणि स्थानिक सल्ला तपासा.",
+    },
+    datePrompt: "टप्प्यांच्या तारखा मोजण्यासाठी पीक आणि पेरणीची तारीख निवडा.",
+    scheduleNote: "कॅलेंडरच्या तारखा उदाहरणार्थ पेरणीनंतरच्या दिवसांच्या कालावधीवरून मोजल्या आहेत; ही स्थानिक शिफारस नाही. वाण, हंगाम, लागवड पद्धत, हवामान आणि शेतस्थितीनुसार वेळ बदलू शकतो. खत, सिंचन आणि काढणीचे निर्णय स्थानिक KVK किंवा कृषी अधिकाऱ्यांकडून खात्री करून घ्या.",
+    tomatoNote: "टोमॅटोचा अंदाज नोंदवलेल्या पेरणीच्या तारखेपासून सुरू होतो; रोपवाटिकेचा कालावधी आणि पुनर्लागवडीची तारीख शेतातील टप्प्यांची वेळ बदलू शकते.",
+    cottonNote: "कापसाची वेचणी साधारणपणे अनेक फेऱ्यांत होते; हा कालावधी पहिल्या वेचणीच्या अंदाजित सुरुवातीचा आहे.",
+    shareTitle: "कृषिमित्र पीक टप्प्यांची कालरेषा",
   },
 };
 
@@ -2535,12 +2637,12 @@ function CropMilestoneTimeline({ t, language }: PageProps & { language: Language
   const [crop, setCrop] = useState<TimelineCrop | "">("");
   const [sowingDate, setSowingDate] = useState("");
   const crops: { id: TimelineCrop; label: string }[] = [
-    { id: "paddy", label: t("cropRice") },
-    { id: "ragi", label: t("cropRagi") },
-    { id: "maize", label: t("cropMaize") },
-    { id: "tomato", label: language === "kn" ? "ಟೊಮೇಟೊ" : language === "hi" ? "टमाटर" : "Tomato" },
-    { id: "cotton", label: language === "kn" ? "ಹತ್ತಿ" : language === "hi" ? "कपास" : "Cotton" },
-    { id: "groundnut", label: language === "kn" ? "ಶೇಂಗಾ" : language === "hi" ? "मूँगफली" : "Groundnut" },
+    { id: "paddy", label: copy.crops.paddy },
+    { id: "ragi", label: copy.crops.ragi },
+    { id: "maize", label: copy.crops.maize },
+    { id: "tomato", label: copy.crops.tomato },
+    { id: "cotton", label: copy.crops.cotton },
+    { id: "groundnut", label: copy.crops.groundnut },
   ];
   const baseDate = parseLocalDate(sowingDate);
   const schedule = crop ? cropTimelineSchedules[crop] : null;
@@ -2577,7 +2679,7 @@ function CropMilestoneTimeline({ t, language }: PageProps & { language: Language
 
   return <section className="panel crop-milestone-widget">
     <div className="crop-milestone-heading">
-      <div><div className="eyebrow">{language === "kn" ? "ಬೆಳೆ ಯೋಜನೆ" : language === "hi" ? "फसल योजना" : "CROP PLANNING"}</div><h2>{copy.title}</h2><p>{copy.description}</p></div>
+      <div><div className="eyebrow">{copy.eyebrow}</div><h2>{copy.title}</h2><p>{copy.description}</p></div>
       <span className="profit-result-icon" aria-hidden="true">◷</span>
     </div>
     <div className="crop-milestone-inputs">
@@ -2595,7 +2697,7 @@ function CropMilestoneTimeline({ t, language }: PageProps & { language: Language
       {stages.map((stage, index) => <li key={stage.id}>
         <span className="crop-milestone-marker">{index + 1}</span>
         <article className="crop-milestone-card">
-          <div className="eyebrow">{language === "kn" ? `ಹಂತ ${index + 1}` : language === "hi" ? `चरण ${index + 1}` : `STAGE ${index + 1}`}</div>
+          <div className="eyebrow">{copy.stageLabel} {index + 1}</div>
           <h3>{copy.stageTitles[stage.id]}</h3>
           <strong className="crop-milestone-dates">{formatDate(stage.startDate)} – {formatDate(stage.endDate)}</strong>
           <span className="crop-milestone-days">{stage.window.start}–{stage.window.end} {copy.daysAfterSowing}</span>
