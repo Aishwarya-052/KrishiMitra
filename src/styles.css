@@ -220,7 +220,7 @@ h1, h2, p { margin-top: 0; }
 .weather-location-panel { padding: 15px 17px; margin-bottom: 15px; }
 .weather-search { max-width: 700px; }
 .weather-search > label { display: block; margin-bottom: 7px; color: #536a56; font-size: 10px; font-weight: 700; }
-.weather-search-row { display: flex; align-items: center; gap: 9px; min-height: 43px; padding: 4px 5px 4px 12px; border: 1px solid #e4e9e1; border-radius: 9px; background: #fbfcf9; }
+.weather-search-row { position: relative; display: flex; align-items: center; gap: 9px; min-height: 43px; padding: 4px 5px 4px 12px; border: 1px solid #e4e9e1; border-radius: 9px; background: #fbfcf9; }
 .weather-search-row > span { color: #849684; font-size: 21px; line-height: 1; }
 .weather-search-row input { min-width: 0; flex: 1; height: 32px; border: 0; outline: 0; color: #435748; background: transparent; font-size: 10px; }
 .weather-search-row input::placeholder { color: #a4aea5; }
@@ -233,6 +233,7 @@ h1, h2, p { margin-top: 0; }
 .weather-fetch-alert { margin: 0 0 13px; }
 .weather-empty-results { margin-top: 10px; padding: 10px 12px; border-radius: 8px; color: #8c744f; background: #fbf7eb; font-size: 9px; }
 .location-results { display: grid; gap: 5px; max-width: 700px; max-height: 235px; overflow-y: auto; margin-top: 12px; padding-top: 10px; border-top: 1px solid #edf0e9; }
+.weather-location-suggestions { position: absolute; z-index: 20; top: calc(100% + 5px); right: 0; left: 0; max-width: none; max-height: 260px; margin: 0; padding: 9px; border: 1px solid #e4e9e1; border-radius: 9px; background: #fff; box-shadow: 0 10px 24px #263b241c; }
 .location-results > strong { margin-bottom: 2px; color: #78877b; font-size: 9px; }
 .location-result { min-height: 37px; display: flex; align-items: center; gap: 9px; padding: 6px 9px; border: 0; border-radius: 7px; color: #536957; background: #f8faf6; text-align: left; font-size: 9px; }
 .location-result:hover { background: #edf4e9; }

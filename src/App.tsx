@@ -1,4 +1,4 @@
-import { useEffect, useState, type FormEvent } from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
 import {
   fetchWeatherForecast,
   searchWeatherLocations,
@@ -1779,25 +1779,94 @@ function Weather({ t, language, location, forecast, loading, error, updatedAt, i
   const [searching, setSearching] = useState(false);
   const [searchError, setSearchError] = useState("");
   const [searched, setSearched] = useState(false);
+  const searchController = useRef<AbortController | null>(null);
+  const searchDebounce = useRef<number | null>(null);
+
+  useEffect(() => {
+    const trimmedQuery = query.trim();
+    if (trimmedQuery.length < 2) {
+      searchController.current?.abort();
+      setResults([]);
+      setSearchError("");
+      setSearching(false);
+      setSearched(false);
+      return;
+    }
+
+    const controller = new AbortController();
+    const timeout = window.setTimeout(() => {
+      searchDebounce.current = null;
+      searchController.current?.abort();
+      searchController.current = controller;
+      setSearching(true);
+      setSearchError("");
+      setSearched(false);
+      void searchWeatherLocations(trimmedQuery, controller.signal)
+        .then((locations) => {
+          if (controller.signal.aborted) return;
+          setResults(locations);
+          setSearched(true);
+        })
+        .catch((caught: unknown) => {
+          if (controller.signal.aborted) return;
+          console.error("Could not search Open-Meteo locations.", caught);
+          setSearchError(caught instanceof WeatherServiceError ? caught.message : "invalid-response");
+          setResults([]);
+          setSearched(true);
+        })
+        .finally(() => {
+          if (!controller.signal.aborted) setSearching(false);
+        });
+    }, 300);
+    searchDebounce.current = timeout;
+
+    return () => {
+      window.clearTimeout(timeout);
+      if (searchDebounce.current === timeout) searchDebounce.current = null;
+      controller.abort();
+    };
+  }, [query]);
 
   async function searchLocations(event: FormEvent) {
     event.preventDefault();
     const trimmedQuery = query.trim();
     if (trimmedQuery.length < 2) return;
+    if (searchDebounce.current !== null) {
+      window.clearTimeout(searchDebounce.current);
+      searchDebounce.current = null;
+    }
+    searchController.current?.abort();
+    const controller = new AbortController();
+    searchController.current = controller;
     setSearching(true);
     setSearchError("");
-    setResults([]);
     setSearched(false);
     try {
-      const locations = await searchWeatherLocations(trimmedQuery);
+      const locations = await searchWeatherLocations(trimmedQuery, controller.signal);
+      if (controller.signal.aborted) return;
       setResults(locations);
       setSearched(true);
     } catch (caught) {
+      if (controller.signal.aborted) return;
       console.error("Could not search Open-Meteo locations.", caught);
       setSearchError(caught instanceof WeatherServiceError ? caught.message : "invalid-response");
+      setResults([]);
     } finally {
-      setSearching(false);
+      if (!controller.signal.aborted) setSearching(false);
     }
+  }
+
+  function chooseLocation(result: WeatherLocation) {
+    if (searchDebounce.current !== null) {
+      window.clearTimeout(searchDebounce.current);
+      searchDebounce.current = null;
+    }
+    searchController.current?.abort();
+    setQuery("");
+    setResults([]);
+    setSearchError("");
+    setSearched(false);
+    onSelectLocation(result);
   }
 
   const advisories = forecast ? weatherAdvisories(forecast, t) : [];
@@ -1811,20 +1880,40 @@ function Weather({ t, language, location, forecast, loading, error, updatedAt, i
         <label htmlFor="weather-location-search">{t("searchLocation")}</label>
         <div className="weather-search-row">
           <span aria-hidden="true">⌕</span>
-          <input id="weather-location-search" value={query} onChange={(event) => setQuery(event.target.value)} placeholder={t("searchPlaceholder")} minLength={2} required />
+          <input
+            id="weather-location-search"
+            role="combobox"
+            aria-autocomplete="list"
+            aria-expanded={results.length > 0}
+            aria-controls="weather-location-suggestions"
+            value={query}
+            onChange={(event) => {
+              searchController.current?.abort();
+              setResults([]);
+              setSearchError("");
+              setSearched(false);
+              setQuery(event.target.value);
+            }}
+            placeholder={t("searchPlaceholder")}
+            minLength={2}
+            required
+          />
           <button type="submit" className="button button-primary" disabled={searching || query.trim().length < 2}>
             {searching ? <><span className="spinner light" />{t("searching")}</> : t("search")}
           </button>
+          {results.length > 0 && <div className="location-results weather-location-suggestions" id="weather-location-suggestions" role="listbox" aria-label={t("selectLocation")}>
+            <strong>{t("selectLocation")}</strong>
+            {results.map((result) =>
+              <button type="button" className="location-result" role="option" aria-selected={false} key={result.id} onClick={() => chooseLocation(result)}>
+                <span className="result-pin" aria-hidden="true">⌖</span><span>{locationLabel(result)}</span><b aria-hidden="true">→</b>
+              </button>)}
+          </div>}
         </div>
       </form>
       <p className="weather-search-help">ⓘ &nbsp;{t("weatherSearchHelp")}</p>
       {searching && <div className="weather-status" role="status"><span className="spinner" />{t("searching")}</div>}
       {searchError && <div className="weather-alert" role="alert">{weatherErrorMessage(searchError, t)}</div>}
-      {searched && results.length === 0 && <div className="weather-empty-results">{t("noLocationResults")}</div>}
-      {results.length > 0 && <div className="location-results" aria-label={t("selectLocation")}><strong>{t("selectLocation")}</strong>{results.map((result) =>
-        <button type="button" className="location-result" key={result.id} onClick={() => { onSelectLocation(result); setResults([]); setSearched(false); }}>
-          <span className="result-pin">⌖</span><span>{locationLabel(result)}</span><b>→</b>
-        </button>)}</div>}
+      {searched && !searchError && results.length === 0 && <div className="weather-empty-results">{t("noLocationResults")}</div>}
       {location && <div className="selected-location"><span className="location-pin">⌖</span><div><small>{t("selectedLocation")}</small><strong>{locationLabel(location)}</strong></div><button type="button" onClick={onClearLocation}>{t("clearLocation")}</button></div>}
     </section>
 
