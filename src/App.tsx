@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type FormEvent } from "react";
+import { useCallback, useEffect, useRef, useState, type FormEvent } from "react";
 import {
   fetchWeatherForecast,
   searchWeatherLocations,
@@ -17,6 +17,38 @@ import SmartIrrigationScheduler from "./SmartIrrigationScheduler";
 
 type Screen = "dashboard" | "weather" | "mandi" | "profit" | "smartFarm" | "irrigation" | "soil" | "crops" | "rotation" | "cropDoctor" | "schemes" | "advisory" | "settings";
 type Language = "en" | "kn" | "hi" | "te" | "ta" | "mr";
+const regionalLanguageByIndianState: Record<string, Language> = {
+  karnataka: "kn",
+  telangana: "te",
+  "andhra pradesh": "te",
+  "tamil nadu": "ta",
+  maharashtra: "mr",
+  "uttar pradesh": "hi",
+  "madhya pradesh": "hi",
+  bihar: "hi",
+  rajasthan: "hi",
+  haryana: "hi",
+  delhi: "hi",
+  "national capital territory of delhi": "hi",
+  "nct of delhi": "hi",
+  chhattisgarh: "hi",
+  jharkhand: "hi",
+  uttarakhand: "hi",
+  "himachal pradesh": "hi",
+};
+const languageNativeNames: Record<Language, string> = {
+  en: "English",
+  kn: "ಕನ್ನಡ",
+  hi: "हिंदी",
+  te: "తెలుగు",
+  ta: "தமிழ்",
+  mr: "मराठी",
+};
+
+function languageForIndianState(stateName: string): Language {
+  return regionalLanguageByIndianState[stateName.trim().toLowerCase()] ?? "en";
+}
+
 type LocalizedCopy<T> = Partial<Record<Language, T>> & { en: T };
 type FarmerProfile = {
   name: string;
@@ -86,6 +118,8 @@ const text = {
     searchPlaceholder: "Search a city, district or village", search: "Search", searching: "Searching…",
     detectLocation: "Detect my location", detectingLocation: "Detecting location…",
     locationAttribution: "Location lookup by © OpenStreetMap contributors.", locationDetected: "Location found",
+    languageAutoSetMessage: "Language auto-set to {language} based on {state}.",
+    switchToEnglish: "Switch back to English",
     noLocationResults: "No locations found. Try a nearby town or district.",
     selectLocation: "Select the correct location", selectedLocation: "Selected location",
     clearLocation: "Change location", currentTemperature: "Temperature", rainfall: "Rainfall",
@@ -345,6 +379,8 @@ const text = {
     searchPlaceholder: "ನಗರ, ಜಿಲ್ಲೆ ಅಥವಾ ಗ್ರಾಮ ಹುಡುಕಿ", search: "ಹುಡುಕಿ", searching: "ಹುಡುಕಲಾಗುತ್ತಿದೆ…",
     detectLocation: "ನನ್ನ ಸ್ಥಳ ಪತ್ತೆಹಚ್ಚಿ", detectingLocation: "ಸ್ಥಳ ಪತ್ತೆಹಚ್ಚಲಾಗುತ್ತಿದೆ…",
     locationAttribution: "ಸ್ಥಳ ಮಾಹಿತಿ: © OpenStreetMap contributors", locationDetected: "ಸ್ಥಳ ಕಂಡುಬಂದಿದೆ",
+    languageAutoSetMessage: "{state} ಆಧಾರದ ಮೇಲೆ ಭಾಷೆಯನ್ನು {language} ಗೆ ಸ್ವಯಂಚಾಲಿತವಾಗಿ ಬದಲಾಯಿಸಲಾಗಿದೆ.",
+    switchToEnglish: "ಇಂಗ್ಲಿಷ್‌ಗೆ ಬದಲಿಸಿ",
     noLocationResults: "ಸ್ಥಳಗಳು ಕಂಡುಬಂದಿಲ್ಲ. ಹತ್ತಿರದ ಪಟ್ಟಣ ಅಥವಾ ಜಿಲ್ಲೆಯನ್ನು ಪ್ರಯತ್ನಿಸಿ.",
     selectLocation: "ಸರಿಯಾದ ಸ್ಥಳವನ್ನು ಆಯ್ಕೆಮಾಡಿ", selectedLocation: "ಆಯ್ಕೆ ಮಾಡಿದ ಸ್ಥಳ",
     clearLocation: "ಸ್ಥಳ ಬದಲಿಸಿ", currentTemperature: "ತಾಪಮಾನ", rainfall: "ಮಳೆ ಪ್ರಮಾಣ",
@@ -751,6 +787,8 @@ const hindiText: Partial<Record<keyof typeof text.en, string>> = {
   searchPlaceholder: "शहर, जिला या गाँव खोजें", search: "खोजें", searching: "खोज रहे हैं…",
   detectLocation: "मेरा स्थान पहचानें", detectingLocation: "स्थान पता किया जा रहा है…",
   locationAttribution: "स्थान जानकारी: © OpenStreetMap contributors", locationDetected: "स्थान मिल गया",
+  languageAutoSetMessage: "{state} के आधार पर भाषा अपने-आप {language} की गई।",
+  switchToEnglish: "अंग्रेज़ी पर वापस जाएँ",
   selectLocation: "सही स्थान चुनें", selectedLocation: "चुना गया स्थान",
   clearLocation: "स्थान बदलें", currentTemperature: "तापमान", rainfall: "बारिश",
   todayRainProbability: "आज बारिश की संभावना", lastUpdated: "अंतिम अपडेट",
@@ -912,6 +950,8 @@ const teluguText: CompleteAppTranslations = {
   searchPlaceholder: "నగరం, జిల్లా లేదా గ్రామం వెతకండి", search: "వెతకండి", searching: "వెతుకుతోంది…",
   detectLocation: "నా స్థానాన్ని గుర్తించండి", detectingLocation: "స్థానాన్ని గుర్తిస్తోంది…",
   locationAttribution: "స్థాన సమాచారం: © OpenStreetMap contributors", locationDetected: "స్థానం గుర్తించబడింది",
+  languageAutoSetMessage: "{state} ఆధారంగా భాష స్వయంచాలకంగా {language}కి మార్చబడింది.",
+  switchToEnglish: "ఆంగ్లానికి తిరిగి మార్చండి",
   noLocationResults: "ప్రాంతాలు కనబడలేదు. దగ్గరలోని పట్టణం లేదా జిల్లాను ప్రయత్నించండి.",
   selectLocation: "సరైన ప్రాంతాన్ని ఎంచుకోండి", selectedLocation: "ఎంచుకున్న ప్రాంతం", clearLocation: "ప్రాంతం మార్చండి",
   currentTemperature: "ఉష్ణోగ్రత", rainfall: "వర్షపాతం", currentRain: "ప్రస్తుతం వర్షం",
@@ -1193,6 +1233,8 @@ const tamilText: CompleteAppTranslations = {
   searchPlaceholder: "நகரம், மாவட்டம் அல்லது கிராமத்தைத் தேடுங்கள்", search: "தேடு", searching: "தேடுகிறது…",
   detectLocation: "எனது இருப்பிடத்தைக் கண்டறி", detectingLocation: "இருப்பிடம் கண்டறியப்படுகிறது…",
   locationAttribution: "இருப்பிடத் தகவல்: © OpenStreetMap contributors", locationDetected: "இருப்பிடம் கண்டறியப்பட்டது",
+  languageAutoSetMessage: "{state} அடிப்படையில் மொழி தானாக {language}க்கு மாற்றப்பட்டது.",
+  switchToEnglish: "ஆங்கிலத்திற்கு மாற்று",
   noLocationResults: "இடங்கள் கிடைக்கவில்லை. அருகிலுள்ள நகரம் அல்லது மாவட்டத்தை முயற்சிக்கவும்.",
   selectLocation: "சரியான இடத்தைத் தேர்ந்தெடுக்கவும்", selectedLocation: "தேர்ந்தெடுத்த இடம்",
   clearLocation: "இடத்தை மாற்றவும்", currentTemperature: "வெப்பநிலை", rainfall: "மழைப்பொழிவு",
@@ -1485,6 +1527,8 @@ const marathiText: CompleteAppTranslations = {
   searchPlaceholder: "शहर, जिल्हा किंवा गाव शोधा", search: "शोधा", searching: "शोधत आहे…",
   detectLocation: "माझे ठिकाण शोधा", detectingLocation: "ठिकाण शोधत आहे…",
   locationAttribution: "ठिकाणाची माहिती: © OpenStreetMap contributors", locationDetected: "ठिकाण सापडले",
+  languageAutoSetMessage: "{state} नुसार भाषा आपोआप {language} केली.",
+  switchToEnglish: "इंग्रजीवर परत जा",
   noLocationResults: "ठिकाणे सापडली नाहीत. जवळचे शहर किंवा जिल्हा वापरून पाहा.",
   selectLocation: "योग्य ठिकाण निवडा", selectedLocation: "निवडलेले ठिकाण", clearLocation: "ठिकाण बदला",
   currentTemperature: "तापमान", rainfall: "पर्जन्यमान", currentRain: "सध्या पाऊस",
@@ -1947,6 +1991,8 @@ const advisoryCopy: LocalizedCopy<AdvisoryLanguageCopy> = {
 
 function App() {
   const [language, setLanguage] = useState<Language>("en");
+  const manualLanguageOverride = useRef(false);
+  const [autoLanguageNotice, setAutoLanguageNotice] = useState<{ language: Language; state: string } | null>(null);
   const [screen, setScreen] = useState<Screen>("dashboard");
   const [isOnline, setIsOnline] = useState(() => navigator.onLine);
   const [profile, setProfile] = useState<FarmerProfile | null>(() => {
@@ -1975,6 +2021,17 @@ function App() {
   const [bioInputArea, setBioInputArea] = useState(profile?.land ?? "");
   const [bioInputSeedBatch, setBioInputSeedBatch] = useState("");
   const t = (key: keyof typeof text.en) => languageText[language][key] ?? text.en[key];
+  const selectLanguageManually = (nextLanguage: Language) => {
+    manualLanguageOverride.current = true;
+    setLanguage(nextLanguage);
+    setAutoLanguageNotice(null);
+  };
+  const applyLocationLanguage = useCallback((stateName: string | null) => {
+    if (!stateName || manualLanguageOverride.current) return;
+    const nextLanguage = languageForIndianState(stateName);
+    setLanguage(nextLanguage);
+    setAutoLanguageNotice({ language: nextLanguage, state: stateName });
+  }, []);
 
   useEffect(() => {
     const updateConnection = () => setIsOnline(navigator.onLine);
@@ -1985,6 +2042,10 @@ function App() {
       window.removeEventListener("offline", updateConnection);
     };
   }, []);
+
+  useEffect(() => {
+    if (weatherLocation?.admin1) applyLocationLanguage(weatherLocation.admin1);
+  }, [weatherLocation, applyLocationLanguage]);
 
   useEffect(() => {
     if (weatherLocation === null) {
@@ -2161,12 +2222,12 @@ function App() {
               {t(isOnline ? "liveDataStatus" : "offlineDataStatus")}
             </span>
             <div className="language-toggle" role="group" aria-label={t("chooseLanguage")}>
-              <button type="button" className={language === "en" ? "selected" : ""} onClick={() => setLanguage("en")} aria-pressed={language === "en"} aria-label="English">EN</button>
-              <button type="button" className={language === "kn" ? "selected" : ""} onClick={() => setLanguage("kn")} aria-pressed={language === "kn"} aria-label="ಕನ್ನಡ">ಕನ್ನಡ</button>
-              <button type="button" className={language === "hi" ? "selected" : ""} onClick={() => setLanguage("hi")} aria-pressed={language === "hi"} aria-label="हिंदी">हिंदी</button>
-              <button type="button" className={language === "te" ? "selected" : ""} onClick={() => setLanguage("te")} aria-pressed={language === "te"} aria-label="తెలుగు">తెలుగు</button>
-              <button type="button" className={language === "ta" ? "selected" : ""} onClick={() => setLanguage("ta")} aria-pressed={language === "ta"} aria-label="தமிழ்">தமிழ்</button>
-              <button type="button" className={language === "mr" ? "selected" : ""} onClick={() => setLanguage("mr")} aria-pressed={language === "mr"} aria-label="मराठी">मराठी</button>
+              <button type="button" className={language === "en" ? "selected" : ""} onClick={() => selectLanguageManually("en")} aria-pressed={language === "en"} aria-label="English">EN</button>
+              <button type="button" className={language === "kn" ? "selected" : ""} onClick={() => selectLanguageManually("kn")} aria-pressed={language === "kn"} aria-label="ಕನ್ನಡ">ಕನ್ನಡ</button>
+              <button type="button" className={language === "hi" ? "selected" : ""} onClick={() => selectLanguageManually("hi")} aria-pressed={language === "hi"} aria-label="हिंदी">हिंदी</button>
+              <button type="button" className={language === "te" ? "selected" : ""} onClick={() => selectLanguageManually("te")} aria-pressed={language === "te"} aria-label="తెలుగు">తెలుగు</button>
+              <button type="button" className={language === "ta" ? "selected" : ""} onClick={() => selectLanguageManually("ta")} aria-pressed={language === "ta"} aria-label="தமிழ்">தமிழ்</button>
+              <button type="button" className={language === "mr" ? "selected" : ""} onClick={() => selectLanguageManually("mr")} aria-pressed={language === "mr"} aria-label="मराठी">मराठी</button>
             </div>
             <button className="avatar-button" onClick={() => navigate("settings")} aria-label={t("settings")}>
               {profile?.name ? profile.name.charAt(0).toUpperCase() : "☺"}
@@ -2175,6 +2236,10 @@ function App() {
         </header>
 
         <div className="page-content">
+          {autoLanguageNotice && <div className="language-auto-notice" role="status">
+            <span>{t("languageAutoSetMessage").replace("{language}", languageNativeNames[autoLanguageNotice.language]).replace("{state}", autoLanguageNotice.state)}</span>
+            <button type="button" onClick={() => selectLanguageManually("en")}>{t("switchToEnglish")}</button>
+          </div>}
           {notice && <div className="toast" role="status"><span>✓</span>{notice}<button onClick={() => setNotice("")} aria-label={t("close")}>×</button></div>}
           {screen === "dashboard" && <Dashboard t={t} profile={profile} navigate={navigate} weatherLocation={weatherLocation} weatherForecast={weatherForecast} weatherLoading={weatherLoading} />}
           {screen === "weather" && <Weather t={t} language={language} location={weatherLocation} forecast={weatherForecast} loading={weatherLoading} error={weatherError} updatedAt={weatherUpdatedAt} isCached={weatherCacheUsed} onSelectLocation={chooseWeatherLocation} onClearLocation={clearWeatherLocation} onRefresh={() => setWeatherRefresh((count) => count + 1)} />}
@@ -2188,8 +2253,8 @@ function App() {
           {screen === "cropDoctor" && <CropDoctor t={t} />}
           {screen === "schemes" && <GovtSchemesFinder language={language === "kn" ? "kn" : "en"} />}
           {screen === "advisory" && <Advisory t={t} language={language} messages={chatMessages} input={chatInput} setInput={setChatInput} send={sendMessage} />}
-          {screen === "settings" && <Settings t={t} language={language} setLanguage={setLanguage} profile={profile} clearProfile={clearProfile} navigate={navigate} />}
-          {screen === "settings" && <ProfileForm t={t} profile={profile} saveProfile={saveProfile} />}
+          {screen === "settings" && <Settings t={t} language={language} setLanguage={selectLanguageManually} profile={profile} clearProfile={clearProfile} navigate={navigate} />}
+          {screen === "settings" && <ProfileForm t={t} profile={profile} saveProfile={saveProfile} onLocationStateDetected={applyLocationLanguage} />}
         </div>
         <footer className="page-footer"><span>© 2026 KrishiMitra</span><span>{t("dashboardWeatherNote")}</span></footer>
       </main>
@@ -2665,6 +2730,7 @@ async function reverseGeocodeCoordinates(latitude: number, longitude: number, si
     lon: String(longitude),
     zoom: "16",
     addressdetails: "1",
+    "accept-language": "en",
   }).toString();
 
   let response: Response;
@@ -6297,7 +6363,11 @@ function useIndianLocationSuggestions(query: string, active: boolean, showDefaul
   return state;
 }
 
-function ProfileForm({ t, profile, saveProfile }: PageProps & { profile: FarmerProfile | null; saveProfile: (profile: FarmerProfile) => boolean }) {
+function ProfileForm({ t, profile, saveProfile, onLocationStateDetected }: PageProps & {
+  profile: FarmerProfile | null;
+  saveProfile: (profile: FarmerProfile) => boolean;
+  onLocationStateDetected: (stateName: string | null) => void;
+}) {
   const [form, setForm] = useState<FarmerProfile>(profile ?? { name: "", village: "", district: "", land: "", soil: "", irrigation: "" });
   const [villageActive, setVillageActive] = useState(false);
   const [districtActive, setDistrictActive] = useState(false);
@@ -6311,6 +6381,7 @@ function ProfileForm({ t, profile, saveProfile }: PageProps & { profile: FarmerP
   }
   function chooseVillage(location: ProfileLocationSuggestion) {
     locationDetection.cancelDetection();
+    onLocationStateDetected(location.state);
     setForm((current) => ({
       ...current,
       village: location.name,
@@ -6321,6 +6392,7 @@ function ProfileForm({ t, profile, saveProfile }: PageProps & { profile: FarmerP
   }
   function chooseDistrict(location: ProfileLocationSuggestion) {
     locationDetection.cancelDetection();
+    onLocationStateDetected(location.state);
     setForm((current) => ({ ...current, district: location.district ?? location.name }));
     setDistrictActive(false);
     setDistrictShowDefaults(false);
@@ -6328,6 +6400,7 @@ function ProfileForm({ t, profile, saveProfile }: PageProps & { profile: FarmerP
   async function detectProfileLocation() {
     const place = await locationDetection.detectCurrentLocation();
     if (place) {
+      onLocationStateDetected(place.state);
       setForm((current) => ({ ...current, village: place.village, district: place.district }));
       setVillageActive(false);
       setDistrictActive(false);
