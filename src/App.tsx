@@ -2641,6 +2641,173 @@ function farmWeatherAlertCopy(alert: FarmWeatherAlert, t: Translate, language: L
   return { title: t(titleKey[alert.kind]), body };
 }
 
+function SevenDayWeatherChart({ days, locale, t }: {
+  days: WeatherForecast["daily"];
+  locale: string;
+  t: Translate;
+}) {
+  const [activeIndex, setActiveIndex] = useState<number | null>(null);
+  const width = 760;
+  const left = 58;
+  const right = 702;
+  const top = 28;
+  const temperatureBottom = 154;
+  const rainTop = 174;
+  const rainBottom = 211;
+  const dateY = 245;
+  const temperatureValues = days.flatMap((day) =>
+    [day.temperatureMax, day.temperatureMin].filter((value): value is number => value !== null),
+  );
+  const minimum = temperatureValues.length ? Math.min(...temperatureValues) : 0;
+  const maximum = temperatureValues.length ? Math.max(...temperatureValues) : 4;
+  const temperatureMin = Math.floor((minimum - 2) / 2) * 2;
+  const temperatureMax = Math.max(temperatureMin + 4, Math.ceil((maximum + 2) / 2) * 2);
+  const xFor = (index: number) => days.length < 2
+    ? (left + right) / 2
+    : left + index * (right - left) / (days.length - 1);
+  const yForTemperature = (value: number) =>
+    top + (temperatureMax - value) / (temperatureMax - temperatureMin) * (temperatureBottom - top);
+  const formatValue = (value: number | null, maximumFractionDigits = 0) =>
+    value === null ? "—" : new Intl.NumberFormat(locale, { maximumFractionDigits }).format(value);
+  const dateLabels = days.map((day) =>
+    new Date(`${day.date}T12:00:00`).toLocaleDateString(locale, { weekday: "short", day: "numeric" }),
+  );
+
+  function makeLinePath(getValue: (index: number) => number | null) {
+    const segments: { x: number; y: number }[][] = [];
+    let segment: { x: number; y: number }[] = [];
+    days.forEach((_, index) => {
+      const value = getValue(index);
+      if (value === null) {
+        if (segment.length) segments.push(segment);
+        segment = [];
+      } else {
+        segment.push({ x: xFor(index), y: yForTemperature(value) });
+      }
+    });
+    if (segment.length) segments.push(segment);
+    return segments.map((points) => points.map((point, index) =>
+      `${index === 0 ? "M" : "L"}${point.x},${point.y}`,
+    ).join(" ")).join(" ");
+  }
+
+  const pairedSegments: { x: number; highY: number; lowY: number }[][] = [];
+  let pairedSegment: { x: number; highY: number; lowY: number }[] = [];
+  days.forEach((day, index) => {
+    if (day.temperatureMax === null || day.temperatureMin === null) {
+      if (pairedSegment.length) pairedSegments.push(pairedSegment);
+      pairedSegment = [];
+    } else {
+      pairedSegment.push({
+        x: xFor(index),
+        highY: yForTemperature(day.temperatureMax),
+        lowY: yForTemperature(day.temperatureMin),
+      });
+    }
+  });
+  if (pairedSegment.length) pairedSegments.push(pairedSegment);
+
+  const areaPath = pairedSegments.map((points) => {
+    const highPath = points.map((point, index) =>
+      `${index === 0 ? "M" : "L"}${point.x},${point.highY}`,
+    ).join(" ");
+    const lowPath = [...points].reverse().map((point) => `L${point.x},${point.lowY}`).join(" ");
+    return `${highPath} ${lowPath} Z`;
+  }).join(" ");
+  const highPath = makeLinePath((index) => days[index]?.temperatureMax ?? null);
+  const lowPath = makeLinePath((index) => days[index]?.temperatureMin ?? null);
+  const activeDay = activeIndex === null ? null : days[activeIndex] ?? null;
+  const activeX = activeIndex === null ? null : xFor(activeIndex);
+  const tooltipLeft = activeX === null ? null : Math.max(12, Math.min(88, activeX / width * 100));
+
+  return <div className="seven-day-chart">
+    <div className="seven-day-chart-legend" aria-hidden="true">
+      <span><i className="chart-legend-high" />{t("high")} (°C)</span>
+      <span><i className="chart-legend-low" />{t("low")} (°C)</span>
+      <span><i className="chart-legend-rain" />{t("rainChance")} (%)</span>
+    </div>
+    <div className="seven-day-chart-plot">
+    <svg viewBox={`0 0 ${width} 265`} role="group" aria-label={`${t("high")} and ${t("low")} temperatures in °C, with ${t("rainChance")}`}>
+      <defs>
+        <linearGradient id="weather-temperature-band" x1="0" x2="0" y1="0" y2="1">
+          <stop offset="0%" stopColor="#88aa7b" stopOpacity=".33" />
+          <stop offset="100%" stopColor="#dfead8" stopOpacity=".42" />
+        </linearGradient>
+      </defs>
+      {[0, 1, 2, 3].map((step) => {
+        const value = temperatureMax - step * (temperatureMax - temperatureMin) / 3;
+        const y = top + step * (temperatureBottom - top) / 3;
+        return <g key={`temp-grid-${step}`}>
+          <line className="weather-chart-grid" x1={left} x2={right} y1={y} y2={y} />
+          <text className="weather-chart-axis-label" x={left - 10} y={y + 3} textAnchor="end">{formatValue(value)}°</text>
+        </g>;
+      })}
+      {[0, 50, 100].map((chance) => {
+        const y = rainBottom - chance / 100 * (rainBottom - rainTop);
+        return <g key={`rain-grid-${chance}`}>
+          <line className="weather-chart-rain-grid" x1={left} x2={right} y1={y} y2={y} />
+          <text className="weather-chart-axis-label" x={right + 10} y={y + 3}>{chance}%</text>
+        </g>;
+      })}
+      <path d={areaPath} fill="url(#weather-temperature-band)" />
+      {days.map((day, index) => {
+        const x = xFor(index);
+        const probability = day.precipitationProbability;
+        const barHeight = probability === null ? 0 : probability / 100 * (rainBottom - rainTop);
+        return probability === null ? null : <rect
+          key={`rain-bar-${day.date}`}
+          className="weather-chart-rain-bar"
+          x={x - 14}
+          y={rainBottom - barHeight}
+          width="28"
+          height={barHeight}
+          rx="4"
+        />;
+      })}
+      <path className="weather-chart-high-line" d={highPath} />
+      <path className="weather-chart-low-line" d={lowPath} />
+      {days.map((day, index) => {
+        const x = xFor(index);
+        const highY = day.temperatureMax === null ? null : yForTemperature(day.temperatureMax);
+        const lowY = day.temperatureMin === null ? null : yForTemperature(day.temperatureMin);
+        const dateLabel = dateLabels[index] ?? day.date;
+        const accessibleLabel = `${dateLabel}: ${t("high")} ${formatValue(day.temperatureMax, 1)}°C, ${t("low")} ${formatValue(day.temperatureMin, 1)}°C, ${t("rainChance")} ${formatValue(day.precipitationProbability)}%`;
+        return <g key={`weather-point-${day.date}`}>
+          {highY !== null && <circle className="weather-chart-high-point" cx={x} cy={highY} r="4" />}
+          {lowY !== null && <circle className="weather-chart-low-point" cx={x} cy={lowY} r="4" />}
+          <text className="weather-chart-date" x={x} y={dateY} textAnchor="middle">{dateLabel}</text>
+          <rect
+            className="weather-chart-hit-area"
+            x={x - (right - left) / Math.max(days.length - 1, 1) / 2}
+            y={top - 12}
+            width={(right - left) / Math.max(days.length - 1, 1)}
+            height={dateY - top + 18}
+            role="button"
+            tabIndex={0}
+            aria-label={accessibleLabel}
+            onPointerEnter={() => setActiveIndex(index)}
+            onPointerLeave={() => setActiveIndex(null)}
+            onFocus={() => setActiveIndex(index)}
+            onBlur={() => setActiveIndex(null)}
+          />
+        </g>;
+      })}
+    </svg>
+    {activeDay && activeIndex !== null && tooltipLeft !== null && <div
+      className="weather-chart-tooltip"
+      style={{ left: `${tooltipLeft}%` }}
+      role="status"
+      aria-live="polite"
+    >
+      <strong>{dateLabels[activeIndex] ?? activeDay.date}</strong>
+      <span>{t("high")}: {formatValue(activeDay.temperatureMax, 1)}°C</span>
+      <span>{t("low")}: {formatValue(activeDay.temperatureMin, 1)}°C</span>
+      <span>{t("rainChance")}: {formatValue(activeDay.precipitationProbability)}%</span>
+    </div>}
+    </div>
+  </div>;
+}
+
 function Weather({ t, language, location, forecast, loading, error, updatedAt, isCached, onSelectLocation, onClearLocation, onRefresh }: PageProps & {
   language: Language;
   location: WeatherLocation | null;
@@ -2820,6 +2987,7 @@ function Weather({ t, language, location, forecast, loading, error, updatedAt, i
       {loading && <div className="weather-refresh-status" role="status"><span className="spinner" />{t("refreshing")}</div>}
       <section className="panel forecast-panel live-forecast-panel">
         <div className="panel-heading"><div><div className="eyebrow">{location.name}</div><h2>{t("forecastTitle")}</h2></div><span className={isCached ? "offline-tag" : "live-tag"}><i />{isCached ? t("cachedData") : t("live")}</span></div>
+        <SevenDayWeatherChart days={forecast.daily} locale={locale} t={t} />
         <div className="seven-day-grid">{forecast.daily.map((day) => {
           const date = new Date(`${day.date}T12:00:00`);
           const dateLabel = date.toLocaleDateString(locale, { weekday: "short", day: "numeric", month: "short" });
