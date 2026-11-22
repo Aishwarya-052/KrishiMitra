@@ -16,7 +16,8 @@ import GovtSchemesFinder from "./GovtSchemesFinder";
 import SmartIrrigationScheduler from "./SmartIrrigationScheduler";
 
 type Screen = "dashboard" | "weather" | "mandi" | "profit" | "smartFarm" | "irrigation" | "soil" | "crops" | "rotation" | "cropDoctor" | "schemes" | "advisory" | "settings";
-type Language = "en" | "kn" | "hi";
+type Language = "en" | "kn" | "hi" | "te" | "ta" | "mr";
+type LocalizedCopy<T> = Partial<Record<Language, T>> & { en: T };
 type FarmerProfile = {
   name: string;
   village: string;
@@ -861,6 +862,857 @@ const hindiText: Partial<Record<keyof typeof text.en, string>> = {
   reply: "मिट्टी, मौसम, मंडी और खेती की सामान्य जानकारी शुरुआती मार्गदर्शन है। महत्वपूर्ण फैसले स्थानीय परिस्थितियों के अनुसार जाँचें।",
 };
 
+type AppTranslationKey = keyof typeof text.en;
+type AppTranslations = Partial<Record<AppTranslationKey, string>>;
+type CompleteAppTranslations = Record<AppTranslationKey, string>;
+
+const teluguText: CompleteAppTranslations = {
+  dashboard: "డాష్‌బోర్డ్", weather: "వాతావరణం", mandi: "మార్కెట్ ధరలు", profit: "లాభాల లెక్కింపు",
+  smartFarm: "స్మార్ట్ వ్యవసాయం", irrigationPlanner: "నీటిపారుదల ప్రణాళిక", soil: "నేల వివరాలు",
+  cropDoctor: "పంట వైద్యుడు", schemes: "పథకాలు మరియు సబ్సిడీలు", crops: "పంట సూచనలు",
+  cropRotation: "పంట మార్పిడి ప్రణాళిక", advisory: "వ్యవసాయ సలహా", settings: "సెట్టింగ్‌లు",
+  greeting: "శుభోదయం", welcome: "మీ వ్యవసాయం — ఒక అడుగు ముందుకు.", demo: "నమూనా సమాచారం",
+  demoNote: "ఈ నమూనా ప్రదర్శన కోసం మాత్రమే; ఇది ప్రత్యక్షమైనది లేదా మీ ప్రాంతానికి ప్రత్యేకమైనది కాదు.",
+  todayAt: "ఈరోజు ముఖ్యాంశాలు", weatherCard: "వాతావరణ అంచనా", marketCard: "మార్కెట్ పరిస్థితి",
+  rainChance: "వర్షం పడే అవకాశం", humidity: "తేమ", viewWeather: "వాతావరణం చూడండి",
+  viewMarket: "ధరలు చూడండి", yourFarm: "మీ వ్యవసాయ ప్రొఫైల్", addFarm: "వ్యవసాయ వివరాలు జోడించండి",
+  editProfile: "ప్రొఫైల్ సవరించండి", setupPrompt: "వ్యక్తిగత సూచనల కోసం మీ వ్యవసాయ వివరాలు జోడించండి.",
+  completeProfile: "ప్రొఫైల్ ఏర్పాటు చేయండి", quickActions: "త్వరిత ఎంపికలు", askMitra: "కృషిమిత్రను అడగండి",
+  soilCheck: "నేల మార్గదర్శిని చూడండి", cropPlanner: "పంట సూచనలు చూడండి", fieldNote: "ఈరోజు చిన్న శ్రద్ధ రేపటి మంచి ఫలితానికి తోడ్పడుతుంది.",
+  weatherTitle: "వాతావరణ అంచనా", weatherSub: "ప్రస్తుత పరిస్థితులు, ఏడు రోజుల అంచనా కోసం నగరం, జిల్లా లేదా గ్రామాన్ని వెతకండి.",
+  currentConditions: "ప్రస్తుత పరిస్థితులు", feelsLike: "అనుభూతి ఉష్ణోగ్రత", wind: "గాలి",
+  nextDays: "రాబోయే రోజులు", dayToday: "ఈరోజు", dayTomorrow: "రేపు", sunny: "ఎండగా",
+  partlyCloudy: "పాక్షికంగా మేఘావృతం", lightShower: "తేలికపాటి జల్లులు", foggy: "పొగమంచు",
+  drizzle: "చిరుజల్లు", rainCondition: "వర్షం", snow: "మంచు", thunderstorm: "ఉరుములతో కూడిన వర్షం",
+  dashboardWeatherNote: "వాతావరణ సమాచారం Open-Meteo నుంచి ప్రత్యక్షంగా వస్తుంది. మార్కెట్ ధరలు నమూనా సమాచారం.",
+  weatherSource: "OPEN-METEO", live: "ప్రత్యక్షం", searchLocation: "మీ ప్రాంతాన్ని వెతకండి",
+  searchPlaceholder: "నగరం, జిల్లా లేదా గ్రామం వెతకండి", search: "వెతకండి", searching: "వెతుకుతోంది…",
+  noLocationResults: "ప్రాంతాలు కనబడలేదు. దగ్గరలోని పట్టణం లేదా జిల్లాను ప్రయత్నించండి.",
+  selectLocation: "సరైన ప్రాంతాన్ని ఎంచుకోండి", selectedLocation: "ఎంచుకున్న ప్రాంతం", clearLocation: "ప్రాంతం మార్చండి",
+  currentTemperature: "ఉష్ణోగ్రత", rainfall: "వర్షపాతం", currentRain: "ప్రస్తుతం వర్షం",
+  todayRainProbability: "ఈరోజు వర్షం పడే అవకాశం", forecastTitle: "ఏడు రోజుల అంచనా",
+  high: "గరిష్ఠం", low: "కనిష్ఠం", expectedRain: "అంచనా వర్షపాతం", lastUpdated: "చివరిగా నవీకరించిన సమయం",
+  dataSource: "సమాచార మూలం", refreshWeather: "వాతావరణాన్ని నవీకరించండి", refreshing: "నవీకరిస్తోంది…",
+  loadingWeather: "ప్రత్యక్ష వాతావరణ సమాచారం పొందుతోంది…", chooseWeatherLocation: "ప్రత్యక్ష వాతావరణం కోసం ప్రాంతాన్ని ఎంచుకోండి.",
+  noWeatherData: "ప్రస్తుతం వాతావరణ సమాచారం అందుబాటులో లేదు.",
+  weatherSearchHelp: "శోధన ఫలితాలు Open-Meteo నుంచి వస్తాయి. మీ పరికరం స్థానాన్ని సేకరించదు.",
+  farmingAdvisory: "వ్యవసాయ వాతావరణ సూచన", noAdvisories: "ఈ అంచనాలో వాతావరణ హెచ్చరికలు లేవు.",
+  advisoryRain: "వర్షం పడే అవకాశం ఉంది. నీటిపారుదల అవసరాన్ని పరిశీలించండి.",
+  advisoryHeavyRain: "భారీ వర్షం పడే అవకాశం ఉంది. పొలంలో నీరు బయటకు వెళ్లే మార్గాలను పరిశీలించండి.",
+  advisoryHeat: "అధిక ఉష్ణోగ్రతలు ఉండవచ్చు. పంట నీటి అవసరాన్ని గమనించండి.",
+  advisoryWind: "బలమైన గాలులు వీచవచ్చు. సున్నితమైన పంటలకు ఆసరా ఉందో చూడండి.",
+  weatherError: "వాతావరణ సేవలో లోపం", weatherNetworkError: "కనెక్షన్ కాలేదు. ఇంటర్నెట్‌ను తనిఖీ చేసి మళ్లీ ప్రయత్నించండి.",
+  weatherHttpError: "వాతావరణ సేవ తాత్కాలికంగా అందుబాటులో లేదు. కొద్దిసేపటి తర్వాత ప్రయత్నించండి.",
+  weatherApiError: "ఈ ప్రాంతానికి వాతావరణ సమాచారం పొందలేకపోయాం.",
+  weatherInvalidError: "వాతావరణ సేవ నుంచి ఊహించని సమాచారం వచ్చింది. మళ్లీ ప్రయత్నించండి.",
+  locationSaveError: "ఈ బ్రౌజర్‌లో ఎంచుకున్న ప్రాంతాన్ని భద్రపరచలేకపోయాం.",
+  mandiTitle: "మార్కెట్ ధరలు", mandiSub: "భారతదేశం మరియు రాష్ట్ర మార్కెట్ల ధరలు; నమూనా రికార్డులు స్పష్టంగా గుర్తించబడ్డాయి.",
+  marketBoard: "AGMARKNET రోజువారీ ధరలు", commodity: "పంట", market: "మార్కెట్", price: "ధర / క్వింటాల్",
+  change: "మార్పు", state: "రాష్ట్రం", districtLabel: "జిల్లా", variety: "రకం", arrivalDate: "వచ్చిన తేదీ",
+  minPrice: "కనిష్ఠ ధర", maxPrice: "గరిష్ఠ ధర", modalPrice: "మోడల్ ధర",
+  selectState: "రాష్ట్రాన్ని ఎంచుకోండి", selectDistrict: "అన్ని జిల్లాలు", selectMarket: "అన్ని మార్కెట్లు",
+  searchCrop: "పంటను వెతికి ఎంచుకోండి", cropSearchPlaceholder: "డేటాలోని పంటలను వెతకండి…",
+  noCrops: "అందుబాటులో ఉన్న సమాచారంలో సరిపోలే పంటలు లేవు.", loadingMarkets: "ప్రభుత్వ మార్కెట్ సమాచారం లోడ్ అవుతోంది…",
+  noMarketData: "ఈ ఎంపికకు మార్కెట్ రికార్డులు లేవు.",
+  noDataForFilters: "ఈ వడపోతలకు రికార్డులు లేవు. వేరే పంట, జిల్లా లేదా మార్కెట్‌ను ఎంచుకోండి.",
+  chooseCropForCompare: "మార్కెట్ల ధరలను పోల్చడానికి పంటను వెతికి ఎంచుకోండి.",
+  marketApiSource: "భారత ప్రభుత్వం · AGMARKNET", sampleCachedMandiData: "నమూనా / క్యాష్ చేసిన AGMARKNET సమాచారం",
+  sampleDataSource: "ఉదాహరణ కోసం చేర్చిన డేటా · ప్రత్యక్షం కాదు, ప్రభుత్వ నివేదిక కాదు",
+  mixedDataSource: "ఉదాహరణ రికార్డులు మరియు పరికరంలో భద్రపరిచిన AGMARKNET సమాచారం",
+  cachedPriceExplanation: "ఈ పరికరంలోని క్యాష్‌లో ఉన్న పాత AGMARKNET రికార్డులు చూపబడుతున్నాయి. ఇవి ప్రస్తుత ధరలు కాకపోవచ్చు.",
+  lastUpdatedMandi: "చివరిగా నవీకరించిన సమయం", dataRows: "పొందిన రికార్డులు",
+  mandiErrorTitle: "మార్కెట్ సమాచారం లోడ్ కాలేదు", refreshPrices: "ధరలను నవీకరించండి", refreshingPrices: "నవీకరిస్తోంది…",
+  compareMarkets: "ఎంచుకున్న రాష్ట్రంలోని మార్కెట్లను పోల్చండి", sortByModal: "మోడల్ ధర ప్రకారం క్రమబద్ధీకరించండి",
+  ascending: "తక్కువ ధర ముందుగా", descending: "ఎక్కువ ధర ముందుగా", priceAdvisory: "ధరల పోలిక సూచనలు",
+  noCompareData: "మార్కెట్లను పోల్చడానికి సరిపడా నివేదిత ధరలు లేవు.",
+  highestReported: "అత్యధికంగా నివేదించిన మోడల్ ధర", lowestReported: "అత్యల్పంగా నివేదించిన మోడల్ ధర",
+  transportNote: "నివేదిత ధర ఎక్కువగా ఉన్నంత మాత్రాన ఆదాయం ఎక్కువవుతుందని హామీ లేదు. రవాణా, ఇతర ఖర్చులను పరిగణించండి.",
+  priceHistory: "నివేదిత ధరల చరిత్ర", fromDate: "ప్రారంభ తేదీ", toDate: "ముగింపు తేదీ",
+  missingDates: "ఈ తేదీలకు రికార్డులు లేవు", noHistory: "ఈ ఎంపికకు గత రికార్డులు అందుబాటులో లేవు.",
+  sourceUnitNote: "మూలంలో నివేదించినట్లుగా ధరలు క్వింటాల్‌కు ₹లో చూపబడ్డాయి.",
+  sellWaitTitle: "ఇప్పుడే అమ్మాలా, వేచి చూడాలా?", sellWaitSub: "ఎంచుకున్న పంటకు సంబంధించిన గత నివేదిత ధరల ఆధారంగా జాగ్రత్తగా ఇచ్చే సూచన.",
+  currentReportedPrice: "ఇటీవలి నివేదిత సగటు ధర", previousReportedPrice: "మునుపటి నివేదిత సగటు ధర",
+  priceChange: "మునుపటి నివేదికతో పోల్చిన మార్పు", trend: "ఇటీవలి నివేదిత ధోరణి",
+  trendRising: "పెరుగుతోంది", trendFalling: "తగ్గుతోంది", trendMixed: "మిశ్రమంగా లేదా స్థిరంగా ఉంది",
+  trendInsufficient: "ధోరణిని చూపడానికి తగినంత సమాచారం లేదు",
+  recommendationMonitor: "మార్కెట్‌ను గమనించండి", recommendationSell: "అమ్మకాన్ని పరిశీలించండి",
+  recommendationNoSignal: "స్పష్టమైన సూచన లేదు", recommendationInsufficient: "సూచనకు తగినంత గత సమాచారం లేదు",
+  reportedPriceHistory: "ఇటీవలి నివేదిత ధరలు",
+  smartFarmTitle: "స్మార్ట్ వ్యవసాయ నిర్ణయ కేంద్రం", smartFarmSub: "వ్యవసాయ ప్రొఫైల్, వాతావరణం, మార్కెట్ నివేదికలు, ఖర్చుల అంచనాలను ఒకచోట చూడండి.",
+  smartFarmEyebrow: "మీ వ్యవసాయ నిర్ణయ కేంద్రం", smartFarmOverview: "వ్యవసాయ సారాంశం",
+  todayForecast: "వాతావరణ అంచనా", noForecastForFarm: "ప్రత్యక్ష అంచనా కోసం వాతావరణ తెరలో ప్రాంతాన్ని ఎంచుకోండి.",
+  noFarmSoil: "రైతు ప్రొఫైల్‌లో నేల రకం భద్రపరచలేదు.", profileSoilNote: "మీ ప్రొఫైల్‌లో భద్రపరిచిన నేల రకం; ఇది ప్రయోగశాల పరీక్ష కాదు.",
+  latestMandiAverage: "తాజా నివేదిత మార్కెట్ సగటు", demoPriceLabel: "నమూనా ధర · ప్రత్యక్ష మార్కెట్ ధర కాదు",
+  samplePriceExplanation: "ప్రదర్శన కోసం మాత్రమే సూచనాత్మక ధరలు. ఈ పంట నివేదిత ధరల కోసం మార్కెట్ ధరల తెరను చూడండి.",
+  noMarketHistory: "ఈ పంటకు సరిపోలే నివేదిత మార్కెట్ రికార్డులు ఇంకా లేవు.",
+  sellNow: "ఇప్పుడే అమ్మండి", waitMarket: "వేచి మళ్లీ పరిశీలించండి", monitorMarket: "మార్కెట్‌ను గమనించండి",
+  openMandi: "మార్కెట్ ధరలు చూడండి",
+  farmAlertsTitle: "వాతావరణ ఆధారిత వ్యవసాయ హెచ్చరికలు", forecastVerified: "అంచనా ఆధారితం",
+  generalAdviceLabel: "సాధారణ సూచన · మీ ప్రాంతంలో ధృవీకరించబడలేదు",
+  noActiveFarmAlerts: "అందుబాటులో ఉన్న అంచనాలో హెచ్చరిక స్థాయులు దాటలేదు. స్థానిక పరిస్థితులను గమనించండి.",
+  alertHeavyRainTitle: "భారీ వర్షం పడవచ్చు", alertRainTitle: "వర్షం పడవచ్చు",
+  alertRainAmountBody: "{date}న {amount} మి.మీ. వర్షం పడే అవకాశం ఉంది. అనవసర నీటిపారుదల నివారించేందుకు నేల తేమను చూడండి.",
+  alertHeatTitle: "అధిక ఉష్ణోగ్రత ఉండవచ్చు", alertWindTitle: "ప్రస్తుతం బలమైన గాలులు",
+  generalWeatherAdviceTitle: "సాధారణ వాతావరణ సూచన",
+  generalWeatherAdviceBody: "నీటిపారుదల, కోత లేదా పొలం పనులకు ముందు స్థానిక అంచనాను చూడండి. ఈ పొలానికి ప్రత్యక్ష అంచనా లోడ్ కాలేదు.",
+  cropRiskTitle: "వాతావరణ సంబంధిత పంట ప్రమాదం", lowRisk: "తక్కువ ప్రమాదం",
+  moderateRisk: "మధ్యస్థ ప్రమాదం", highRisk: "అధిక ప్రమాదం", riskUnavailable: "ప్రమాద సూచిక అందుబాటులో లేదు",
+  postHarvestEyebrow: "కోత మరియు నిల్వ", postHarvestTitle: "కోత తర్వాత నిల్వ మరియు నష్ట ప్రమాద సూచిక",
+  postHarvestSub: "ప్రస్తుత బయటి ఉష్ణోగ్రత, తేమ ఆధారంగా సుమారు నిల్వ అంచనా.",
+  postHarvestCrop: "కోత చేసిన పంట", postHarvestMethod: "నిల్వ విధానం",
+  postHarvestWindow: "అంచనా సురక్షిత నిల్వ సమయం", postHarvestRisk: "పాడయ్యే ప్రమాదం",
+  postHarvestAction: "చర్య సూచన", postHarvestSellImmediately: "వెంటనే అమ్మండి",
+  postHarvestSafeToStore: "నిల్వ చేయవచ్చు", postHarvestRiskHigh: "అధికం",
+  postHarvestRiskModerate: "మధ్యస్థం", postHarvestRiskLow: "తక్కువ",
+  storageOpenShed: "తెరిచిన షెడ్", storageGunnyBags: "గోనె సంచులు", storageColdStorage: "శీతల గిడ్డంగి",
+  farmCostsTitle: "వ్యవసాయ ఖర్చుల విశ్లేషణ", totalInvestment: "మొత్తం పెట్టుబడి",
+  largestExpense: "అత్యధిక ఖర్చు విభాగం", expenseBreakdown: "ఖర్చుల వివరాలు",
+  noExpensesEntered: "ఖర్చుల విభజన చూడటానికి లాభాల లెక్కింపులో అంచనా ఖర్చులు నమోదు చేయండి.",
+  personalizedTitle: "మీ కోసం వ్యవసాయ సూచనలు", priorityHigh: "అధికం", priorityMedium: "మధ్యస్థం", priorityLow: "తక్కువ",
+  selectCropForSmartFarm: "వ్యవసాయ సారాంశాన్ని వ్యక్తిగతీకరించడానికి పంటను ఎంచుకోండి.",
+  soilTitle: "నేల వివరాలు", soilSub: "మీ పొలంలోని నేలను అర్థం చేసుకోవడానికి సరళమైన మార్గదర్శిని.",
+  profitCalculatorEyebrow: "మీ వ్యవసాయ సీజన్‌ను ప్రణాళిక చేయండి", profitCalculatorTitle: "రైతు లాభాల లెక్కింపు",
+  profitCalculatorSub: "మీ పొలం అంచనాల ఆధారంగా పంట ఆదాయం, ఖర్చులు, లాభాన్ని లెక్కించండి.",
+  estimateBadge: "మీ అంచనా", cropSelect: "పంట", chooseCrop: "పంటను ఎంచుకోండి",
+  cultivatedArea: "సాగు భూమి (ఎకరాలు)", expectedYieldPerAcre: "ఎకరానికి అంచనా దిగుబడి (క్వింటాళ్లు)",
+  expectedSellingPrice: "అంచనా అమ్మకపు ధర (₹ / క్వింటాల్)", estimatedExpenses: "అంచనా ఖర్చులు (₹)",
+  calculatorExpenseHelp: "సీజన్‌కు అయ్యే ఖర్చులను నమోదు చేయండి; వర్తించని ఖర్చులకు ₹0 ఉంచండి.",
+  seedExpense: "విత్తనాలు", fertilizerExpense: "ఎరువులు", labourExpense: "కూలి", irrigationExpense: "నీటిపారుదల",
+  transportExpense: "రవాణా", otherExpense: "ఇతర ఖర్చులు",
+  calculatorResults: "మీ అంచనా ఫలితాలు", calculatorPrompt: "అంచనా కోసం పంట, భూమి, దిగుబడి, అమ్మకపు ధర నమోదు చేయండి.",
+  totalExpectedYield: "మొత్తం అంచనా దిగుబడి", expectedRevenue: "మొత్తం అంచనా ఆదాయం", quintals: "క్వింటాళ్లు",
+  totalExpenses: "మొత్తం ఖర్చులు", estimatedProfit: "అంచనా లాభం", profitPerAcre: "ఎకరానికి లాభం",
+  financialBreakdown: "ఆదాయం మరియు ఖర్చుల పోలిక", revenueLabel: "ఆదాయం", expensesLabel: "ఖర్చులు",
+  netProfitLabel: "నికర లాభం", calculatorDisclaimer: "ఇది మీరు నమోదు చేసిన వివరాల ఆధారంగా అంచనా మాత్రమే; హామీ ఆదాయం కాదు. నిజమైన దిగుబడి, ధరలు, ఖర్చులు మారవచ్చు.",
+  soilHealth: "నేల ఆరోగ్య సారాంశం", soilType: "నేల రకం", phLevel: "pH స్థాయి", organicMatter: "సేంద్రియ పదార్థం",
+  nitrogen: "నత్రజని", phosphorus: "భాస్వరం", potassium: "పొటాషియం",
+  cropTitle: "పంట సూచనలు", cropSub: "నమూనా ప్రొఫైల్ ఆధారంగా ఆలోచనలు — స్థానికంగా అనుకూలతను నిర్ధారించండి.",
+  recommended: "పరిశీలించదగిన సూచనలు", season: "ఖరీఫ్ సీజన్", duration: "పంట కాలం", waterNeed: "నీటి అవసరం",
+  advisoryTitle: "కృషిమిత్రను అడగండి", advisorySub: "వ్యవసాయ ప్రశ్నలకు సరళమైన, ఆచరణాత్మక సూచనలు పొందండి.",
+  demoChat: "వ్యవసాయ సలహా", chatPlaceholder: "మీ వ్యవసాయ ప్రశ్నను టైప్ చేయండి…", send: "పంపండి",
+  settingsTitle: "సెట్టింగ్‌లు", settingsSub: "కృషిమిత్రను మీ అవసరాలకు అనుగుణంగా మార్చుకోండి.",
+  language: "భాష", chooseLanguage: "మీకు నచ్చిన భాషను ఎంచుకోండి",
+  profileSection: "రైతు ప్రొఫైల్", savedLocally: "మీ ప్రొఫైల్ ఈ పరికరంలో మాత్రమే భద్రపరచబడుతుంది.",
+  clearProfile: "భద్రపరిచిన ప్రొఫైల్ తొలగించండి", profileTitle: "మీ రైతు ప్రొఫైల్",
+  profileSub: "కొన్ని వివరాలు మీ వ్యవసాయ సహాయకుడిని వ్యక్తిగతీకరించడంలో సహాయపడతాయి.",
+  fullName: "మీ పేరు", village: "గ్రామం", district: "జిల్లా", land: "భూమి విస్తీర్ణం (ఎకరాలు)",
+  soilChoice: "నేల రకం", irrigation: "నీటిపారుదల వనరు", chooseOne: "ఒకటి ఎంచుకోండి",
+  saveProfile: "ప్రొఫైల్ భద్రపరచండి", cancel: "రద్దు చేయండి", saved: "ఈ పరికరంలో ప్రొఫైల్ భద్రపరచబడింది.",
+  profileMissing: "ప్రొఫైల్ భద్రపరచడానికి మీ పేరు, గ్రామం, జిల్లా నమోదు చేయండి.",
+  profileCleared: "భద్రపరిచిన ప్రొఫైల్ తొలగించబడింది.",
+  cropRice: "వరి", cropRagi: "రాగి", cropMaize: "మొక్కజొన్న", cropPulses: "పప్పుధాన్యాలు",
+  profileBadge: "మీ వ్యవసాయం", typeRed: "ఎర్ర నేల", typeBlack: "నల్ల నేల",
+  typeSandy: "ఇసుక నేల", typeLoamy: "లోమీ నేల", waterCanal: "కాలువ", waterBorewell: "బోర్‌వెల్",
+  waterRainfed: "వర్షాధారం", waterOther: "ఇతర", noProfile: "ఇంకా ప్రొఫైల్ భద్రపరచలేదు",
+  more: "మరిన్ని", prototype: "నమూనా", acres: "ఎకరాలు", cachedData: "క్యాష్ చేసినది",
+  shareWhatsapp: "WhatsAppలో పంచుకోండి", listenToSummary: "వినండి / చదివించండి", stopReading: "చదవడం ఆపండి",
+  speechUnavailable: "ఈ బ్రౌజర్‌లో మాటల రూపంలో వినిపించే సౌకర్యం లేదు.",
+  turDal: "కందిపప్పు", postHarvestCropOnion: "ఉల్లిపాయ", postHarvestCropPotato: "బంగాళాదుంప",
+  close: "మూసివేయండి",
+
+
+  mandiShareMessage: "కృషిమిత్ర మార్కెట్ ధరల సారాంశం",
+
+
+  selectCropForAdvisor: "ధరల చరిత్రను సమీక్షించడానికి పై నుంచి పంటను ఎంచుకోండి.",
+  noAdvisorPrices: "ఈ పంట, ఫిల్టర్‌లకు సరిపడా ధరలు లేవు; చారిత్రక విశ్లేషణ అందుబాటులో లేదు.",
+
+  reportedPriceMethod: "ఎంచుకున్న పంట, ఫిల్టర్‌లకు అందుబాటులో ఉన్న నివేదిత ధరల సగటు ఇది. ఇవి గత ధరలు మాత్రమే; అంచనా లేదా హామీ కాదు.",
+ selectedRows: "ఎంచుకున్న రికార్డులు",
+  noVariety: "రకం తెలియదు",
+
+  profitSpeechSummary: "మీ అంచనా దిగుబడి {yield} క్వింటాళ్లు. అంచనా ఆదాయం {revenue}, మొత్తం ఖర్చులు {expenses}, అంచనా లాభం {profit}, ఎకరానికి లాభం {perAcre}.",
+  profitShareMessage: "పంట: {crop}; దిగుబడి: {yield} క్వింటాళ్లు; ఆదాయం: {revenue}; ఖర్చులు: {expenses}; అంచనా లాభం: {profit}; ఎకరానికి లాభం: {perAcre}. ఇది హామీ కాదు, అంచనా మాత్రమే.",
+  transportInviteMessage: "{village} సమీపంలో {farmers} మంది రైతులు రేపు {mandi}కి సరుకు వాహనాన్ని పంచుకునేందుకు కావాలి.",
+  transportPoolingTitle: "సామూహిక రవాణా ఖర్చు గణకం",
+  transportPoolingSub: "పంట పరిమాణం, దూరం, వాహనం పంచుకునే రైతుల సంఖ్య ఆధారంగా ఒక్కొక్కరి ఖర్చును అంచనా వేయండి.",
+  harvestQuantity: "పంట పరిమాణం (క్వింటాళ్లు)", neighborFarmers: "పక్క రైతులు (మీతో సహా)",
+  villageForInvite: "గ్రామం (ఆహ్వానం కోసం)", destinationMandi: "గమ్యస్థాన మార్కెట్",
+  totalSharingFarmers: "రవాణా పంచుకునే రైతులు", pooledTransportCost: "పంచుకున్న అంచనా ఖర్చు / రైతు",
+  transportPoolingAssumption: "ఇది ప్రణాళిక కోసం ఒక అంచనా మాత్రమే. వాహన ధర, లోడింగ్, రూట్, మార్కెట్ రుసుములు మారవచ్చు; వాహనం అందుబాటును నిర్ధారించండి.",
+  transportInviteMissing: "WhatsApp ఆహ్వానాన్ని రూపొందించడానికి గ్రామం, మార్కెట్ నమోదు చేయండి.",
+  postHarvestShareMessage: "కృషిమిత్ర పంట నిల్వ సారాంశం: {crop}, నిల్వ పద్ధతి {method}, అంచనా సురక్షిత నిల్వ కాలం {days} రోజులు, ప్రమాద స్థాయి {risk}.",
+
+  postHarvestModelNote: "ఇది ప్రస్తుత బయటి ఉష్ణోగ్రత, తేమ ఆధారంగా చేసిన సుమారు అంచనా మాత్రమే; నిల్వ పరిస్థితులు, పంట నాణ్యత ఆధారంగా ఫలితం మారుతుంది.",
+  postHarvestEstimateNote: "ఇవి సాధారణ ప్రణాళిక పరిమితులు మాత్రమే; గాలి ప్రసరణ, పంట తేమ, గాయాలు, స్థానిక పరిస్థితులు నిల్వ కాలాన్ని మార్చవచ్చు.",
+  weatherRecommendationTitle: "మీ పొలానికి వాతావరణ సూచన",
+  weatherRecommendationNoData: "వ్యక్తిగత వాతావరణ సూచనకు వాతావరణ పేజీలో ప్రాంతాన్ని ఎంచుకోండి.",
+  weatherRecommendationNoAlert: "ప్రస్తుతం అంచనాలో ప్రత్యేక సూచన అవసరమైన పరిస్థితి లేదు. స్థానిక వాతావరణాన్ని గమనించండి.",
+  marketRecommendationTitle: "మీ పంటకు మార్కెట్ సూచన",
+  expenseRecommendationTitle: "పంట ఖర్చుల సమీక్ష",
+  expenseRecommendationNoData: "లాభ గణకంలో అంచనా ఖర్చులు నమోదు చేస్తే ఈ సమీక్ష కనిపిస్తుంది.",
+  expenseRecommendationNoCosts: "ఇంకా అంచనా ఖర్చులు నమోదు చేయలేదు.",
+  marketInsufficientReason: "మూడు ధర తేదీలకంటే తక్కువ సమాచారం ఉంది; మార్కెట్ దిశను విశ్వసనీయంగా అంచనా వేయలేం.",
+  locationUnset: "ప్రాంతం ఎంచుకోలేదు",
+ marketSampleReason: "ఈ సూచన నమూనా ధరల ఆధారంగా మాత్రమే; ఇది నిజమైన మార్కెట్ సంకేతం లేదా అమ్మకపు సలహా కాదు.",
+ riskWeatherUnavailable: "ఉష్ణోగ్రత, తేమ ఉన్న వాతావరణ సమాచారం అందుబాటులో లేదు.",
+  riskContextNote: "అంచనా నిల్వ కాలం సాధారణ పరిస్థితులకే వర్తిస్తుంది. పంటను తరచూ తనిఖీ చేసి, తేమ లేదా చెడిపోవడం కనిపిస్తే వెంటనే చర్య తీసుకోండి.",
+  largestExpenseInsight: "మీ అంచనాలో అత్యధిక ఖర్చు {category}గా ఉంది: {amount}. కొనుగోలు లేదా పని ఖర్చును స్థానికంగా పోల్చి చూడండి.",
+  sampleLevel: "నమూనా", soilTipTitle: "మట్టి ఆరోగ్య సూచన",
+  waterLowMedium: "తక్కువ నుండి మధ్యస్థం", askAbout: "ఈ అంశాల గురించి అడగండి",
+  cropDoctorGuide: "లక్షణాల ఆధారంగా సాధ్యమైన కారణాలు, జాగ్రత్తలు చూడండి. ఇది వ్యాధి నిర్ధారణ కాదు.",
+  cropDoctorTitle: "పంట ఆరోగ్య సహాయకుడు", cropDoctorSub: "పంట, కనిపిస్తున్న లక్షణాలను ఎంచుకుని సాధ్యమైన కారణాలపై మార్గదర్శనం పొందండి.",
+  cropDoctorChooseCrop: "పంటను ఎంచుకోండి", cropDoctorClearSymptoms: "ఎంచుకున్న లక్షణాలను తొలగించండి",
+  cropDoctorShareMessage: "కృషిమిత్ర పంట పరిశీలన: {crop}; లక్షణం: {symptom}; సాధ్యమైన సమస్య: {diagnosis}; సూచన: {prevention}. రసాయన చికిత్సకు ముందు స్థానిక వ్యవసాయ అధికారిని సంప్రదించండి.",
+  cropDoctorPossibleIssue: "పరిశీలించాల్సిన సాధ్యమైన సమస్య", cropDoctorOrganic: "తక్షణ సేంద్రీయ చర్య / పరిష్కారం",
+  cropDoctorPrevention: "నివారణ చర్యలు", cropDoctorDisclaimer: "ఇది ప్రాథమిక మార్గదర్శనం మాత్రమే, నిపుణుల నిర్ధారణ కాదు.",
+  cropDoctorSafety: "కారణాన్ని నిర్ధారించకుండా మందు పిచికారీ చేయవద్దు. పంటకు అనుమతించిన లేబుల్ సూచనలను పాటించండి.",
+ reply: "ముఖ్యమైన పొల నిర్ణయాలను స్థానిక KVK లేదా వ్యవసాయ అధికారితో నిర్ధారించుకోండి.",
+ storageError: "ఈ బ్రౌజర్‌లో మీ ప్రొఫైల్‌ను భద్రపరచలేకపోయాం.",
+  clearConfirm: "ఈ పరికరంలో భద్రపరిచిన రైతు ప్రొఫైల్‌ను తొలగించాలా?",
+  speechError: "ధ్వని ప్లే కాలేదు. బ్రౌజర్ ఆడియో సెట్టింగ్‌లను తనిఖీ చేసి మళ్లీ ప్రయత్నించండి.",
+  marketItems: "కల్పిత నమూనా ధరలు చూపబడుతున్నాయి", noPrice: "—",
+  searchStateHelp: "ప్రాంతాలు, పంటల ఎంపికలు పొందిన డేటా రికార్డుల నుంచే వస్తాయి.",
+  distanceToMandi: "మార్కెట్‌కు దూరం (కి.మీ.)", vehicleFare: "ఒక ప్రయాణానికి వాహన అద్దె (₹)",
+  individualTransportCost: "ఒక్క రైతుకు ప్రయాణ ఖర్చు", transportSavings: "ప్రతి రైతుకు ఆదా",
+  invitePreview: "WhatsApp ఆహ్వానం ప్రివ్యూ", dayUnit: "రోజులు",
+  postHarvestWeatherUnavailable: "అంచనా కోసం ఉష్ణోగ్రత, తేమ రెండూ ఉన్న తాజా వాతావరణ సమాచారాన్ని లోడ్ చేయండి.",
+  weatherRecommendationBody: "{alert} పొల పనులను ప్లాన్ చేయడానికి పైనున్న వాతావరణ వివరాలను చూడండి.",
+  marketRecommendationBody: "{recommendation}: {reason}",
+  expenseRecommendationBody: "మీరు నమోదు చేసిన ఖర్చుల్లో {category} వాటా {share}%. స్థానిక ధరలను పోల్చి రసీదులను భద్రపరచండి.",
+  samplePeriodTwo: "నమూనా 2", samplePeriodThree: "నమూనా 3",
+  riskMethod: "ఈ సాధారణ సూచిక వాతావరణ హెచ్చరికల రకాలను లెక్కిస్తుంది: ఏదీ లేకపోతే = తక్కువ, ఒకటి = మధ్యస్థం, రెండు లేదా అంతకంటే ఎక్కువ = ఎక్కువ. ఇది దిగుబడి లేదా పంట నష్ట అంచనా కాదు.",
+  nearNeutral: "తటస్థానికి దగ్గరగా", medium: "మధ్యస్థం", good: "మంచిది",
+  soilTip: "మీ పొలానికి పోషకాలను ప్రణాళిక చేయడానికి గుర్తింపు పొందిన స్థానిక ప్రయోగశాలలో మట్టి పరీక్ష చేయించడం ఉత్తమం.",
+  waterLow: "తక్కువ", waterMedium: "మధ్యస్థం", waterHigh: "ఎక్కువ",
+  cropTip: "పంట ఆలోచనలు నమూనా సూచనలు మాత్రమే; మీ ప్రాంతానికి సంబంధించిన వ్యవసాయ సలహా కావు.",
+  cropDoctorCrop: "పంటను ఎంచుకోండి", cropDoctorSymptoms: "కనిపించే లక్షణాలను ఎంచుకోండి",
+  cropDoctorChooseSymptoms: "మీరు గమనించిన ఒకటి లేదా అంతకంటే ఎక్కువ లక్షణాలను ఎంచుకోండి.",
+  cropDoctorSeverity: "ప్రాథమిక తీవ్రత", cropDoctorChemical: "రసాయన ఎంపిక (కారణం నిర్ధారించినప్పుడే)",
+  cropDoctorNoSelection: "సాధ్యమైన కారణాలను చూడటానికి పంటతో పాటు కనీసం ఒక లక్షణాన్ని ఎంచుకోండి.",
+  about: "ఈ నమూనా గురించి",
+  aboutCopy: "కృషిమిత్ర మొదట UI నమూనాగా ప్రారంభమైంది. వాతావరణం Open-Meteo నుంచి వస్తుంది; మార్కెట్ ధరలు, ఇతర నమూనా తెరల్లోని సమాచారం ప్రదర్శన కోసం మాత్రమే.",
+  dayNext: "బుధవారం",
+  sampleTip: "ధరలు మారవచ్చు. రవాణా, ఇతర ఖర్చులు మీ ఆదాయాన్ని ప్రభావితం చేస్తాయి; జాగ్రత్తగా పోల్చండి.",
+  missingMandiKey: "సర్వర్ .env ఫైల్‌లో data.gov.in API కీని జోడించి, సర్వర్‌ను మళ్లీ ప్రారంభించండి.",
+  rejectedMandiKey: "data.gov.in ఈ API కీని అంగీకరించలేదు. అది చెల్లుబాటులో ఉందో, ఈ వనరుకు అనుమతించబడిందో తనిఖీ చేయండి.",
+  mandiNetworkError: "మార్కెట్ సేవను చేరుకోలేకపోయాం. ఇంటర్నెట్‌ను తనిఖీ చేసి మళ్లీ ప్రయత్నించండి.",
+  mandiUpstreamError: "data.gov.in సేవ తాత్కాలికంగా అందుబాటులో లేదు. కొద్దిసేపటి తర్వాత మళ్లీ ప్రయత్నించండి.",
+  mandiSchemaError: "డేటాసెట్ ప్రతిస్పందనను గుర్తించలేకపోయాం; ధరలు చూపబడవు.",
+  adviceMonitor: "చివరి మూడు నివేదిత తేదీల్లో ధరలు క్రమంగా పెరిగాయి. నిర్ణయానికి ముందు తదుపరి నివేదికను గమనించవచ్చు; ఇది భవిష్యత్ ధరల అంచనా కాదు.",
+  adviceSell: "చివరి మూడు నివేదిత తేదీల్లో ధరలు క్రమంగా తగ్గాయి. ఈరోజు ఆఫర్ మీ అవసరాలకు సరిపోతే, ధర పెరుగుతుందని మాత్రమే ఆశించి వేచి ఉండకుండా అమ్మడాన్ని పరిశీలించండి.",
+  adviceNoSignal: "ఇటీవలి ధరల్లో స్థిరమైన దిశ కనిపించలేదు. నిర్ణయానికి ముందు మీ ఖర్చులు, స్థానిక ఆఫర్‌ను పోల్చండి.",
+  adviceInsufficient: "ధరలు నమోదైన తేదీలు మూడుకంటే తక్కువగా ఉన్నాయి; అమ్మాలా వేచి చూడాలా సూచించడానికి చరిత్ర సరిపోదు.",
+  trendIncreasing: "పెరుగుతోంది", trendDecreasing: "తగ్గుతోంది", trendStable: "స్థిరంగా ఉంది",
+  samplePeriodOne: "నమూనా 1",
+  sellNowReason: "చివరి మూడు రోజువారీ సగటు ధరలు వరుసగా తగ్గాయి. ఈరోజు స్థానిక ఆఫర్, మీ ఖర్చులను పరిగణించండి; ఇది భవిష్యత్ ధరల అంచనా కాదు.",
+  waitMarketReason: "చివరి మూడు రోజువారీ సగటు ధరలు వరుసగా పెరిగాయి. నిర్ణయానికి ముందు తదుపరి నివేదికను పరిశీలించండి; భవిష్యత్ ధరలకు హామీ లేదు.",
+  monitorMarketReason: "ఇటీవలి నివేదికల్లో వరుసగా మూడు తేదీలకు ఒకే దిశ కనిపించలేదు; మార్కెట్‌ను గమనించి స్థానిక ఆఫర్లను పోల్చండి.",
+  alertHeavyRainBody: "{date}న {amount} మి.మీ. వర్షం అంచనా. నీటిపారుదలను వాయిదా వేయడం, పొలంలో నీటి పారుదల తనిఖీ చేయడం పరిశీలించండి.",
+  alertRainBody: "{date}న వర్షావకాశం {chance}%. అవసరం లేని నీటిపారుదలను నివారించడానికి ముందు మట్టి తేమను తనిఖీ చేయండి.",
+  alertHeatBody: "{date}న గరిష్ఠ ఉష్ణోగ్రత {temperature}°Cగా అంచనా. పంట నీటి అవసరాన్ని గమనించండి.",
+  alertWindBody: "ప్రస్తుతం బలమైన గాలులు వీచే అవకాశం ఉంది. సున్నితమైన పంటలకు ఆసరా, కట్టుదిట్టతను తనిఖీ చేయండి.",
+  riskFactorWeather: "వాతావరణ హెచ్చరిక: {title}",
+  postHarvestSellTip: "సురక్షిత నిల్వ కాలం తక్కువగా ఉండవచ్చని అంచనా. వెంటనే అమ్మడం లేదా ప్రాసెసింగ్‌కు ప్రాధాన్యత ఇవ్వండి, పంటను పరిశీలించండి; ఈ అంచనాపైనే ఆధారపడవద్దు.",
+  postHarvestStoreTip: "ఈ అంచనా స్వల్పకాలిక నిల్వకు అవకాశం చూపుతోంది. పంటను పొడిగా, గాలి ఆడేలా ఉంచి తరచుగా తనిఖీ చేయండి.",
+  noLargestExpense: "ఇంకా ఖర్చులు నమోదు చేయలేదు.", allKarnataka: "భారతదేశం అంతా",
+  farmerUnitSingular: "రైతు", farmerUnitPlural: "రైతులు",
+  learnMore: "ఈ పంట ఎందుకు?", chatWelcome: "నమస్కారం! నేను మీ నమూనా వ్యవసాయ సహాయకుడిని. సాధారణ ప్రశ్న అడగండి లేదా క్రింది సూచనల్లో ఒకదాన్ని ఎంచుకోండి.",
+  prompts: "నమూనా ప్రశ్నను ప్రయత్నించండి",
+  riceDesc: "నీటి లభ్యత ఉన్న ప్రాంతాల్లో పండించే సాధారణ వర్షాకాల పంట.",
+  ragiDesc: "తక్కువ నుంచి మధ్యస్థ నీటితో పండే పోషకమైన చిరుధాన్యం.",
+  maizeDesc: "పంట మార్పిడిలో ఉపయోగపడే బహుళ ప్రయోజన పంట.",
+  pulsesDesc: "పప్పుధాన్యాలు పంట వైవిధ్యానికి, నేలలో పోషక చక్రానికి తోడ్పడవచ్చు.",
+  saveChanges: "మార్పులను భద్రపరచండి", chartLabel: "నమూనా వర్షపాతం ధోరణి",
+  menu: "మెను", percent: "శాతం", liveDataStatus: "🟢 ప్రత్యక్ష డేటా",
+  offlineDataStatus: "🟡 ఆఫ్‌లైన్ మోడ్ · క్యాష్ చేసినది", sampleMarket: "మైసూరు నమూనా మార్కెట్",
+  cropDoctorYellowing: "ఆకులు పసుపు రంగులోకి మారడం", cropDoctorBrownSpots: "గోధుమ రంగు మచ్చలు",
+  cropDoctorLeafCurling: "ఆకులు ముడుచుకోవడం", cropDoctorWilting: "వాడిపోవడం",
+  cropDoctorWhitePowder: "తెల్లటి పొడి లేదా పెరుగుదల", cropDoctorBorerHoles: "కాండం లేదా పండులో తొలిచిన రంధ్రాలు",
+  cropDoctorTomato: "టమాటా", cropDoctorCotton: "పత్తి", cropDoctorChilli: "మిరప",
+  cropDoctorOrganicYellow: "మట్టి తేమ, నీటి పారుదల, ఆకు అడుగు భాగాన్ని తనిఖీ చేయండి. స్థానిక పరిస్థితులను పరిశీలించిన తర్వాతే పోషకాలను సరిచేయండి; పీల్చే పురుగులు కనిపించి, పంట లేబుల్ అనుమతిస్తేనే వేప ఉత్పత్తి వాడండి.",
+  cropDoctorOrganicSpots: "తీవ్రంగా ప్రభావితమైన ఆకులు, పంట అవశేషాలను తొలగించండి; ఆకులు తడవకుండా చూడండి. ఇవి పరిశుభ్రతకు తోడ్పడతాయి కానీ నయం చేస్తాయని హామీ లేదు.",
+  cropDoctorOrganicCurl: "ఆకుల అడుగు భాగాన్ని పరిశీలించి, తీవ్రంగా ప్రభావితమైన ఆకులను తొలగించండి. పంట లేబుల్ అనుమతిస్తే వేప కొన్ని మృదుశరీర పురుగులకు ఉపయోగపడవచ్చు; వైరస్‌ను నయం చేయదు.",
+  cropDoctorOrganicWilt: "మట్టి తేమ, నీటి పారుదలను తనిఖీ చేయండి; వాడిన మొక్కలు నిర్ధారితమైతే వేర్లతో సహా వేరు చేసి తొలగించండి. నిర్ధారించని మిశ్రమాలను మట్టిలో వేయవద్దు.",
+  cropDoctorOrganicPowder: "ప్రభావిత ఆకులను తొలగించి గాలి ప్రసరణ మెరుగుపరచండి. చికిత్సకు ముందు అది దుమ్ము లేదా పిచికారీ అవశేషం కాదని నిర్ధారించండి.",
+  cropDoctorOrganicBorer: "తొలిచిన మొక్క భాగాలను తొలగించి నాశనం చేయండి; గుర్తించిన పురుగు, పంటకు సరిపోతేనే ఫెరోమోన్ ఉచ్చు వాడండి.",
+  cropDoctorPreventYellow: "క్రమం తప్పకుండా పరిశీలించండి, తగిన నీటి పారుదల ఉంచండి, స్థానిక మట్టి సూచనల ఆధారంగా సమతుల్య పోషకాలు వాడండి.",
+  cropDoctorPreventSpots: "పంట అవశేషాలను తొలగించండి, గాలి ప్రసరణకు అవకాశం ఇవ్వండి, సాధ్యమైనప్పుడు ఆకులు ఎక్కువసేపు తడిగా ఉండకుండా చూడండి.",
+  cropDoctorPreventCurl: "ఆకుల అడుగు భాగంలో పురుగులను పరిశీలించండి, కలుపు లేదా ప్రత్యామ్నాయ ఆశ్రయ మొక్కలను తొలగించి, పక్క మొక్కలను గమనించండి.",
+  cropDoctorPreventWilt: "శుభ్రమైన పరికరాలు వాడండి, కలుషిత మట్టిని తరలించవద్దు, పంట మార్పిడి, నీటి పారుదలపై స్థానిక సలహా పొందండి.",
+  cropDoctorPreventPowder: "గాలి ప్రసరణ కోసం మొక్కలకు తగినంత దూరం ఇవ్వండి, ప్రభావిత అవశేషాలు తొలగించి పక్క మొక్కలను పరిశీలించండి.",
+  cropDoctorPreventBorer: "గుడ్లు, కొత్త రంధ్రాల కోసం పరిశీలించండి; ప్రభావిత భాగాలను తొలగించి, సూచించినప్పుడు ఆ పురుగుకు సరిపోయే ఉచ్చులు వాడండి.",
+  cropDoctorChemicalNone: "ఈ ఒక్క లక్షణం ఆధారంగా రసాయనం సూచించబడదు. ముందుగా నీరు, పోషకాలు, పురుగుల ఉనికిని తనిఖీ చేసి, పిచికారీకి ముందు నిర్ధారించండి.",
+  cropDoctorChemicalFungicide: "శిలీంధ్ర వ్యాధి నిర్ధారితమైతే, ఈ పంట, వ్యాధికి ప్రస్తుతం నమోదైన ఉత్పత్తి గురించి స్థానిక KVK లేదా వ్యవసాయ అధికారిని అడిగి, లేబుల్ పాటించండి.",
+  cropDoctorChemicalInsecticide: "పేర్కొన్న పురుగు నిర్ధారితమైతే, ఈ పంట, పురుగును లేబుల్‌లో పేర్కొన్న ప్రస్తుతం నమోదైన ఉత్పత్తినే వాడండి; స్థానిక సలహా తీసుకుని లేబుల్ పాటించండి.",
+  cropDoctorChemicalVector: "తెల్లదోమ లేదా త్రిప్స్ నిర్ధారితమైతే, నమోదైన వాహక నియంత్రణ ఉత్పత్తి గురించి స్థానిక సలహా పొందండి. ఇది వైరస్ సోకిన మొక్కలను నయం చేయదు; లేబుల్ పాటించండి.",
+  cropDoctorChemicalBorer: "తొలిచే పురుగు నిర్ధారితమైతే, ఈ పంట, పురుగుకు నమోదైన ఉత్పత్తి గురించి స్థానిక KVK లేదా వ్యవసాయ అధికారిని అడిగి, లేబుల్ పాటించండి.",
+};
+
+const tamilText: CompleteAppTranslations = {
+  dashboard: "முகப்புப் பலகை", weather: "வானிலை", mandi: "சந்தை விலைகள்", profit: "லாபக் கணக்கீடு",
+  smartFarm: "ஸ்மார்ட் விவசாயம்", irrigationPlanner: "நீர்ப்பாசனத் திட்டம்", soil: "மண் விவரம்",
+  cropDoctor: "பயிர் மருத்துவர்", schemes: "திட்டங்கள் மற்றும் மானியங்கள்", crops: "பயிர் பரிந்துரைகள்",
+  cropRotation: "பயிர் சுழற்சி திட்டம்", advisory: "விவசாய ஆலோசனை", settings: "அமைப்புகள்",
+  greeting: "காலை வணக்கம்", welcome: "உங்கள் பண்ணை, ஒரு படி முன்னே.", demo: "மாதிரித் தரவு",
+  demoNote: "இந்த மாதிரித் தகவல் விளக்கத்திற்காக மட்டுமே; இது நேரடி அல்லது இடத்திற்கேற்ற தகவல் அல்ல.",
+  todayAt: "இன்றைய முக்கியத் தகவல்கள்", weatherCard: "வானிலை முன்னறிவிப்பு", marketCard: "சந்தை நிலவரம்",
+  rainChance: "மழை வாய்ப்பு", humidity: "ஈரப்பதம்", viewWeather: "வானிலையைப் பார்க்கவும்",
+  viewMarket: "விலைகளைப் பார்க்கவும்", yourFarm: "உங்கள் பண்ணை விவரம்", addFarm: "பண்ணை விவரங்களைச் சேர்க்கவும்",
+  editProfile: "விவரத்தைத் திருத்தவும்", setupPrompt: "உங்களுக்கு ஏற்ற பரிந்துரைகளுக்கு பண்ணை விவரங்களைச் சேர்க்கவும்.",
+  completeProfile: "விவரத்தை அமைக்கவும்", quickActions: "விரைவு செயல்கள்", askMitra: "கிருஷிமித்ராவிடம் கேளுங்கள்",
+  soilCheck: "மண் வழிகாட்டியைப் பார்க்கவும்", cropPlanner: "பயிர் யோசனைகளைப் பார்க்கவும்",
+  fieldNote: "இன்றைய சிறு கவனம் நாளைய நல்ல விளைச்சலுக்கு உதவும்.",
+  weatherTitle: "வானிலை முன்னறிவிப்பு", weatherSub: "தற்போதைய நிலை மற்றும் ஏழு நாள் முன்னறிவிப்புக்காக நகரம், மாவட்டம் அல்லது கிராமத்தைத் தேடுங்கள்.",
+  currentConditions: "தற்போதைய நிலை", feelsLike: "உணரப்படும் வெப்பநிலை", wind: "காற்று",
+  nextDays: "அடுத்த சில நாட்கள்", dayToday: "இன்று", dayTomorrow: "நாளை", sunny: "வெயில்",
+  partlyCloudy: "ஓரளவு மேகமூட்டம்", lightShower: "லேசான மழை", foggy: "மூடுபனி",
+  drizzle: "தூறல்", rainCondition: "மழை", snow: "பனி", thunderstorm: "இடியுடன் கூடிய மழை",
+  dashboardWeatherNote: "வானிலை Open-Meteo இலிருந்து நேரடியாகப் பெறப்படுகிறது. சந்தை விலைகள் மாதிரித் தரவு.",
+  weatherSource: "OPEN-METEO", live: "நேரடி", searchLocation: "உங்கள் இடத்தைத் தேடுங்கள்",
+  searchPlaceholder: "நகரம், மாவட்டம் அல்லது கிராமத்தைத் தேடுங்கள்", search: "தேடு", searching: "தேடுகிறது…",
+  noLocationResults: "இடங்கள் கிடைக்கவில்லை. அருகிலுள்ள நகரம் அல்லது மாவட்டத்தை முயற்சிக்கவும்.",
+  selectLocation: "சரியான இடத்தைத் தேர்ந்தெடுக்கவும்", selectedLocation: "தேர்ந்தெடுத்த இடம்",
+  clearLocation: "இடத்தை மாற்றவும்", currentTemperature: "வெப்பநிலை", rainfall: "மழைப்பொழிவு",
+  currentRain: "தற்போதைய மழை", todayRainProbability: "இன்றைய மழை வாய்ப்பு",
+  forecastTitle: "ஏழு நாள் முன்னறிவிப்பு", high: "அதிகபட்சம்", low: "குறைந்தபட்சம்",
+  expectedRain: "எதிர்பார்க்கப்படும் மழை", lastUpdated: "கடைசியாகப் புதுப்பித்தது",
+  dataSource: "தரவு மூலம்", refreshWeather: "வானிலையைப் புதுப்பிக்கவும்", refreshing: "புதுப்பிக்கிறது…",
+  loadingWeather: "நேரடி வானிலை பெறப்படுகிறது…", chooseWeatherLocation: "நேரடி வானிலையைப் பார்க்க இடத்தைத் தேர்ந்தெடுக்கவும்.",
+  noWeatherData: "தற்போது வானிலைத் தகவல் கிடைக்கவில்லை.",
+  weatherSearchHelp: "தேடல் முடிவுகள் Open-Meteo இலிருந்து வருகின்றன. உங்கள் சாதனத்தின் இருப்பிடம் கோரப்படாது.",
+  farmingAdvisory: "விவசாய வானிலை ஆலோசனை", noAdvisories: "இந்த முன்னறிவிப்பில் வானிலை எச்சரிக்கைகள் இல்லை.",
+  advisoryRain: "மழை பெய்ய வாய்ப்புள்ளது. நீர்ப்பாசனத் தேவையைச் சரிபார்க்கவும்.",
+  advisoryHeavyRain: "கனமழை பெய்ய வாய்ப்புள்ளது. வயல் வடிகால்களைச் சரிபார்க்கவும்.",
+  advisoryHeat: "அதிக வெப்பநிலை எதிர்பார்க்கப்படுகிறது. பயிரின் நீர்த் தேவையைக் கண்காணிக்கவும்.",
+  advisoryWind: "பலத்த காற்று வீசலாம். பாதிக்கப்படக்கூடிய பயிர்களுக்கு ஆதரவு உள்ளதா எனப் பார்க்கவும்.",
+  weatherError: "வானிலைச் சேவைப் பிழை", weatherNetworkError: "இணைக்க முடியவில்லை. இணையத்தைச் சரிபார்த்து மீண்டும் முயற்சிக்கவும்.",
+  weatherHttpError: "வானிலைச் சேவை தற்காலிகமாகக் கிடைக்கவில்லை. பின்னர் முயற்சிக்கவும்.",
+  weatherApiError: "இந்த இடத்திற்கான வானிலைத் தகவலைப் பெற முடியவில்லை.",
+  weatherInvalidError: "வானிலைச் சேவையிலிருந்து எதிர்பாராத தகவல் கிடைத்தது. மீண்டும் முயற்சிக்கவும்.",
+  locationSaveError: "இந்த உலாவியில் தேர்ந்தெடுத்த இடத்தைச் சேமிக்க முடியவில்லை.",
+  mandiTitle: "சந்தை விலைகள்", mandiSub: "இந்திய மற்றும் மாநிலச் சந்தை விலைகள்; மாதிரிப் பதிவுகள் தெளிவாகக் குறிக்கப்பட்டுள்ளன.",
+  marketBoard: "AGMARKNET தினசரி விலைகள்", commodity: "பயிர்", market: "சந்தை", price: "விலை / குவிண்டால்",
+  change: "மாற்றம்", state: "மாநிலம்", districtLabel: "மாவட்டம்", variety: "வகை", arrivalDate: "வருகை தேதி",
+  minPrice: "குறைந்தபட்ச விலை", maxPrice: "அதிகபட்ச விலை", modalPrice: "மாதிரி விலை",
+  selectState: "மாநிலத்தைத் தேர்ந்தெடுக்கவும்", selectDistrict: "அனைத்து மாவட்டங்கள்",
+  selectMarket: "அனைத்து சந்தைகள்", searchCrop: "பயிரைத் தேடி தேர்ந்தெடுக்கவும்",
+  cropSearchPlaceholder: "தரவிலுள்ள பயிர்களைத் தேடுங்கள்…",
+  noCrops: "கிடைக்கும் தரவில் பொருந்தும் பயிர்கள் இல்லை.", loadingMarkets: "அரசு சந்தைத் தரவு ஏற்றப்படுகிறது…",
+  noMarketData: "இந்தத் தேர்வுக்குச் சந்தைப் பதிவுகள் இல்லை.",
+  noDataForFilters: "இந்த வடிகட்டிகளுக்கு பதிவுகள் இல்லை. வேறு பயிர், மாவட்டம் அல்லது சந்தையைத் தேர்ந்தெடுக்கவும்.",
+  chooseCropForCompare: "சந்தை விலைகளை ஒப்பிடப் பயிரைத் தேடித் தேர்ந்தெடுக்கவும்.",
+  marketApiSource: "இந்திய அரசு · AGMARKNET", sampleCachedMandiData: "மாதிரி / சேமித்த AGMARKNET தரவு",
+  sampleDataSource: "விளக்கத்திற்கான மாதிரித் தரவு · நேரடி அல்லது அரசு அறிக்கை அல்ல",
+  mixedDataSource: "மாதிரிப் பதிவுகளும் சாதனத்தில் சேமித்த AGMARKNET தரவும்",
+  cachedPriceExplanation: "இந்தச் சாதனத்தில் முன்பு பெறப்பட்ட AGMARKNET பதிவுகள் காட்டப்படுகின்றன. அவை தற்போதைய விலையாக இருக்காமல் இருக்கலாம்.",
+  lastUpdatedMandi: "கடைசியாகப் புதுப்பித்தது", dataRows: "பெறப்பட்ட பதிவுகள்",
+  mandiErrorTitle: "சந்தைத் தரவை ஏற்ற முடியவில்லை", refreshPrices: "விலைகளைப் புதுப்பிக்கவும்",
+  refreshingPrices: "புதுப்பிக்கிறது…", compareMarkets: "தேர்ந்தெடுத்த மாநிலச் சந்தைகளை ஒப்பிடவும்",
+  sortByModal: "மாதிரி விலையின்படி வரிசைப்படுத்தவும்", ascending: "குறைந்தது முதலில்", descending: "அதிகம் முதலில்",
+  priceAdvisory: "விலை ஒப்பீட்டுக் குறிப்புகள்", noCompareData: "சந்தைகளை ஒப்பிடப் போதுமான விலைப் பதிவுகள் இல்லை.",
+  highestReported: "அதிகமாகப் பதிவான மாதிரி விலை", lowestReported: "குறைவாகப் பதிவான மாதிரி விலை",
+  transportNote: "அதிகப் பதிவான விலை அதிக வருமானத்திற்கு உத்தரவாதமல்ல. போக்குவரத்து உள்ளிட்ட செலவுகளையும் கணக்கிடவும்.",
+  priceHistory: "பதிவான விலை வரலாறு", fromDate: "தொடக்க தேதி", toDate: "முடிவு தேதி",
+  missingDates: "இந்தத் தேதிகளுக்குப் பதிவுகள் இல்லை", noHistory: "இந்தத் தேர்வுக்குப் பழைய பதிவுகள் இல்லை.",
+  sourceUnitNote: "மூலத்தில் உள்ளபடி விலைகள் குவிண்டாலுக்கு ₹ எனக் காட்டப்படுகின்றன.",
+  sellWaitTitle: "இப்போது விற்கலாமா, காத்திருக்கலாமா?", sellWaitSub: "தேர்ந்தெடுத்த பயிரின் கடந்த பதிவான விலைகளை மட்டும் சார்ந்த எச்சரிக்கையான வழிகாட்டி.",
+  currentReportedPrice: "சமீபத்திய பதிவான சராசரி விலை", previousReportedPrice: "முந்தைய பதிவான சராசரி விலை",
+  priceChange: "முந்தைய பதிவிலிருந்து மாற்றம்", trend: "சமீபத்திய பதிவான போக்கு",
+  trendRising: "உயர்கிறது", trendFalling: "குறைகிறது", trendMixed: "கலவையாக அல்லது நிலையாக உள்ளது",
+  trendInsufficient: "போக்கைக் காட்டப் போதுமான தரவு இல்லை",
+  recommendationMonitor: "சந்தையைத் தொடர்ந்து கவனிக்கவும்", recommendationSell: "விற்பதைப் பரிசீலிக்கவும்",
+  recommendationNoSignal: "தெளிவான அறிகுறி இல்லை", recommendationInsufficient: "பரிந்துரைக்கப் போதுமான வரலாறு இல்லை",
+  reportedPriceHistory: "சமீபத்திய பதிவான விலைகள்",
+  smartFarmTitle: "ஸ்மார்ட் பண்ணை முடிவு மையம்",
+  smartFarmSub: "உங்கள் பண்ணை விவரம், வானிலை, சந்தை அறிக்கைகள் மற்றும் செலவு மதிப்பீட்டை ஒரே இடத்தில் பாருங்கள்.",
+  smartFarmEyebrow: "உங்கள் பண்ணை முடிவு மையம்", smartFarmOverview: "பண்ணைச் சுருக்கம்",
+  todayForecast: "வானிலை முன்னறிவிப்பு", noForecastForFarm: "நேரடி முன்னறிவிப்புக்காக வானிலைத் திரையில் இடத்தைத் தேர்ந்தெடுக்கவும்.",
+  noFarmSoil: "விவசாயி விவரத்தில் மண் வகை சேமிக்கப்படவில்லை.",
+  profileSoilNote: "சேமித்த விவரத்திலுள்ள மண் வகை; ஆய்வக மண் பரிசோதனை அல்ல.",
+  latestMandiAverage: "சமீபத்திய பதிவான சந்தை சராசரி", demoPriceLabel: "மாதிரி விலை · நேரடி சந்தை விலை அல்ல",
+  samplePriceExplanation: "விளக்கத்திற்கான விலைகள் மட்டுமே. இந்தப் பயிரின் பதிவான விலைகளுக்கு சந்தை விலைகள் திரையைப் பார்க்கவும்.",
+  noMarketHistory: "இந்தப் பயிருக்கு பொருந்தும் பதிவான சந்தைத் தரவு இன்னும் இல்லை.",
+  sellNow: "இப்போது விற்கவும்", waitMarket: "காத்திருந்து மீண்டும் பார்க்கவும்", monitorMarket: "சந்தையைக் கண்காணிக்கவும்",
+  openMandi: "சந்தை விலைகளைப் பார்க்கவும்",
+  farmAlertsTitle: "வானிலை சார்ந்த பண்ணை எச்சரிக்கைகள்", forecastVerified: "முன்னறிவிப்பு அடிப்படையில்",
+  generalAdviceLabel: "பொதுவான வழிகாட்டி · உங்கள் இடத்தில் சரிபார்க்கப்படவில்லை",
+  noActiveFarmAlerts: "கிடைத்த முன்னறிவிப்பில் எச்சரிக்கை வரம்புகள் எட்டப்படவில்லை. உள்ளூர் நிலவரத்தைக் கவனிக்கவும்.",
+  alertHeavyRainTitle: "கனமழை எதிர்பார்க்கப்படுகிறது", alertRainTitle: "மழை எதிர்பார்க்கப்படுகிறது",
+  alertRainAmountBody: "{date} அன்று {amount} மி.மீ. மழை எதிர்பார்க்கப்படுகிறது. தேவையற்ற நீர்ப்பாசனத்தைத் தவிர்க்க மண் ஈரத்தைச் சரிபார்க்கவும்.",
+  alertHeatTitle: "அதிக வெப்பநிலை எதிர்பார்க்கப்படுகிறது", alertWindTitle: "தற்போது பலத்த காற்று",
+  generalWeatherAdviceTitle: "பொதுவான வானிலை நினைவூட்டல்",
+  generalWeatherAdviceBody: "நீர்ப்பாசனம், அறுவடை அல்லது வயல் பணிக்கு முன் உள்ளூர் முன்னறிவிப்பைப் பாருங்கள். இந்தப் பண்ணைக்கு நேரடி முன்னறிவிப்பு இல்லை.",
+  cropRiskTitle: "வானிலையுடன் தொடர்புடைய பயிர் அபாயம்", lowRisk: "குறைந்த அபாயம்",
+  moderateRisk: "மிதமான அபாயம்", highRisk: "அதிக அபாயம்", riskUnavailable: "அபாயக் குறியீடு கிடைக்கவில்லை",
+  postHarvestEyebrow: "அறுவடை மற்றும் சேமிப்பு", postHarvestTitle: "அறுவடைக்குப் பிந்தைய சேமிப்பு மற்றும் அழுகல் அபாயம்",
+  postHarvestSub: "தற்போதைய வெளிப்புற வெப்பநிலை மற்றும் ஈரப்பதத்தைப் பயன்படுத்திய தோராயமான சேமிப்பு மதிப்பீடு.",
+  postHarvestCrop: "அறுவடை செய்த பயிர்", postHarvestMethod: "சேமிப்பு முறை",
+  postHarvestWindow: "மதிப்பிடப்பட்ட பாதுகாப்பான சேமிப்பு காலம்", postHarvestRisk: "அழுகல் அபாயம்",
+  postHarvestAction: "செயல் குறிப்பு", postHarvestSellImmediately: "உடனே விற்கவும்",
+  postHarvestSafeToStore: "சேமிக்கலாம்", postHarvestRiskHigh: "அதிகம்", postHarvestRiskModerate: "மிதமானது",
+  postHarvestRiskLow: "குறைவு", storageOpenShed: "திறந்த கொட்டகை", storageGunnyBags: "சணல் மூட்டைகள்",
+  storageColdStorage: "குளிர்பதனக் கிடங்கு",
+  farmCostsTitle: "பண்ணைச் செலவு விவரங்கள்", totalInvestment: "மொத்த முதலீடு",
+  largestExpense: "அதிகச் செலவு வகை", expenseBreakdown: "செலவுப் பிரிப்பு",
+  noExpensesEntered: "செலவுப் பிரிவைப் பார்க்க லாபக் கணக்கீட்டில் மதிப்பிடப்பட்ட செலவுகளைச் சேர்க்கவும்.",
+  personalizedTitle: "உங்களுக்கான விவசாயப் பரிந்துரைகள்", priorityHigh: "அதிகம்",
+  priorityMedium: "மிதமானது", priorityLow: "குறைவு",
+  selectCropForSmartFarm: "பண்ணைச் சுருக்கத்தைத் தனிப்பயனாக்கப் பயிரைத் தேர்ந்தெடுக்கவும்.",
+  soilTitle: "மண் விவரம்", soilSub: "உங்கள் வயல் மண்ணைப் புரிந்துகொள்ள எளிய வழிகாட்டி.",
+  profitCalculatorEyebrow: "உங்கள் பருவத்தைத் திட்டமிடுங்கள்", profitCalculatorTitle: "விவசாயி லாபக் கணக்கீடு",
+  profitCalculatorSub: "உங்கள் பண்ணை மதிப்பீடுகளைப் பயன்படுத்தி பயிர் வருவாய், செலவு, லாபத்தைக் கணக்கிடுங்கள்.",
+  estimateBadge: "உங்கள் மதிப்பீடு", cropSelect: "பயிர்", chooseCrop: "பயிரைத் தேர்ந்தெடுக்கவும்",
+  cultivatedArea: "சாகுபடி நிலம் (ஏக்கர்)", expectedYieldPerAcre: "ஏக்கருக்கு எதிர்பார்க்கும் விளைச்சல் (குவிண்டால்)",
+  expectedSellingPrice: "எதிர்பார்க்கும் விற்பனை விலை (₹ / குவிண்டால்)", estimatedExpenses: "மதிப்பிடப்பட்ட செலவுகள் (₹)",
+  calculatorExpenseHelp: "பருவத்திற்கான செலவுகளை உள்ளிடவும்; பொருந்தாத செலவுகளுக்கு ₹0 என வைக்கலாம்.",
+  seedExpense: "விதைகள்", fertilizerExpense: "உரம்", labourExpense: "கூலி",
+  irrigationExpense: "நீர்ப்பாசனம்", transportExpense: "போக்குவரத்து", otherExpense: "மற்ற செலவுகள்",
+  calculatorResults: "உங்கள் மதிப்பிடப்பட்ட முடிவுகள்",
+  calculatorPrompt: "மதிப்பீட்டைப் பெறப் பயிர், நிலம், விளைச்சல், விற்பனை விலையை உள்ளிடவும்.",
+  totalExpectedYield: "மொத்த எதிர்பார்க்கும் விளைச்சல்", expectedRevenue: "மொத்த எதிர்பார்க்கும் வருவாய்",
+  quintals: "குவிண்டால்", totalExpenses: "மொத்தச் செலவுகள்", estimatedProfit: "மதிப்பிடப்பட்ட லாபம்",
+  profitPerAcre: "ஏக்கருக்கான லாபம்", financialBreakdown: "வருவாய் மற்றும் செலவு ஒப்பீடு",
+  revenueLabel: "வருவாய்", expensesLabel: "செலவுகள்", netProfitLabel: "நிகர லாபம்",
+  calculatorDisclaimer: "இது நீங்கள் உள்ளிட்ட விவரங்களின் அடிப்படையிலான மதிப்பீடு மட்டுமே; உத்தரவாதமான வருவாய் அல்ல. உண்மையான விளைச்சல், விலை, செலவு மாறலாம்.",
+  soilHealth: "மண் ஆரோக்கியச் சுருக்கம்", soilType: "மண் வகை", phLevel: "pH அளவு",
+  organicMatter: "கரிமப் பொருள்", nitrogen: "நைட்ரஜன்", phosphorus: "பாஸ்பரஸ்", potassium: "பொட்டாசியம்",
+  cropTitle: "பயிர் பரிந்துரைகள்", cropSub: "மாதிரி விவரத்தை அடிப்படையாகக் கொண்ட யோசனைகள் — உள்ளூரில் பொருத்தத்தை உறுதிப்படுத்தவும்.",
+  recommended: "பரிசீலிக்க வேண்டிய யோசனைகள்", season: "காரீஃப் பருவம்", duration: "பயிர் காலம்", waterNeed: "நீர்த் தேவை",
+  advisoryTitle: "கிருஷிமித்ராவிடம் கேளுங்கள்",
+  advisorySub: "விவசாயக் கேள்விகளுக்கு எளிய, நடைமுறைப் பரிந்துரைகளைப் பெறுங்கள்.",
+  demoChat: "விவசாய ஆலோசனை", chatPlaceholder: "உங்கள் விவசாயக் கேள்வியை எழுதுங்கள்…", send: "அனுப்பு",
+  settingsTitle: "அமைப்புகள்", settingsSub: "கிருஷிமித்ராவை உங்கள் தேவைக்கேற்ப அமைக்கவும்.",
+  language: "மொழி", chooseLanguage: "விரும்பும் மொழியைத் தேர்ந்தெடுக்கவும்",
+  profileSection: "விவசாயி விவரம்", savedLocally: "உங்கள் விவரம் இந்தச் சாதனத்தில் மட்டுமே சேமிக்கப்படும்.",
+  clearProfile: "சேமித்த விவரத்தை அழிக்கவும்", profileTitle: "உங்கள் விவசாயி விவரம்",
+  profileSub: "சில விவரங்கள் உங்கள் விவசாய உதவியாளரைத் தனிப்பயனாக்க உதவும்.",
+  fullName: "உங்கள் பெயர்", village: "கிராமம்", district: "மாவட்டம்", land: "நில அளவு (ஏக்கர்)",
+  soilChoice: "மண் வகை", irrigation: "நீர்ப்பாசன மூலம்", chooseOne: "ஒன்றைத் தேர்ந்தெடுக்கவும்",
+  saveProfile: "விவரத்தைச் சேமிக்கவும்", cancel: "ரத்துசெய்", saved: "இந்தச் சாதனத்தில் விவரம் சேமிக்கப்பட்டது.",
+  profileMissing: "சேமிக்க உங்கள் பெயர், கிராமம், மாவட்டத்தை உள்ளிடவும்.",
+  profileCleared: "சேமித்த விவரம் அழிக்கப்பட்டது.",
+  cropRice: "நெல்", cropRagi: "கேழ்வரகு", cropMaize: "மக்காச்சோளம்", cropPulses: "பருப்பு வகைகள்",
+  profileBadge: "உங்கள் பண்ணை", typeRed: "செம்மண்", typeBlack: "கரிசல் மண்", typeSandy: "மணற்பாங்கான மண்",
+  typeLoamy: "வண்டல் மண்", waterCanal: "கால்வாய்", waterBorewell: "ஆழ்துளைக் கிணறு",
+  waterRainfed: "மானாவாரி", waterOther: "மற்றவை", noProfile: "இன்னும் விவரம் சேமிக்கப்படவில்லை",
+  more: "மேலும்", prototype: "மாதிரி", acres: "ஏக்கர்", cachedData: "சேமித்த தரவு",
+  shareWhatsapp: "WhatsApp-இல் பகிரவும்", listenToSummary: "கேளுங்கள் / வாசிக்கவும்", stopReading: "வாசிப்பதை நிறுத்தவும்",
+  speechUnavailable: "இந்த உலாவியில் குரல் வசதி இல்லை.",
+  turDal: "துவரம் பருப்பு", postHarvestCropOnion: "வெங்காயம்", postHarvestCropPotato: "உருளைக்கிழங்கு",
+  close: "மூடவும்",
+ mandiShareMessage: "கிருஷிமித்ரா சந்தை விலைச் சுருக்கம்",
+
+  selectCropForAdvisor: "விலை வரலாற்றைப் பார்க்க மேலே ஒரு பயிரைத் தேர்ந்தெடுக்கவும்.",
+  noAdvisorPrices: "இந்தப் பயிருக்கும் வடிகட்டலுக்கும் பயன்படுத்தக்கூடிய விலைகள் இல்லை; வரலாற்றுப் பகுப்பாய்வு கிடைக்காது.",
+
+  reportedPriceMethod: "தேர்ந்தெடுத்த பயிருக்கும் வடிகட்டலுக்கும் உள்ள பதிவான விலைகளின் சராசரியே இவை. கடந்த விலைகள் மட்டுமே; முன்னறிவிப்போ உத்தரவாதமோ அல்ல.",
+
+ selectedRows: "தேர்ந்தெடுத்த பதிவுகள்", noVariety: "வகை குறிப்பிடப்படவில்லை",
+
+  profitSpeechSummary: "உங்கள் மதிப்பிடப்பட்ட விளைச்சல் {yield} குவிண்டால். வருவாய் {revenue}, மொத்தச் செலவு {expenses}, மதிப்பிடப்பட்ட லாபம் {profit}, ஏக்கருக்கான லாபம் {perAcre}.",
+  profitShareMessage: "பயிர்: {crop}; விளைச்சல்: {yield} குவிண்டால்; வருவாய்: {revenue}; செலவுகள்: {expenses}; மதிப்பிடப்பட்ட லாபம்: {profit}; ஏக்கருக்கான லாபம்: {perAcre}. இது மதிப்பீடு மட்டுமே, உத்தரவாதம் அல்ல.",
+  transportInviteMessage: "{village} அருகே உள்ள {farmers} விவசாயிகள் நாளை {mandi}க்கு சரக்கு வாகனத்தைப் பகிரத் தேவை.",
+  transportPoolingTitle: "பகிர்ந்த போக்குவரத்துச் செலவுக் கணக்கீடு",
+  transportPoolingSub: "விளைச்சல் அளவு, தூரம், வாகனத்தைப் பகிரும் விவசாயிகள் எண்ணிக்கையால் ஒருவருக்கான செலவை மதிப்பிடுங்கள்.",
+  harvestQuantity: "விளைச்சல் அளவு (குவிண்டால்)", neighborFarmers: "அருகிலுள்ள விவசாயிகள் (உங்களையும் சேர்த்து)",
+  villageForInvite: "கிராமம் (அழைப்புக்காக)", destinationMandi: "செல்லும் சந்தை",
+  totalSharingFarmers: "போக்குவரத்தைப் பகிரும் விவசாயிகள்", pooledTransportCost: "மதிப்பிடப்பட்ட பகிர்வு செலவு / விவசாயி",
+  transportPoolingAssumption: "இது திட்டமிடலுக்கான மதிப்பீடு. வாகன வாடகை, ஏற்றுதல், பாதை, சந்தைக் கட்டணங்கள் மாறலாம்; வாகனக் கிடைப்பை உறுதிப்படுத்தவும்.",
+  transportInviteMissing: "WhatsApp அழைப்பை உருவாக்க கிராமம் மற்றும் சந்தையை உள்ளிடவும்.",
+  postHarvestShareMessage: "கிருஷிமித்ரா சேமிப்பு சுருக்கம்: {crop}, சேமிப்பு முறை {method}, மதிப்பிடப்பட்ட பாதுகாப்பான காலம் {days} நாட்கள், அபாயம் {risk}.",
+
+  postHarvestModelNote: "இது தற்போதைய வெளிப்புற வெப்பநிலை, ஈரப்பதத்தைப் பயன்படுத்திய தோராயமான மதிப்பீடு; சேமிப்பு நிலை மற்றும் பயிரின் தரத்தால் மாறலாம்.",
+  postHarvestEstimateNote: "இவை பொதுவான திட்டமிடல் வரம்புகள் மட்டுமே. காற்றோட்டம், பயிரின் ஈரம், காயம், உள்ளூர் நிலை ஆகியவை சேமிப்பு காலத்தை மாற்றும்.",
+  weatherRecommendationTitle: "உங்கள் பண்ணைக்கான வானிலை ஆலோசனை",
+  weatherRecommendationNoData: "தனிப்பட்ட வானிலை ஆலோசனைக்கு வானிலைப் பக்கத்தில் ஓர் இடத்தைத் தேர்ந்தெடுக்கவும்.",
+  weatherRecommendationNoAlert: "தற்போதைய முன்னறிவிப்பில் சிறப்பு நடவடிக்கை தேவைப்படும் நிலை இல்லை. உள்ளூர் நிலையைத் தொடர்ந்து கவனிக்கவும்.",
+  marketRecommendationTitle: "உங்கள் பயிருக்கான சந்தை ஆலோசனை",
+  expenseRecommendationTitle: "பயிர்ச் செலவு மதிப்பாய்வு",
+  expenseRecommendationNoData: "லாபக் கணக்கீட்டில் மதிப்பிடப்பட்ட செலவுகளைச் சேர்த்தால் இந்த மதிப்பாய்வு கிடைக்கும்.",
+  expenseRecommendationNoCosts: "மதிப்பிடப்பட்ட செலவுகள் எதுவும் இன்னும் உள்ளிடப்படவில்லை.",
+  marketInsufficientReason: "மூன்று விலைத் தேதிகளுக்கும் குறைவான பதிவுகள் உள்ளன; சந்தைப் போக்கை நம்பகமாகக் கணிக்க முடியாது.",
+  locationUnset: "இடம் தேர்ந்தெடுக்கப்படவில்லை",
+ marketSampleReason: "இந்தப் பரிந்துரை மாதிரி விலைகளை மட்டுமே பயன்படுத்துகிறது; இது உண்மையான சந்தை அறிகுறியோ விற்பனை ஆலோசனையோ அல்ல.",
+ riskWeatherUnavailable: "வெப்பநிலை மற்றும் ஈரப்பதத்துடன் கூடிய வானிலைத் தரவு கிடைக்கவில்லை.",
+  riskContextNote: "மதிப்பிடப்பட்ட சேமிப்பு காலம் பொதுவான நிலைகளுக்கானது. பயிரை அடிக்கடி சோதித்து, ஈரம் அல்லது அழுகல் தெரிந்தால் உடனே நடவடிக்கை எடுக்கவும்.",
+  largestExpenseInsight: "உங்கள் மதிப்பீட்டில் {category} அதிகச் செலவாக உள்ளது: {amount}. வாங்கும் விலை அல்லது பணிச்செலவை உள்ளூரில் ஒப்பிடுங்கள்.",
+  sampleLevel: "மாதிரி", soilTipTitle: "மண் ஆரோக்கியக் குறிப்பு",
+  waterLowMedium: "குறைவு முதல் மிதம் வரை", askAbout: "இந்தத் தலைப்புகளைப் பற்றிக் கேளுங்கள்",
+  cropDoctorGuide: "அறிகுறிகளின் அடிப்படையில் சாத்தியமான காரணங்களையும் முன்னெச்சரிக்கைகளையும் பார்க்கவும்; இது நோயறிதல் அல்ல.",
+  cropDoctorTitle: "பயிர் மருத்துவர் / அறிகுறி சரிபார்ப்பு",
+  cropDoctorSub: "பயிரையும் தென்படும் அறிகுறிகளையும் தேர்ந்தெடுத்து சாத்தியமான காரணங்களையும் அடுத்த படிகளையும் பார்க்கவும்.",
+  cropDoctorChooseCrop: "பயிரைத் தேர்ந்தெடுக்கவும்", cropDoctorClearSymptoms: "அறிகுறிகளை அழிக்கவும்",
+  cropDoctorShareMessage: "கிருஷிமித்ரா பயிர் ஆய்வு: {crop}; அறிகுறி: {symptom}; சாத்தியமான பிரச்சினை: {diagnosis}; பரிந்துரை: {prevention}. சிகிச்சைக்கு முன் உள்ளூர் வேளாண் அலுவலரிடம் உறுதிப்படுத்தவும்.",
+  cropDoctorPossibleIssue: "சரிபார்க்க வேண்டிய சாத்தியமான பிரச்சினை",
+  cropDoctorOrganic: "உடனடி இயற்கைத் தீர்வு / நடவடிக்கை", cropDoctorPrevention: "தடுப்பு மற்றும் கண்காணிப்பு",
+  cropDoctorDisclaimer: "இந்தப் பார்வை வழிகாட்டி பயிர் நோயை உறுதிப்படுத்தாது. ஒரேபோல் தெரியும் பிரச்சினைகளுக்கு சிகிச்சைக்கு முன் உள்ளூர் வேளாண் நிபுணரை அணுகவும்.",
+  cropDoctorSafety: "பயிருக்கும் உறுதிப்படுத்தப்பட்ட பிரச்சினைக்கும் லேபிளில் அனுமதிக்கப்பட்ட பொருளை மட்டுமே பயன்படுத்தவும். பாதுகாப்பு, மீள் நுழைவு, அறுவடைக்கு முந்தைய வழிமுறைகளைப் பின்பற்றவும்.",
+
+  reply: "முக்கியமான வயல் முடிவுகளை உங்கள் உள்ளூர் KVK அல்லது வேளாண் அலுவலரிடம் உறுதிப்படுத்தவும்.",
+
+
+
+  storageError: "இந்த உலாவியில் உங்கள் விவரத்தைச் சேமிக்க முடியவில்லை.",
+  clearConfirm: "இந்தச் சாதனத்தில் சேமித்த விவசாயி விவரத்தை அழிக்கவா?",
+  speechError: "குரலை இயக்க முடியவில்லை. உலாவியின் ஒலி அமைப்புகளைச் சரிபார்த்து மீண்டும் முயற்சிக்கவும்.",
+  marketItems: "கற்பனை மாதிரி விலைகள் காட்டப்படுகின்றன", noPrice: "—",
+  searchStateHelp: "இடங்களும் பயிர் தேர்வுகளும் பெறப்பட்ட தரவுப் பதிவுகளிலிருந்து வருகின்றன.",
+  distanceToMandi: "சந்தைக்கான தூரம் (கி.மீ.)", vehicleFare: "ஒரு பயணத்திற்கான வாகனக் கட்டணம் (₹)",
+  individualTransportCost: "தனிப்பட்ட போக்குவரத்துச் செலவு", transportSavings: "ஒவ்வொரு விவசாயிக்கும் சேமிப்பு",
+  invitePreview: "WhatsApp அழைப்பு முன்னோட்டம்", dayUnit: "நாட்கள்",
+  postHarvestWeatherUnavailable: "மதிப்பீட்டிற்கு வெப்பநிலை மற்றும் ஈரப்பதம் உள்ள தற்போதைய வானிலைத் தரவை ஏற்றவும்.",
+  weatherRecommendationBody: "{alert} வயல் பணிகளைத் திட்டமிட மேலுள்ள முன்னறிவிப்பு விவரங்களைப் பயன்படுத்தவும்.",
+  marketRecommendationBody: "{recommendation}: {reason}",
+  expenseRecommendationBody: "நீங்கள் உள்ளிட்ட செலவுகளில் {category} பங்கு {share}%. உள்ளூர் விலைகளை ஒப்பிட்டு ரசீதுகளை வைத்திருங்கள்.",
+  samplePeriodTwo: "மாதிரி 2", samplePeriodThree: "மாதிரி 3",
+  riskMethod: "இந்தப் பொதுக் குறியீடு முன்னறிவிப்பு எச்சரிக்கை வகைகளை எண்ணுகிறது: எதுவுமில்லை = குறைவு, ஒன்று = மிதம், இரண்டு அல்லது அதற்கு மேல் = அதிகம். இது விளைச்சல் அல்லது பயிர் இழப்பு முன்னறிவிப்பு அல்ல.",
+  nearNeutral: "நடுநிலைக்கு அருகில்", medium: "மிதம்", good: "நல்லது",
+  soilTip: "உங்கள் வயலுக்கான ஊட்டச்சத்துகளைத் திட்டமிட அங்கீகரிக்கப்பட்ட உள்ளூர் ஆய்வகத்தில் மண் பரிசோதனை செய்வதே சிறந்தது.",
+  waterLow: "குறைவு", waterMedium: "மிதம்", waterHigh: "அதிகம்",
+  cropTip: "பயிர் யோசனைகள் மாதிரி பரிந்துரைகள் மட்டுமே; உங்கள் இடத்திற்கான வேளாண் ஆலோசனை அல்ல.",
+  cropDoctorCrop: "பயிரைத் தேர்ந்தெடுக்கவும்", cropDoctorSymptoms: "தெரியும் அறிகுறிகளைத் தேர்ந்தெடுக்கவும்",
+  cropDoctorChooseSymptoms: "நீங்கள் காணும் ஒன்று அல்லது அதற்கு மேற்பட்ட அறிகுறிகளைத் தேர்ந்தெடுக்கவும்.",
+  cropDoctorSeverity: "ஆரம்பத் தீவிரம்", cropDoctorChemical: "ரசாயனத் தேர்வு (காரணம் உறுதியானால் மட்டுமே)",
+  cropDoctorNoSelection: "சாத்தியமான காரணங்களைக் காண ஒரு பயிரையும் குறைந்தது ஓர் அறிகுறியையும் தேர்ந்தெடுக்கவும்.",
+  about: "இந்த மாதிரியைப் பற்றி",
+  aboutCopy: "கிருஷிமித்ரா முதலில் UI மாதிரியாகத் தொடங்கியது. வானிலை Open-Meteo-இலிருந்து வருகிறது; சந்தை விலைகளும் பிற மாதிரித் திரைகளும் விளக்கத்திற்கானவை.",
+  dayNext: "புதன்கிழமை",
+  sampleTip: "விலைகள் மாறலாம். போக்குவரத்து மற்றும் பிற செலவுகள் உங்கள் வருவாயைப் பாதிக்கும்; கவனமாக ஒப்பிடுங்கள்.",
+  missingMandiKey: "சேவையகத்தின் .env கோப்பில் data.gov.in API விசையைச் சேர்த்து, சேவையகத்தை மறுதொடக்கம் செய்யவும்.",
+  rejectedMandiKey: "data.gov.in இந்த API விசையை ஏற்கவில்லை. அது செயலிலுள்ளதா, இந்தத் தரவுக்கு அனுமதிக்கப்பட்டதா எனச் சரிபார்க்கவும்.",
+  mandiNetworkError: "சந்தைச் சேவையை அணுக முடியவில்லை. இணைய இணைப்பைச் சரிபார்த்து மீண்டும் முயற்சிக்கவும்.",
+  mandiUpstreamError: "data.gov.in சேவை தற்காலிகமாகக் கிடைக்கவில்லை. சிறிது நேரம் கழித்து மீண்டும் முயற்சிக்கவும்.",
+  mandiSchemaError: "தரவுத் தொகுப்பின் பதில் வடிவத்தை அடையாளம் காண முடியவில்லை; விலைகள் காட்டப்படவில்லை.",
+  adviceMonitor: "கடைசி மூன்று பதிவான தேதிகளில் விலைகள் தொடர்ந்து உயர்ந்துள்ளன. முடிவெடுக்கும் முன் அடுத்த பதிவைக் கவனிக்கலாம்; இது எதிர்கால விலை முன்னறிவிப்பு அல்ல.",
+  adviceSell: "கடைசி மூன்று பதிவான தேதிகளில் விலைகள் தொடர்ந்து குறைந்துள்ளன. இன்றைய விலை உங்கள் தேவைக்கு ஏற்றால், விலை உயரும் என மட்டும் காத்திருக்காமல் விற்பதைப் பரிசீலிக்கவும்.",
+  adviceNoSignal: "சமீபத்திய விலைகளில் ஒரே திசை தென்படவில்லை. முடிவுக்கு முன் உங்கள் செலவுகளையும் உள்ளூர் விலையையும் ஒப்பிடுங்கள்.",
+  adviceInsufficient: "மூன்றுக்கும் குறைவான தேதிகளில் விலைப் பதிவுகள் உள்ளன; விற்கவா காத்திருக்கவா பரிந்துரைக்க வரலாறு போதாது.",
+  trendIncreasing: "உயர்கிறது", trendDecreasing: "குறைகிறது", trendStable: "நிலையாக உள்ளது",
+  samplePeriodOne: "மாதிரி 1",
+  sellNowReason: "கடைசி மூன்று தினசரி சராசரிகளும் தொடர்ந்து குறைந்துள்ளன. இன்றைய உள்ளூர் விலையையும் செலவுகளையும் கவனியுங்கள்; இது எதிர்கால விலை முன்னறிவிப்பு அல்ல.",
+  waitMarketReason: "கடைசி மூன்று தினசரி சராசரிகளும் தொடர்ந்து உயர்ந்துள்ளன. முடிவுக்கு முன் அடுத்த பதிவைப் பாருங்கள்; எதிர்கால விலைக்கு உத்தரவாதம் இல்லை.",
+  monitorMarketReason: "சமீபத்திய மூன்று தேதிகளில் ஒரே திசை இல்லை; சந்தையைக் கவனித்து உள்ளூர் விலைகளை ஒப்பிடுங்கள்.",
+  alertHeavyRainBody: "{date} அன்று {amount} மி.மீ. மழை எதிர்பார்க்கப்படுகிறது. நீர்ப்பாசனத்தை ஒத்திவைப்பதையும் வயல் வடிகால்களைச் சரிபார்ப்பதையும் பரிசீலிக்கவும்.",
+  alertRainBody: "{date} அன்று மழை வாய்ப்பு {chance}%. தேவையற்ற நீர்ப்பாசனத்தைத் தவிர்க்க மண் ஈரத்தைச் சரிபார்க்கவும்.",
+  alertHeatBody: "{date} அன்று அதிகபட்ச வெப்பநிலை {temperature}°C என எதிர்பார்க்கப்படுகிறது. பயிரின் நீர்த் தேவையைக் கவனிக்கவும்.",
+  alertWindBody: "தற்போது பலத்த காற்று வீசக்கூடும். எளிதில் பாதிக்கப்படும் பயிர்களுக்கு ஆதரவு உள்ளதா எனச் சரிபார்க்கவும்.",
+  riskFactorWeather: "முன்னறிவிப்பு எச்சரிக்கை: {title}",
+  postHarvestSellTip: "பாதுகாப்பான சேமிப்பு காலம் குறைவாக இருக்கலாம். விரைவில் விற்பனை அல்லது பதப்படுத்தலுக்கு முன்னுரிமை கொடுத்து விளைச்சலைச் சோதிக்கவும்; இந்த மதிப்பீட்டை மட்டும் நம்பாதீர்கள்.",
+  postHarvestStoreTip: "குறுகிய காலச் சேமிப்பு சாத்தியமாக இருக்கலாம். விளைச்சலை உலர்ந்த, காற்றோட்டமான இடத்தில் வைத்து அடிக்கடி சோதிக்கவும்.",
+  noLargestExpense: "செலவுகள் எதுவும் இன்னும் உள்ளிடப்படவில்லை.", allKarnataka: "அனைத்து இந்திய மாநிலங்களும்",
+  farmerUnitSingular: "விவசாயி", farmerUnitPlural: "விவசாயிகள்",
+  learnMore: "இந்தப் பயிர் ஏன்?", chatWelcome: "வணக்கம்! நான் உங்கள் மாதிரி விவசாயத் துணை. பொதுவான கேள்வியைக் கேளுங்கள் அல்லது கீழே உள்ள கேள்வியைத் தேர்ந்தெடுங்கள்.",
+  prompts: "மாதிரி கேள்வியை முயற்சிக்கவும்",
+  riceDesc: "நீர்வளம் உறுதியாக உள்ள பகுதிகளில் பயிரிடப்படும் வழக்கமான பருவமழைப் பயிர்.",
+  ragiDesc: "குறைந்தது முதல் மிதமான நீரில் வளரும் சத்தான சிறுதானியம்.",
+  maizeDesc: "பயிர் சுழற்சியில் பயன்படுத்தக்கூடிய பல்துறைப் பயிர்.",
+  pulsesDesc: "பருப்பு வகைகள் பயிர் பல்வகைப்படுத்தலுக்கும் மண்ணின் ஊட்டச்சத்து சுழற்சிக்கும் உதவலாம்.",
+  saveChanges: "மாற்றங்களைச் சேமிக்கவும்", chartLabel: "மாதிரி மழைப்பொழிவு போக்கு",
+  menu: "பட்டி", percent: "சதவீதம்", liveDataStatus: "🟢 நேரடித் தரவு",
+  offlineDataStatus: "🟡 இணையமில்லா முறை · சேமித்தது", sampleMarket: "மைசூர் மாதிரி சந்தை",
+  cropDoctorYellowing: "இலைகள் மஞ்சளாதல்", cropDoctorBrownSpots: "பழுப்பு நிறப் புள்ளிகள்",
+  cropDoctorLeafCurling: "இலை சுருளுதல்", cropDoctorWilting: "வாடுதல்",
+  cropDoctorWhitePowder: "வெள்ளைப் பொடி அல்லது வளர்ச்சி", cropDoctorBorerHoles: "தண்டு அல்லது காயில் துளைப்பான் துளைகள்",
+  cropDoctorTomato: "தக்காளி", cropDoctorCotton: "பருத்தி", cropDoctorChilli: "மிளகாய்",
+  cropDoctorOrganicYellow: "மண் ஈரம், வடிகால், இலையின் அடிப்புறத்தைச் சரிபார்க்கவும். உள்ளூர் நிலையைப் பார்த்த பிறகே ஊட்டச்சத்தைச் சரிசெய்யவும்; சாறு உறிஞ்சும் பூச்சிகள் தெரிந்து பயிர் லேபிள் அனுமதித்தால் மட்டுமே வேப்புப் பொருளைப் பயன்படுத்தவும்.",
+  cropDoctorOrganicSpots: "மிகவும் பாதிக்கப்பட்ட இலைகள் மற்றும் பயிர் எச்சங்களை அகற்றவும்; இலைகளை நனைப்பதைத் தவிர்க்கவும். இவை சுகாதாரத்திற்கு உதவும்; குணமாகும் என உறுதி அளிக்காது.",
+  cropDoctorOrganicCurl: "இலைகளின் அடிப்புறத்தைச் சரிபார்த்து, கடுமையாகப் பாதிக்கப்பட்ட இலைகளை அகற்றவும். லேபிள் அனுமதித்தால் வேப்புப் பொருள் சில மென்மையான பூச்சிகளுக்கு உதவலாம்; வைரஸைக் குணப்படுத்தாது.",
+  cropDoctorOrganicWilt: "மண் ஈரம் மற்றும் வடிகாலைச் சரிபார்க்கவும்; வாடிய செடிகள் உறுதிப்பட்டால் வேருடன் தனியே அகற்றவும். உறுதிப்படுத்தாத கலவைகளை மண்ணில் இடாதீர்கள்.",
+  cropDoctorOrganicPowder: "பாதிக்கப்பட்ட இலைகளை அகற்றி காற்றோட்டத்தை மேம்படுத்தவும். சிகிச்சைக்கு முன் அது தூசி அல்லது தெளிப்பு எச்சமல்ல என்பதை உறுதிப்படுத்தவும்.",
+  cropDoctorOrganicBorer: "துளைப்பான் பாதித்த செடிப் பகுதிகளை அகற்றி அழிக்கவும்; அடையாளம் கண்ட பூச்சிக்கும் பயிருக்கும் பொருத்தமானால் மட்டுமே பெரோமோன் பொறி பயன்படுத்தவும்.",
+  cropDoctorPreventYellow: "தொடர்ந்து கண்காணித்து, வடிகாலைச் சரியாக வைத்து, உள்ளூர் மண் வழிகாட்டுதலின் அடிப்படையில் சமநிலை ஊட்டச்சத்துகளைப் பயன்படுத்தவும்.",
+  cropDoctorPreventSpots: "பயிர் எச்சங்களை அகற்றி காற்றோட்டம் அளிக்கவும்; சாத்தியமான இடங்களில் இலைகள் நீண்ட நேரம் ஈரமாக இருப்பதைத் தவிர்க்கவும்.",
+  cropDoctorPreventCurl: "இலைகளின் அடிப்புறத்தில் நோய் பரப்பும் பூச்சிகளைச் சரிபார்த்து, களைகள் அல்லது மாற்று வாழிடச் செடிகளை அகற்றி அருகிலுள்ள செடிகளைக் கண்காணிக்கவும்.",
+  cropDoctorPreventWilt: "சுத்தமான கருவிகளைப் பயன்படுத்தி, மாசடைந்த மண்ணை நகர்த்தாதீர்கள்; பயிர் சுழற்சி மற்றும் வடிகால் குறித்து உள்ளூர் ஆலோசனை பெறுங்கள்.",
+  cropDoctorPreventPowder: "காற்றோட்டத்துக்காக செடிகளுக்கு இடைவெளி விடுங்கள்; பாதிக்கப்பட்ட எச்சங்களை அகற்றி அருகிலுள்ள செடிகளையும் கவனியுங்கள்.",
+  cropDoctorPreventBorer: "முட்டைகள் மற்றும் புதிய துளைகளைத் தேடுங்கள்; பாதித்த பகுதிகளை அகற்றி, பரிந்துரைக்கப்பட்டால் பூச்சிக்கேற்ற கண்காணிப்புப் பொறிகளைப் பயன்படுத்தவும்.",
+  cropDoctorChemicalNone: "இந்த ஒரு அறிகுறியை மட்டும் வைத்து ரசாயனம் பரிந்துரைக்கப்படவில்லை. முதலில் நீர், ஊட்டச்சத்து, பூச்சி இருப்பைச் சரிபார்த்து, தெளிப்பதற்கு முன் உறுதி செய்யவும்.",
+  cropDoctorChemicalFungicide: "பூஞ்சை நோய் உறுதியானால், இந்தப் பயிருக்கும் நோய்க்கும் தற்போது பதிவு செய்யப்பட்ட மருந்தை உள்ளூர் KVK அல்லது வேளாண் அலுவலரிடம் கேட்டுத் தெரிந்து லேபிளைப் பின்பற்றவும்.",
+  cropDoctorChemicalInsecticide: "குறிப்பிட்ட பூச்சி உறுதியானால், இந்தப் பயிரையும் பூச்சியையும் லேபிளில் குறிப்பிடும் தற்போது பதிவு செய்யப்பட்ட பொருளை மட்டுமே பயன்படுத்தி, உள்ளூர் ஆலோசனை மற்றும் லேபிளைப் பின்பற்றவும்.",
+  cropDoctorChemicalVector: "வெள்ளை ஈ அல்லது த்ரிப்ஸ் உறுதியானால், பதிவு செய்யப்பட்ட நோய் பரப்பி கட்டுப்பாட்டுப் பொருள் பற்றி உள்ளூர் ஆலோசனை பெறவும். வைரஸ் பாதித்த செடிகளை இது குணப்படுத்தாது; லேபிளைப் பின்பற்றவும்.",
+  cropDoctorChemicalBorer: "துளைப்பான் உறுதியானால், இந்தப் பயிருக்கும் பூச்சிக்கும் பதிவு செய்யப்பட்ட பொருள் பற்றி உள்ளூர் KVK அல்லது வேளாண் அலுவலரிடம் கேட்டுத் தெரிந்து லேபிளைப் பின்பற்றவும்.",
+};
+
+const marathiText: CompleteAppTranslations = {
+  dashboard: "डॅशबोर्ड", weather: "हवामान", mandi: "बाजारभाव", profit: "नफा गणक",
+  smartFarm: "स्मार्ट शेती", irrigationPlanner: "सिंचन नियोजन", soil: "मातीची माहिती",
+  cropDoctor: "पीक डॉक्टर", schemes: "योजना आणि अनुदाने", crops: "पीक सूचना",
+  cropRotation: "पीक फेरपालट नियोजक", advisory: "शेतीविषयक सल्ला", settings: "सेटिंग्ज",
+  greeting: "शुभ सकाळ", welcome: "तुमची शेती, एक पाऊल पुढे.", demo: "नमुना माहिती",
+  demoNote: "ही नमुना माहिती केवळ प्रात्यक्षिकासाठी आहे; ती थेट किंवा स्थानविशिष्ट नाही.",
+  todayAt: "आजचा आढावा", weatherCard: "हवामानाचा अंदाज", marketCard: "बाजाराचा आढावा",
+  rainChance: "पावसाची शक्यता", humidity: "आर्द्रता", viewWeather: "हवामान पाहा",
+  viewMarket: "भाव पाहा", yourFarm: "तुमची शेतकरी माहिती", addFarm: "शेतीची माहिती जोडा",
+  editProfile: "माहिती संपादित करा", setupPrompt: "वैयक्तिक सूचना मिळवण्यासाठी शेतीची माहिती जोडा.",
+  completeProfile: "माहिती भरा", quickActions: "जलद पर्याय", askMitra: "कृषिमित्रला विचारा",
+  soilCheck: "माती मार्गदर्शक पाहा", cropPlanner: "पीक कल्पना पाहा",
+  fieldNote: "आजची छोटी काळजी उद्याच्या चांगल्या परिणामाला मदत करते.",
+  weatherTitle: "हवामानाचा अंदाज", weatherSub: "सध्याची स्थिती आणि सात दिवसांचा अंदाज पाहण्यासाठी शहर, जिल्हा किंवा गाव शोधा.",
+  currentConditions: "सध्याची स्थिती", feelsLike: "जाणवणारे तापमान", wind: "वारा",
+  nextDays: "पुढील काही दिवस", dayToday: "आज", dayTomorrow: "उद्या", sunny: "उन्हाळी",
+  partlyCloudy: "अंशतः ढगाळ", lightShower: "हलकी सर", foggy: "धुके",
+  drizzle: "रिमझिम", rainCondition: "पाऊस", snow: "बर्फ", thunderstorm: "मेघगर्जनेसह पाऊस",
+  dashboardWeatherNote: "हवामान Open-Meteo वरून थेट मिळते. बाजारभाव नमुना माहिती आहे.",
+  weatherSource: "OPEN-METEO", live: "थेट", searchLocation: "तुमचे ठिकाण शोधा",
+  searchPlaceholder: "शहर, जिल्हा किंवा गाव शोधा", search: "शोधा", searching: "शोधत आहे…",
+  noLocationResults: "ठिकाणे सापडली नाहीत. जवळचे शहर किंवा जिल्हा वापरून पाहा.",
+  selectLocation: "योग्य ठिकाण निवडा", selectedLocation: "निवडलेले ठिकाण", clearLocation: "ठिकाण बदला",
+  currentTemperature: "तापमान", rainfall: "पर्जन्यमान", currentRain: "सध्या पाऊस",
+  todayRainProbability: "आज पावसाची शक्यता", forecastTitle: "सात दिवसांचा अंदाज",
+  high: "कमाल", low: "किमान", expectedRain: "अपेक्षित पाऊस", lastUpdated: "शेवटचे अद्यतन",
+  dataSource: "माहितीचा स्रोत", refreshWeather: "हवामान अद्यतनित करा", refreshing: "अद्यतनित होत आहे…",
+  loadingWeather: "थेट हवामान मिळवत आहे…", chooseWeatherLocation: "थेट हवामान पाहण्यासाठी ठिकाण निवडा.",
+  noWeatherData: "सध्या हवामानाची माहिती उपलब्ध नाही.",
+  weatherSearchHelp: "शोध परिणाम Open-Meteo वरून येतात. तुमच्या उपकरणाचे ठिकाण मागितले जात नाही.",
+  farmingAdvisory: "हवामानानुसार शेती सूचना", noAdvisories: "या अंदाजात हवामान सूचना नाहीत.",
+  advisoryRain: "पावसाची शक्यता आहे. सिंचनाची गरज तपासा.",
+  advisoryHeavyRain: "मुसळधार पावसाची शक्यता आहे. शेतातील निचरा तपासा.",
+  advisoryHeat: "उच्च तापमानाचा अंदाज आहे. पिकाची पाण्याची गरज पाहा.",
+  advisoryWind: "जोरदार वाऱ्याची शक्यता आहे. संवेदनशील पिकांना आधार आहे का तपासा.",
+  weatherError: "हवामान सेवेत त्रुटी", weatherNetworkError: "जोडणी झाली नाही. इंटरनेट तपासून पुन्हा प्रयत्न करा.",
+  weatherHttpError: "हवामान सेवा तात्पुरती उपलब्ध नाही. नंतर पुन्हा प्रयत्न करा.",
+  weatherApiError: "या ठिकाणासाठी हवामान माहिती मिळू शकली नाही.",
+  weatherInvalidError: "हवामान सेवेकडून अनपेक्षित माहिती मिळाली. पुन्हा प्रयत्न करा.",
+  locationSaveError: "या ब्राउझरमध्ये निवडलेले ठिकाण जतन करता आले नाही.",
+  mandiTitle: "बाजारभाव", mandiSub: "भारतीय आणि राज्य बाजारभाव; नमुना नोंदी स्पष्टपणे दर्शवल्या आहेत.",
+  marketBoard: "AGMARKNET दैनिक भाव", commodity: "पीक", market: "बाजार", price: "भाव / क्विंटल",
+  change: "बदल", state: "राज्य", districtLabel: "जिल्हा", variety: "जात", arrivalDate: "आगमन दिनांक",
+  minPrice: "किमान भाव", maxPrice: "कमाल भाव", modalPrice: "मोडल भाव",
+  selectState: "राज्य निवडा", selectDistrict: "सर्व जिल्हे", selectMarket: "सर्व बाजार",
+  searchCrop: "पीक शोधून निवडा", cropSearchPlaceholder: "माहितीतील पिके शोधा…",
+  noCrops: "उपलब्ध माहितीत जुळणारी पिके नाहीत.", loadingMarkets: "सरकारी बाजार माहिती लोड होत आहे…",
+  noMarketData: "या निवडीसाठी बाजार नोंदी उपलब्ध नाहीत.",
+  noDataForFilters: "या फिल्टरसाठी नोंदी नाहीत. दुसरे पीक, जिल्हा किंवा बाजार निवडा.",
+  chooseCropForCompare: "बाजारभावांची तुलना करण्यासाठी पीक शोधून निवडा.",
+  marketApiSource: "भारत सरकार · AGMARKNET", sampleCachedMandiData: "नमुना / कॅश केलेली AGMARKNET माहिती",
+  sampleDataSource: "उदाहरणासाठी समाविष्ट माहिती · थेट किंवा सरकारी नोंद नाही",
+  mixedDataSource: "नमुना नोंदी आणि उपकरणात जतन केलेली AGMARKNET माहिती",
+  cachedPriceExplanation: "या उपकरणातील कॅशमधील जुन्या AGMARKNET नोंदी दाखवल्या आहेत. त्या सध्याचे भाव नसू शकतात.",
+  lastUpdatedMandi: "शेवटचे अद्यतन", dataRows: "मिळालेल्या नोंदी",
+  mandiErrorTitle: "बाजार माहिती लोड करता आली नाही", refreshPrices: "भाव अद्यतनित करा",
+  refreshingPrices: "अद्यतनित होत आहे…", compareMarkets: "निवडलेल्या राज्यातील बाजारांची तुलना करा",
+  sortByModal: "मोडल भावानुसार क्रमवारी", ascending: "कमी भाव प्रथम", descending: "जास्त भाव प्रथम",
+  priceAdvisory: "भाव तुलना सूचना", noCompareData: "बाजार तुलना करण्यासाठी पुरेसे नोंदवलेले भाव नाहीत.",
+  highestReported: "सर्वाधिक नोंदवलेला मोडल भाव", lowestReported: "सर्वात कमी नोंदवलेला मोडल भाव",
+  transportNote: "जास्त नोंदवलेला भाव म्हणजे जास्त उत्पन्नाची हमी नाही. वाहतूक आणि इतर खर्च लक्षात घ्या.",
+  priceHistory: "नोंदवलेल्या भावांचा इतिहास", fromDate: "या तारखेपासून", toDate: "या तारखेपर्यंत",
+  missingDates: "या तारखांसाठी नोंदी नाहीत", noHistory: "या निवडीसाठी जुन्या नोंदी उपलब्ध नाहीत.",
+  sourceUnitNote: "मूळ स्रोताप्रमाणे भाव ₹ प्रति क्विंटलमध्ये दाखवले आहेत.",
+  sellWaitTitle: "आता विकावे की थांबावे?", sellWaitSub: "निवडलेल्या पिकाच्या नोंदवलेल्या मागील भावांवर आधारित सावध मार्गदर्शन.",
+  currentReportedPrice: "अलीकडील नोंदवलेला सरासरी भाव", previousReportedPrice: "मागील नोंदवलेला सरासरी भाव",
+  priceChange: "मागील नोंदीपासून बदल", trend: "अलीकडील नोंदवलेला कल",
+  trendRising: "वाढता", trendFalling: "घटता", trendMixed: "मिश्र किंवा स्थिर",
+  trendInsufficient: "कल दाखवण्यासाठी पुरेशी माहिती नाही",
+  recommendationMonitor: "बाजारावर लक्ष ठेवा", recommendationSell: "विक्रीचा विचार करा",
+  recommendationNoSignal: "स्पष्ट संकेत नाही", recommendationInsufficient: "शिफारसीसाठी पुरेसा इतिहास नाही",
+  reportedPriceHistory: "अलीकडील नोंदवलेले भाव",
+  smartFarmTitle: "स्मार्ट शेती निर्णय केंद्र",
+  smartFarmSub: "शेतकरी माहिती, हवामान, बाजार नोंदी आणि खर्चाचा अंदाज एकत्र पाहा.",
+  smartFarmEyebrow: "तुमचे शेती निर्णय केंद्र", smartFarmOverview: "शेतीचा आढावा",
+  todayForecast: "हवामान अंदाज", noForecastForFarm: "थेट अंदाजासाठी हवामान स्क्रीनवर ठिकाण निवडा.",
+  noFarmSoil: "शेतकरी माहितीमध्ये मातीचा प्रकार जतन केलेला नाही.",
+  profileSoilNote: "जतन केलेल्या माहितीतला मातीचा प्रकार; प्रयोगशाळेतील माती परीक्षण नाही.",
+  latestMandiAverage: "अलीकडील नोंदवलेली बाजार सरासरी", demoPriceLabel: "नमुना भाव · थेट बाजारभाव नाही",
+  samplePriceExplanation: "केवळ प्रात्यक्षिकासाठीचे भाव. या पिकाचे नोंदवलेले भाव पाहण्यासाठी बाजारभाव स्क्रीन उघडा.",
+  noMarketHistory: "या पिकासाठी जुळणाऱ्या बाजार नोंदी अद्याप नाहीत.",
+  sellNow: "आता विक्री करा", waitMarket: "थांबून पुन्हा पाहा", monitorMarket: "बाजारावर लक्ष ठेवा",
+  openMandi: "बाजारभाव पाहा",
+  farmAlertsTitle: "हवामानाधारित शेती सूचना", forecastVerified: "अंदाजावर आधारित",
+  generalAdviceLabel: "सामान्य मार्गदर्शन · तुमच्या ठिकाणासाठी पडताळलेले नाही",
+  noActiveFarmAlerts: "उपलब्ध अंदाजात सूचना मर्यादा ओलांडली नाही. स्थानिक परिस्थिती तपासत राहा.",
+  alertHeavyRainTitle: "मुसळधार पावसाची शक्यता", alertRainTitle: "पावसाची शक्यता",
+  alertRainAmountBody: "{date} रोजी {amount} मिमी पावसाचा अंदाज आहे. अनावश्यक सिंचन टाळण्यासाठी मातीतील ओलावा तपासा.",
+  alertHeatTitle: "उच्च तापमानाची शक्यता", alertWindTitle: "सध्या जोरदार वारा",
+  generalWeatherAdviceTitle: "सामान्य हवामान सूचना",
+  generalWeatherAdviceBody: "सिंचन, कापणी किंवा शेतकामापूर्वी स्थानिक अंदाज पाहा. या शेतासाठी थेट अंदाज उपलब्ध नाही.",
+  cropRiskTitle: "हवामानाशी संबंधित पीक जोखीम", lowRisk: "कमी जोखीम",
+  moderateRisk: "मध्यम जोखीम", highRisk: "जास्त जोखीम", riskUnavailable: "जोखीम निर्देशक उपलब्ध नाही",
+  postHarvestEyebrow: "कापणी आणि साठवण", postHarvestTitle: "कापणीनंतरची साठवण आणि खराब होण्याचा धोका",
+  postHarvestSub: "सध्याचे बाहेरील तापमान आणि आर्द्रतेवर आधारित साधारण साठवण अंदाज.",
+  postHarvestCrop: "कापणी केलेले पीक", postHarvestMethod: "साठवण पद्धत",
+  postHarvestWindow: "अंदाजे सुरक्षित साठवण कालावधी", postHarvestRisk: "खराब होण्याची जोखीम",
+  postHarvestAction: "कृती सूचना", postHarvestSellImmediately: "लगेच विक्री करा",
+  postHarvestSafeToStore: "साठवता येईल", postHarvestRiskHigh: "जास्त",
+  postHarvestRiskModerate: "मध्यम", postHarvestRiskLow: "कमी",
+  storageOpenShed: "उघडे शेड", storageGunnyBags: "गोणी", storageColdStorage: "शीतगृह",
+  farmCostsTitle: "शेती खर्चाचा आढावा", totalInvestment: "एकूण गुंतवणूक",
+  largestExpense: "सर्वाधिक खर्चाचा प्रकार", expenseBreakdown: "खर्चाचे विभाजन",
+  noExpensesEntered: "खर्चाचे विभाजन पाहण्यासाठी नफा गणकात अंदाजे खर्च भरा.",
+  personalizedTitle: "तुमच्यासाठी शेती सूचना", priorityHigh: "जास्त", priorityMedium: "मध्यम", priorityLow: "कमी",
+  selectCropForSmartFarm: "शेतीचा आढावा वैयक्तिक करण्यासाठी पीक निवडा.",
+  soilTitle: "मातीची माहिती", soilSub: "तुमच्या शेतातील माती समजून घेण्यासाठी सोपे मार्गदर्शन.",
+  profitCalculatorEyebrow: "हंगामाचे नियोजन करा", profitCalculatorTitle: "शेतकरी नफा गणक",
+  profitCalculatorSub: "तुमच्या शेताच्या अंदाजावरून पीक उत्पन्न, खर्च आणि नफा मोजा.",
+  estimateBadge: "तुमचा अंदाज", cropSelect: "पीक", chooseCrop: "पीक निवडा",
+  cultivatedArea: "लागवडीखालील क्षेत्र (एकर)", expectedYieldPerAcre: "प्रति एकर अपेक्षित उत्पादन (क्विंटल)",
+  expectedSellingPrice: "अपेक्षित विक्रीभाव (₹ / क्विंटल)", estimatedExpenses: "अंदाजे खर्च (₹)",
+  calculatorExpenseHelp: "हंगामासाठीचे खर्च भरा; लागू नसलेल्या खर्चांसाठी ₹0 ठेवा.",
+  seedExpense: "बियाणे", fertilizerExpense: "खते", labourExpense: "मजुरी",
+  irrigationExpense: "सिंचन", transportExpense: "वाहतूक", otherExpense: "इतर खर्च",
+  calculatorResults: "तुमचे अंदाजे निकाल", calculatorPrompt: "अंदाजासाठी पीक, क्षेत्र, उत्पादन आणि विक्रीभाव भरा.",
+  totalExpectedYield: "एकूण अपेक्षित उत्पादन", expectedRevenue: "एकूण अपेक्षित उत्पन्न",
+  quintals: "क्विंटल", totalExpenses: "एकूण खर्च", estimatedProfit: "अंदाजे नफा",
+  profitPerAcre: "प्रति एकर नफा", financialBreakdown: "उत्पन्न आणि खर्चाची तुलना",
+  revenueLabel: "उत्पन्न", expensesLabel: "खर्च", netProfitLabel: "निव्वळ नफा",
+  calculatorDisclaimer: "हा तुम्ही भरलेल्या माहितीवर आधारित अंदाज आहे; हमीचे उत्पन्न नाही. प्रत्यक्ष उत्पादन, भाव आणि खर्च बदलू शकतात.",
+  soilHealth: "माती आरोग्याचा आढावा", soilType: "मातीचा प्रकार", phLevel: "pH पातळी",
+  organicMatter: "सेंद्रिय पदार्थ", nitrogen: "नत्र", phosphorus: "स्फुरद", potassium: "पालाश",
+  cropTitle: "पीक सूचना", cropSub: "नमुना माहितीवर आधारित कल्पना — स्थानिक उपयुक्तता तपासा.",
+  recommended: "विचार करण्यासारख्या कल्पना", season: "खरीप हंगाम", duration: "पीक कालावधी", waterNeed: "पाण्याची गरज",
+  advisoryTitle: "कृषिमित्रला विचारा", advisorySub: "शेतीच्या प्रश्नांसाठी सोपे, उपयोगी मार्गदर्शन मिळवा.",
+  demoChat: "शेतीविषयक सल्ला", chatPlaceholder: "तुमचा शेतीचा प्रश्न लिहा…", send: "पाठवा",
+  settingsTitle: "सेटिंग्ज", settingsSub: "कृषिमित्रला तुमच्या गरजेनुसार बदला.",
+  language: "भाषा", chooseLanguage: "तुमची आवडती भाषा निवडा",
+  profileSection: "शेतकरी माहिती", savedLocally: "तुमची माहिती फक्त या उपकरणावर जतन केली जाते.",
+  clearProfile: "जतन केलेली माहिती पुसा", profileTitle: "तुमची शेतकरी माहिती",
+  profileSub: "काही तपशील तुमच्या शेती सहाय्यकाला वैयक्तिक बनवतील.",
+  fullName: "तुमचे नाव", village: "गाव", district: "जिल्हा", land: "जमिनीचे क्षेत्र (एकर)",
+  soilChoice: "मातीचा प्रकार", irrigation: "सिंचनाचा स्रोत", chooseOne: "एक निवडा",
+  saveProfile: "माहिती जतन करा", cancel: "रद्द करा", saved: "या उपकरणावर माहिती जतन केली.",
+  profileMissing: "जतन करण्यासाठी नाव, गाव आणि जिल्हा भरा.",
+  profileCleared: "जतन केलेली माहिती पुसली.", cropRice: "भात", cropRagi: "नाचणी",
+  cropMaize: "मका", cropPulses: "कडधान्ये", profileBadge: "तुमची शेती",
+  typeRed: "लाल माती", typeBlack: "काळी माती", typeSandy: "वाळूमिश्रित माती", typeLoamy: "पोयट्याची माती",
+  waterCanal: "कालवा", waterBorewell: "विंधन विहीर", waterRainfed: "पावसावर अवलंबून",
+  waterOther: "इतर", noProfile: "अद्याप माहिती जतन केलेली नाही", more: "अधिक",
+  prototype: "नमुना", acres: "एकर", cachedData: "कॅश केलेले",
+  shareWhatsapp: "WhatsApp वर शेअर करा", listenToSummary: "ऐका / वाचून दाखवा", stopReading: "वाचणे थांबवा",
+  speechUnavailable: "या ब्राउझरमध्ये आवाजाची सुविधा उपलब्ध नाही.",
+  turDal: "तूर डाळ", postHarvestCropOnion: "कांदा", postHarvestCropPotato: "बटाटा",
+  close: "बंद करा",
+
+
+  mandiShareMessage: "कृषिमित्र बाजारभावाचा सारांश",
+
+  selectCropForAdvisor: "नोंदवलेल्या भावांचा इतिहास पाहण्यासाठी वरील पीक निवडा.",
+  noAdvisorPrices: "या पिकासाठी आणि फिल्टरसाठी वापरण्यायोग्य भाव उपलब्ध नाहीत; ऐतिहासिक विश्लेषण शक्य नाही.",
+
+  reportedPriceMethod: "निवडलेले पीक व फिल्टरमधील नोंदवलेल्या भावांची ही सरासरी आहे. हे मागील भाव आहेत, अंदाज किंवा हमी नाही.",
+ selectedRows: "निवडलेल्या नोंदी",
+  noVariety: "जात नमूद नाही",
+  profitSpeechSummary: "तुमचे अंदाजित उत्पादन {yield} क्विंटल आहे. अंदाजित उत्पन्न {revenue}, एकूण खर्च {expenses}, अंदाजित नफा {profit}, आणि प्रति एकर नफा {perAcre}.",
+  profitShareMessage: "पीक: {crop}; उत्पादन: {yield} क्विंटल; उत्पन्न: {revenue}; खर्च: {expenses}; अंदाजित नफा: {profit}; प्रति एकर नफा: {perAcre}. हा अंदाज आहे, हमी नाही.",
+  transportInviteMessage: "{village} जवळचे {farmers} शेतकरी उद्या {mandi}ला मालवाहू वाहन सामायिक करण्यासाठी हवे आहेत.",
+  transportPoolingTitle: "सामायिक वाहतूक खर्च गणक",
+  transportPoolingSub: "उत्पादनाचे प्रमाण, अंतर आणि वाहन सामायिक करणाऱ्या शेतकऱ्यांच्या संख्येनुसार प्रति शेतकरी खर्चाचा अंदाज घ्या.",
+  harvestQuantity: "उत्पादनाचे प्रमाण (क्विंटल)", neighborFarmers: "शेजारील शेतकरी (तुमच्यासह)",
+  villageForInvite: "गाव (आमंत्रणासाठी)", destinationMandi: "गंतव्य बाजार",
+  totalSharingFarmers: "वाहतूक सामायिक करणारे शेतकरी", pooledTransportCost: "अंदाजित सामायिक खर्च / शेतकरी",
+  transportPoolingAssumption: "हा नियोजनासाठीचा अंदाज आहे. वाहनभाडे, चढवणे, मार्ग आणि बाजार शुल्क बदलू शकतात; वाहनाची उपलब्धता निश्चित करा.",
+  transportInviteMissing: "WhatsApp आमंत्रण तयार करण्यासाठी गाव आणि बाजार भरा.",
+  postHarvestShareMessage: "कृषिमित्र साठवण सारांश: {crop}, साठवण पद्धत {method}, अंदाजित सुरक्षित कालावधी {days} दिवस, जोखीम {risk}.",
+
+  postHarvestModelNote: "सध्याचे बाहेरील तापमान व आर्द्रतेवर आधारित हा अंदाज आहे; साठवण स्थिती आणि पिकाच्या गुणवत्तेनुसार बदलू शकतो.",
+  postHarvestEstimateNote: "या सामान्य नियोजन मर्यादा आहेत. हवेशीरपणा, पिकातील ओलावा, जखमा आणि स्थानिक परिस्थितीमुळे साठवण कालावधी बदलू शकतो.",
+  weatherRecommendationTitle: "तुमच्या शेतासाठी हवामान सूचना",
+  weatherRecommendationNoData: "वैयक्तिक हवामान सूचनेसाठी हवामान पानावर ठिकाण निवडा.",
+  weatherRecommendationNoAlert: "सध्याच्या अंदाजात विशेष सूचना देण्यासारखी परिस्थिती नाही. स्थानिक हवामान तपासत राहा.",
+  marketRecommendationTitle: "तुमच्या पिकासाठी बाजार सूचना",
+  expenseRecommendationTitle: "पीक खर्चाचा आढावा",
+  expenseRecommendationNoData: "नफा गणकात अंदाजित खर्च भरल्यावर हा आढावा दिसेल.",
+  expenseRecommendationNoCosts: "अजून अंदाजित खर्च नोंदवलेले नाहीत.",
+  marketInsufficientReason: "तीनपेक्षा कमी तारखांचे भाव उपलब्ध आहेत; बाजाराचा कल विश्वासार्हपणे ठरवता येत नाही.",
+  locationUnset: "ठिकाण निवडलेले नाही",
+ marketSampleReason: "ही सूचना केवळ नमुना भावांवर आधारित आहे; हा खरा बाजार संकेत किंवा विक्री सल्ला नाही.",
+ riskWeatherUnavailable: "तापमान आणि आर्द्रतेसह हवामान माहिती उपलब्ध नाही.",
+  riskContextNote: "साठवण कालावधीचा अंदाज सामान्य परिस्थितींसाठी आहे. पीक वारंवार तपासा; ओलावा किंवा नासाडी दिसल्यास त्वरित कृती करा.",
+  largestExpenseInsight: "तुमच्या अंदाजात {category} हा सर्वाधिक खर्च आहे: {amount}. खरेदीचा किंवा कामाचा खर्च स्थानिक पातळीवर तपासा.",
+  sampleLevel: "नमुना", soilTipTitle: "मातीच्या आरोग्याची सूचना",
+  waterLowMedium: "कमी ते मध्यम", askAbout: "या विषयांबद्दल विचारा",
+  cropDoctorGuide: "लक्षणांवरून संभाव्य कारणे आणि खबरदारी पाहा; हे निदान नाही.",
+  cropDoctorTitle: "पीक डॉक्टर / लक्षण तपासणी",
+  cropDoctorSub: "पीक आणि दिसणारी लक्षणे निवडून संभाव्य कारणे व पुढील पावले जाणून घ्या.",
+  cropDoctorChooseCrop: "पीक निवडा", cropDoctorClearSymptoms: "लक्षणे काढून टाका",
+  cropDoctorShareMessage: "कृषिमित्र पीक तपासणी: {crop}; लक्षण: {symptom}; संभाव्य समस्या: {diagnosis}; सूचना: {prevention}. उपचारापूर्वी स्थानिक कृषी अधिकाऱ्यांकडून खात्री करा.",
+  cropDoctorPossibleIssue: "तपासण्याजोगी संभाव्य समस्या",
+  cropDoctorOrganic: "तातडीचा सेंद्रिय उपाय / कृती", cropDoctorPrevention: "प्रतिबंध आणि निरीक्षण",
+  cropDoctorDisclaimer: "हे दृश्य तपासणी मार्गदर्शन पीक रोगाचे निदान करत नाही. अनेक समस्या सारख्या दिसू शकतात; उपचारापूर्वी स्थानिक KVK किंवा कृषी अधिकाऱ्यांचा सल्ला घ्या.",
+  cropDoctorSafety: "या पिकासाठी आणि खात्री झालेल्या समस्येसाठी लेबलवर मान्य केलेले उत्पादनच वापरा. लेबल, संरक्षण साधने, पुन्हा प्रवेश आणि काढणीपूर्व सूचनांचे पालन करा.",
+
+  reply: "शेतातील महत्त्वाचे निर्णय स्थानिक KVK किंवा कृषी अधिकाऱ्यांकडून खात्री करून घ्या.",
+
+
+  storageError: "या ब्राउझरमध्ये तुमची माहिती जतन करता आली नाही.",
+  clearConfirm: "या डिव्हाइसवर जतन केलेली शेतकरी माहिती हटवायची का?",
+  speechError: "आवाज सुरू होऊ शकला नाही. ब्राउझरची ध्वनी सेटिंग तपासून पुन्हा प्रयत्न करा.",
+  marketItems: "काल्पनिक नमुना भाव दाखवत आहे", noPrice: "—",
+  searchStateHelp: "ठिकाणे आणि पिकांचे पर्याय मिळालेल्या डेटा नोंदींमधून येतात.",
+  distanceToMandi: "बाजारापर्यंतचे अंतर (कि.मी.)", vehicleFare: "एका फेरीचे वाहनभाडे (₹)",
+  individualTransportCost: "स्वतंत्र वाहतूक खर्च", transportSavings: "प्रति शेतकरी बचत",
+  invitePreview: "WhatsApp आमंत्रणाचे पूर्वावलोकन", dayUnit: "दिवस",
+  postHarvestWeatherUnavailable: "अंदाजासाठी तापमान आणि आर्द्रता असलेली सध्याची हवामान माहिती लोड करा.",
+  weatherRecommendationBody: "{alert} शेतातील कामाचे नियोजन करण्यासाठी वरील अंदाज तपासा.",
+  marketRecommendationBody: "{recommendation}: {reason}",
+  expenseRecommendationBody: "तुम्ही नोंदवलेल्या खर्चात {category} चा वाटा {share}% आहे. स्थानिक दरांची तुलना करा आणि पावत्या जतन करा.",
+  samplePeriodTwo: "नमुना 2", samplePeriodThree: "नमुना 3",
+  riskMethod: "हा सामान्य निर्देशांक अंदाजातील इशाऱ्यांचे प्रकार मोजतो: एकही नाही = कमी, एक = मध्यम, दोन किंवा अधिक = जास्त. हा उत्पादन किंवा पीक नुकसानीचा अंदाज नाही.",
+  nearNeutral: "तटस्थाच्या जवळ", medium: "मध्यम", good: "चांगले",
+  soilTip: "तुमच्या शेतातील पोषणद्रव्यांचे नियोजन करण्यासाठी मान्यताप्राप्त स्थानिक प्रयोगशाळेत माती तपासणे सर्वोत्तम आहे.",
+  waterLow: "कमी", waterMedium: "मध्यम", waterHigh: "जास्त",
+  cropTip: "पीक कल्पना या नमुना सूचना आहेत; त्या तुमच्या भागासाठी कृषी सल्ला नाहीत.",
+  cropDoctorCrop: "पीक निवडा", cropDoctorSymptoms: "दिसणारी लक्षणे निवडा",
+  cropDoctorChooseSymptoms: "तुम्हाला दिसणारी एक किंवा अधिक लक्षणे निवडा.",
+  cropDoctorSeverity: "प्राथमिक तीव्रता", cropDoctorChemical: "रासायनिक पर्याय (कारण निश्चित झाल्यासच)",
+  cropDoctorNoSelection: "संभाव्य कारणे पाहण्यासाठी पीक आणि किमान एक लक्षण निवडा.",
+  about: "या नमुन्याबद्दल",
+  aboutCopy: "कृषिमित्रची सुरुवात UI नमुना म्हणून झाली. हवामान Open-Meteo वरून येते; बाजारभाव आणि इतर नमुना स्क्रीनवरील माहिती केवळ प्रात्यक्षिकासाठी आहे.",
+  dayNext: "बुधवार",
+  sampleTip: "भाव बदलू शकतात. वाहतूक आणि इतर खर्च तुमच्या उत्पन्नावर परिणाम करतात; काळजीपूर्वक तुलना करा.",
+  missingMandiKey: "सर्व्हरच्या .env फाइलमध्ये data.gov.in API की जोडा आणि सर्व्हर पुन्हा सुरू करा.",
+  rejectedMandiKey: "data.gov.in ने ही API की स्वीकारली नाही. ती सक्रिय आहे आणि या स्रोतासाठी मान्य आहे का ते तपासा.",
+  mandiNetworkError: "बाजार सेवेपर्यंत पोहोचता आले नाही. इंटरनेट तपासून पुन्हा प्रयत्न करा.",
+  mandiUpstreamError: "data.gov.in सेवा तात्पुरती उपलब्ध नाही. थोड्या वेळाने पुन्हा प्रयत्न करा.",
+  mandiSchemaError: "डेटासेट प्रतिसादाचा नमुना ओळखता आला नाही; भाव दाखवले जाणार नाहीत.",
+  adviceMonitor: "शेवटच्या तीन नोंदवलेल्या तारखांमध्ये भाव सातत्याने वाढले. निर्णयापूर्वी पुढील नोंद पाहू शकता; हा भविष्यातील भावाचा अंदाज नाही.",
+  adviceSell: "शेवटच्या तीन नोंदवलेल्या तारखांमध्ये भाव सातत्याने घसरले. आजचा भाव गरजेला योग्य असल्यास, भाव वाढेल म्हणूनच थांबण्याऐवजी विक्रीचा विचार करा.",
+  adviceNoSignal: "अलीकडील भावांमध्ये ठोस दिशा दिसत नाही. निर्णयापूर्वी तुमचे खर्च आणि स्थानिक भाव तपासा.",
+  adviceInsufficient: "तीनपेक्षा कमी तारखांचे भाव उपलब्ध आहेत; विक्री किंवा प्रतीक्षेबाबत शिफारस करण्याइतकी माहिती नाही.",
+  trendIncreasing: "वाढत आहे", trendDecreasing: "घसरत आहे", trendStable: "स्थिर आहे",
+  samplePeriodOne: "नमुना 1",
+  sellNowReason: "शेवटच्या तीन दैनिक सरासरी भावांत सलग घट झाली. आजचा स्थानिक भाव आणि खर्च विचारात घ्या; हा भावाचा अंदाज नाही.",
+  waitMarketReason: "शेवटच्या तीन दैनिक सरासरी भावांत सलग वाढ झाली. निर्णयापूर्वी पुढील नोंद पाहा; भविष्यातील भावाची हमी नाही.",
+  monitorMarketReason: "अलीकडील तीन तारखांमध्ये एकसारखी दिशा नाही; बाजार पाहत राहा आणि स्थानिक भावांची तुलना करा.",
+  alertHeavyRainBody: "{date} रोजी {amount} मिमी पावसाचा अंदाज आहे. सिंचन पुढे ढकलण्याचा विचार करा आणि शेतातील पाण्याचा निचरा तपासा.",
+  alertRainBody: "{date} रोजी पावसाची शक्यता {chance}%. अनावश्यक पाणी देणे टाळण्यासाठी आधी जमिनीतील ओलावा तपासा.",
+  alertHeatBody: "{date} रोजी कमाल तापमान {temperature}°C अपेक्षित आहे. पिकाची पाण्याची गरज पाहत राहा.",
+  alertWindBody: "सध्या जोरदार वारे असू शकतात. नाजूक पिकांना आधार आहे का ते तपासा.",
+  riskFactorWeather: "हवामानाचा इशारा: {title}",
+  postHarvestSellTip: "सुरक्षित साठवण कालावधी कमी असू शकतो. लवकर विक्री किंवा प्रक्रिया करण्यास प्राधान्य द्या आणि माल तपासा; केवळ या अंदाजावर अवलंबून राहू नका.",
+  postHarvestStoreTip: "अल्पकालीन साठवण शक्य असू शकते. माल कोरडा आणि हवेशीर ठेवा व नियमित तपासा.",
+  noLargestExpense: "अद्याप कोणताही खर्च नोंदवलेला नाही.", allKarnataka: "संपूर्ण भारत",
+  farmerUnitSingular: "शेतकरी", farmerUnitPlural: "शेतकरी",
+  learnMore: "हे पीक का?", chatWelcome: "नमस्कार! मी तुमचा नमुना शेती-सहाय्यक आहे. सामान्य प्रश्न विचारा किंवा खालील प्रश्नांपैकी एक निवडा.",
+  prompts: "नमुना प्रश्न वापरून पाहा",
+  riceDesc: "पाण्याची खात्रीशीर उपलब्धता असलेल्या भागातील परिचित पावसाळी पीक.",
+  ragiDesc: "कमी ते मध्यम पाण्यात येणारे पौष्टिक भरडधान्य.",
+  maizeDesc: "पीक फेरपालटीसाठी उपयोगी ठरू शकणारे बहुउपयोगी पीक.",
+  pulsesDesc: "कडधान्ये पीक विविधता आणि जमिनीतील पोषणचक्राला मदत करू शकतात.",
+  saveChanges: "बदल जतन करा", chartLabel: "नमुना पावसाचा कल",
+  menu: "मेनू", percent: "टक्के", liveDataStatus: "🟢 थेट माहिती",
+  offlineDataStatus: "🟡 ऑफलाइन मोड · जतन केलेली माहिती", sampleMarket: "म्हैसूर नमुना बाजार",
+  cropDoctorYellowing: "पाने पिवळी पडणे", cropDoctorBrownSpots: "तपकिरी डाग",
+  cropDoctorLeafCurling: "पाने गुंडाळणे", cropDoctorWilting: "कोमेजणे",
+  cropDoctorWhitePowder: "पांढरी पावडर किंवा वाढ", cropDoctorBorerHoles: "खोड किंवा फळ पोखरणाऱ्या किडीची छिद्रे",
+  cropDoctorTomato: "टोमॅटो", cropDoctorCotton: "कापूस", cropDoctorChilli: "मिरची",
+  cropDoctorOrganicYellow: "जमिनीतील ओलावा, निचरा आणि पानांची खालची बाजू तपासा. स्थानिक परिस्थिती पाहिल्यानंतरच पोषकद्रव्ये दुरुस्त करा; रसशोषक कीड दिसल्यास आणि पीक-लेबल परवानगी देत असल्यासच कडुनिंब उत्पादन वापरा.",
+  cropDoctorOrganicSpots: "खूप बाधित पाने आणि पीक अवशेष काढा; पानांवर पाणी पडणे टाळा. यामुळे स्वच्छता राखण्यास मदत होते, पण रोग बरा होण्याची हमी नाही.",
+  cropDoctorOrganicCurl: "पानांची खालची बाजू तपासा आणि खूप बाधित पाने काढा. पीक-लेबल परवानगी देत असल्यास कडुनिंब काही मऊ शरीराच्या किडींवर उपयोगी ठरू शकतो; विषाणू बरा करू शकत नाही.",
+  cropDoctorOrganicWilt: "जमिनीतील ओलावा आणि निचरा तपासा; कोमेजलेली झाडे निश्चित झाल्यास मुळांसह वेगळी काढा. खात्री नसलेली मिश्रणे जमिनीत टाकू नका.",
+  cropDoctorOrganicPowder: "बाधित पाने काढून हवा खेळती ठेवा. उपचारापूर्वी ती धूळ किंवा फवारणीचा अवशेष नाही याची खात्री करा.",
+  cropDoctorOrganicBorer: "कीड लागलेले झाडाचे भाग काढून नष्ट करा; ओळखलेल्या किडीसाठी आणि पिकासाठी योग्य असल्यासच फेरोमोन सापळा वापरा.",
+  cropDoctorPreventYellow: "नियमित पाहणी करा, योग्य निचरा ठेवा आणि स्थानिक माती मार्गदर्शनानुसार संतुलित पोषकद्रव्ये वापरा.",
+  cropDoctorPreventSpots: "पीक अवशेष काढा, हवा खेळती ठेवा आणि शक्य असल्यास पाने दीर्घकाळ ओली राहू देऊ नका.",
+  cropDoctorPreventCurl: "पानांच्या खालच्या बाजूला वाहक कीड तपासा, तण किंवा पर्यायी आश्रयदाते काढा आणि शेजारच्या झाडांवर लक्ष ठेवा.",
+  cropDoctorPreventWilt: "स्वच्छ साधने वापरा, दूषित माती हलवू नका आणि फेरपालट व निचऱ्यासाठी स्थानिक सल्ला घ्या.",
+  cropDoctorPreventPowder: "हवेसाठी झाडांमध्ये अंतर ठेवा, बाधित अवशेष काढा आणि जवळची झाडे लक्षणांसाठी तपासा.",
+  cropDoctorPreventBorer: "अंडी आणि नवीन छिद्रे तपासा; बाधित भाग काढा आणि सल्ला असल्यास किडीनुसार देखरेखीचे सापळे वापरा.",
+  cropDoctorChemicalNone: "या एका लक्षणावरून रासायनिक औषध सुचवलेले नाही. आधी पाणी, पोषकद्रव्ये आणि कीड तपासा; फवारणीपूर्वी खात्री करा.",
+  cropDoctorChemicalFungicide: "बुरशीजन्य रोग निश्चित झाल्यास या पिकासाठी आणि रोगासाठी सध्या नोंदणीकृत औषधाबद्दल स्थानिक KVK किंवा कृषी अधिकाऱ्यांना विचारा आणि लेबल पाळा.",
+  cropDoctorChemicalInsecticide: "नमूद केलेली कीड निश्चित झाल्यास, या पिकासाठी व किडीसाठी लेबलवर नमूद असलेले सध्या नोंदणीकृत उत्पादनच वापरा; स्थानिक सल्ला आणि लेबल पाळा.",
+  cropDoctorChemicalVector: "पांढरी माशी किंवा थ्रिप्स निश्चित झाल्यास नोंदणीकृत वाहक-नियंत्रण उत्पादनासाठी स्थानिक सल्ला घ्या. विषाणूग्रस्त झाडे बरी होत नाहीत; लेबल पाळा.",
+  cropDoctorChemicalBorer: "खोड पोखरणारी कीड निश्चित झाल्यास या पिकासाठी व किडीसाठी नोंदणीकृत औषधाबद्दल स्थानिक KVK किंवा कृषी अधिकाऱ्यांना विचारा आणि लेबल पाळा.",
+};
+
+const languageText: Record<Language, AppTranslations> = {
+  en: text.en,
+  kn: text.kn,
+  hi: hindiText,
+  te: teluguText,
+  ta: tamilText,
+  mr: marathiText,
+};
+
 type AdvisoryIntent =
   | "soil"
   | "bioInput"
@@ -902,7 +1754,7 @@ type AdvisoryLanguageCopy = {
   };
 };
 
-const advisoryCopy: Record<Language, AdvisoryLanguageCopy> = {
+const advisoryCopy: LocalizedCopy<AdvisoryLanguageCopy> = {
   en: {
     introduction: "Namaskara! I'm KrishiMitra. I can help you think through soil and fertilizer, organic inputs, weather, irrigation, mandi prices, crop symptoms, schemes and loans, crop rotation, and farm costs.",
     greeting: "Hello! I'm KrishiMitra, your farming companion. Ask about soil and pH, fertilizer, bio-inputs, weather and irrigation, mandi prices, pests and diseases, schemes or KCC loans, crop rotation, sowing, or profit and expenses.",
@@ -1078,9 +1930,7 @@ function App() {
   const [bioInputRecipe, setBioInputRecipe] = useState<BioRecipeId>("jeevamrutha");
   const [bioInputArea, setBioInputArea] = useState(profile?.land ?? "");
   const [bioInputSeedBatch, setBioInputSeedBatch] = useState("");
-  const t = (key: keyof typeof text.en) => language === "hi"
-    ? hindiText[key] ?? text.en[key]
-    : text[language][key];
+  const t = (key: keyof typeof text.en) => languageText[language][key] ?? text.en[key];
 
   useEffect(() => {
     const updateConnection = () => setIsOnline(navigator.onLine);
@@ -1270,6 +2120,9 @@ function App() {
               <button type="button" className={language === "en" ? "selected" : ""} onClick={() => setLanguage("en")} aria-pressed={language === "en"} aria-label="English">EN</button>
               <button type="button" className={language === "kn" ? "selected" : ""} onClick={() => setLanguage("kn")} aria-pressed={language === "kn"} aria-label="ಕನ್ನಡ">ಕನ್ನಡ</button>
               <button type="button" className={language === "hi" ? "selected" : ""} onClick={() => setLanguage("hi")} aria-pressed={language === "hi"} aria-label="हिंदी">हिंदी</button>
+              <button type="button" className={language === "te" ? "selected" : ""} onClick={() => setLanguage("te")} aria-pressed={language === "te"} aria-label="తెలుగు">తెలుగు</button>
+              <button type="button" className={language === "ta" ? "selected" : ""} onClick={() => setLanguage("ta")} aria-pressed={language === "ta"} aria-label="தமிழ்">தமிழ்</button>
+              <button type="button" className={language === "mr" ? "selected" : ""} onClick={() => setLanguage("mr")} aria-pressed={language === "mr"} aria-label="मराठी">मराठी</button>
             </div>
             <button className="avatar-button" onClick={() => navigate("settings")} aria-label={t("settings")}>
               {profile?.name ? profile.name.charAt(0).toUpperCase() : "☺"}
@@ -1463,7 +2316,7 @@ const cropTimelineSchedules: Record<TimelineCrop, CropTimelineSchedule> = {
   groundnut: { germination: { start: 0, end: 10 }, topDress: { start: 20, end: 30 }, flowering: { start: 25, end: 45 }, harvest: { start: 100, end: 120 } },
 };
 
-const cropTimelineCopy: Record<Language, {
+const cropTimelineCopy: LocalizedCopy<{
   title: string;
   description: string;
   crop: string;
@@ -1569,7 +2422,7 @@ function addCalendarDays(date: Date, days: number) {
 }
 
 function CropMilestoneTimeline({ t, language }: PageProps & { language: Language }) {
-  const copy = cropTimelineCopy[language];
+  const copy = cropTimelineCopy[language] ?? cropTimelineCopy.en;
   const [crop, setCrop] = useState<TimelineCrop | "">("");
   const [sowingDate, setSowingDate] = useState("");
   const crops: { id: TimelineCrop; label: string }[] = [
@@ -1654,13 +2507,22 @@ function CropMilestoneTimeline({ t, language }: PageProps & { language: Language
 }
 
 function languageOf(t: Translate): Language {
-  if (t("dashboard") === text.en.dashboard) return "en";
-  if (t("dashboard") === hindiText.dashboard) return "hi";
-  return "kn";
+  const dashboardLabel = t("dashboard");
+  return (Object.keys(languageText) as Language[]).find((language) =>
+    languageText[language].dashboard === dashboardLabel,
+  ) ?? "en";
 }
 
 function localeForLanguage(language: Language) {
-  return language === "kn" ? "kn-IN" : language === "hi" ? "hi-IN" : "en-IN";
+  const locales: Record<Language, string> = {
+    en: "en-IN",
+    kn: "kn-IN",
+    hi: "hi-IN",
+    te: "te-IN",
+    ta: "ta-IN",
+    mr: "mr-IN",
+  };
+  return locales[language];
 }
 
 function weatherConditionKey(code: number | null): keyof typeof text.en {
@@ -2274,7 +3136,7 @@ function advisoryContextLines(
 }
 
 function buildAdvisoryResponse(message: string, context: AdvisoryResponseContext, t: Translate) {
-  const copy = advisoryCopy[context.language];
+  const copy = advisoryCopy[context.language] ?? advisoryCopy.en;
   const matchedIntents = advisoryIntents.filter((intent) =>
     advisoryKeywords[intent].some((keyword) => matchesAdvisoryKeyword(message, keyword)),
   );
@@ -2934,7 +3796,7 @@ type LoanComparisonCopy = {
   shareTitle: string;
 };
 
-const loanComparisonCopy: Record<Language, LoanComparisonCopy> = {
+const loanComparisonCopy: LocalizedCopy<LoanComparisonCopy> = {
   en: {
     title: "KCC & Crop Loan Interest Saver",
     description: "Compare estimated simple interest over your crop tenure. The 4% KCC rate assumes eligibility and timely repayment.",
@@ -3001,7 +3863,7 @@ const loanOptions: LoanOption[] = [
 ];
 
 function KccLoanInterestSaver({ language }: { language: Language }) {
-  const copy = loanComparisonCopy[language];
+  const copy = loanComparisonCopy[language] ?? loanComparisonCopy.en;
   const [loanAmount, setLoanAmount] = useState("");
   const [tenureMonths, setTenureMonths] = useState("6");
   const principal = Number(loanAmount);
@@ -3095,7 +3957,7 @@ type ExpenseLedgerCopy = {
   shareTotal: string;
 };
 
-const expenseLedgerCopy: Record<Language, ExpenseLedgerCopy> = {
+const expenseLedgerCopy: LocalizedCopy<ExpenseLedgerCopy> = {
   en: {
     title: "Season Expense Khata (Farm Ledger)",
     description: "Record dated farm expenses on this device and see how spending adds up by category.",
@@ -3216,7 +4078,7 @@ function SeasonExpenseLedger({ language, onApplyTotals }: {
   language: Language;
   onApplyTotals: (totals: LedgerExpenseTotals) => void;
 }) {
-  const copy = expenseLedgerCopy[language];
+  const copy = expenseLedgerCopy[language] ?? expenseLedgerCopy.en;
   const [entries, setEntries] = useState<SeasonExpenseEntry[]>([]);
   const [loaded, setLoaded] = useState(false);
   const [storageError, setStorageError] = useState<LedgerStorageError>("");
@@ -3497,7 +4359,7 @@ type FarmerReportCopy = {
   reportDisclaimer: string;
 };
 
-const farmerReportCopy: Record<Language, FarmerReportCopy> = {
+const farmerReportCopy: LocalizedCopy<FarmerReportCopy> = {
   en: {
     generate: "Generate Farmer Smart Report",
     title: "Farmer Smart Report",
@@ -3748,8 +4610,8 @@ function SmartFarm({ t, language, profile, location, forecast, profitInputs, onP
       <div><span>{t("locationUnset")}</span><strong>{profile ? `${profile.village}, ${profile.district}` : location?.name ?? t("noProfile")}</strong><small>{location ? locationLabel(location) : t("noForecastForFarm")}</small></div>
     </section>
     <section className="panel smart-report-launch">
-      <div><div className="eyebrow">{language === "kn" ? "ನಿಮ್ಮ ಕೃಷಿ ಸಾರಾಂಶ" : language === "hi" ? "आपके खेत का सार" : "YOUR FARM SUMMARY"}</div><p>{farmerReportCopy[language].subtitle}</p></div>
-      <button type="button" className="button button-primary" onClick={() => setShowFarmerReport(true)}>{farmerReportCopy[language].generate}</button>
+      <div><div className="eyebrow">{language === "kn" ? "ನಿಮ್ಮ ಕೃಷಿ ಸಾರಾಂಶ" : language === "hi" ? "आपके खेत का सार" : "YOUR FARM SUMMARY"}</div><p>{(farmerReportCopy[language] ?? farmerReportCopy.en).subtitle}</p></div>
+      <button type="button" className="button button-primary" onClick={() => setShowFarmerReport(true)}>{(farmerReportCopy[language] ?? farmerReportCopy.en).generate}</button>
     </section>
 
     <div className="smart-farm-grid">
@@ -3872,7 +4734,7 @@ function FarmerSmartReport({ t, language, profile, cropName, weatherLocation, ha
   calculation: ReturnType<typeof calculateFarmProfit>;
   onClose: () => void;
 }) {
-  const copy = farmerReportCopy[language];
+  const copy = farmerReportCopy[language] ?? farmerReportCopy.en;
   const locale = localeForLanguage(language);
   const formatMoney = (value: number) => new Intl.NumberFormat(locale, {
     style: "currency",
@@ -4029,7 +4891,7 @@ type BioRecipeCopy = {
   shareTitle: string;
 };
 
-const bioRecipeCopy: Record<Language, BioRecipeCopy> = {
+const bioRecipeCopy: LocalizedCopy<BioRecipeCopy> = {
   en: {
     title: "Organic Bio-Input & Fertilizer Recipe Calculator",
     subtitle: "Scale extension-style recipes to your field or seed batch. Quantities are illustrative; confirm crop-specific use locally.",
@@ -4127,7 +4989,7 @@ function OrganicBioInputCalculator({ t, language, recipe, onRecipeChange, area, 
   seedBatch: string;
   onSeedBatchChange: (seedBatch: string) => void;
 }) {
-  const copy = bioRecipeCopy[language];
+  const copy = bioRecipeCopy[language] ?? bioRecipeCopy.en;
   const [organicCost, setOrganicCost] = useState("");
   const [npkCost, setNpkCost] = useState("");
   const locale = localeForLanguage(language);
@@ -4520,7 +5382,8 @@ function CropRotationPlanner({ language, profileSoil }: { language: Language; pr
   const [currentCrop, setCurrentCrop] = useState<RotationCropId | "">("");
   const [soil, setSoil] = useState<RotationSoil | "">(() => soilFromRotationProfile(profileSoil));
   const [season, setSeason] = useState<RotationSeason>("kharif");
-  const t = (key: keyof typeof rotationCopy.en) => rotationCopy[language][key];
+  const rotationLanguage = language === "kn" ? "kn" : "en";
+  const t = (key: keyof typeof rotationCopy.en) => rotationCopy[rotationLanguage][key];
   const selectedCrop = rotationCrops.find((crop) => crop.id === currentCrop);
   const recommendations = selectedCrop && soil
     ? rankRotationCandidates(selectedCrop.family, soil, season)
@@ -4794,7 +5657,7 @@ function CropDoctor({ t }: PageProps) {
           const shareMessage = fillTemplate(t("cropDoctorShareMessage"), {
             "{crop}": cropLabel,
             "{symptom}": symptomLabel,
-            "{diagnosis}": diagnosis.name[language],
+            "{diagnosis}": diagnosis.name[language === "kn" ? "kn" : "en"],
             "{severity}": t(diagnosis.severity),
             "{organic}": organic,
             "{chemical}": chemical,
@@ -4803,7 +5666,7 @@ function CropDoctor({ t }: PageProps) {
           return <article className="panel crop-doctor-result" key={`${crop}-${symptom}`}>
             <div className="crop-doctor-result-heading">
               <span className="crop-doctor-result-icon">{cropDoctorSymptoms.find((option) => option.id === symptom)?.icon}</span>
-              <div><div className="eyebrow">{t("cropDoctorPossibleIssue")}</div><h2>{diagnosis.name[language]}</h2></div>
+              <div><div className="eyebrow">{t("cropDoctorPossibleIssue")}</div><h2>{diagnosis.name[language === "kn" ? "kn" : "en"]}</h2></div>
               <span className={`crop-doctor-severity severity-${diagnosis.severity}`}><small>{t("cropDoctorSeverity")}</small><strong>{t(diagnosis.severity)}</strong></span>
             </div>
             <div className="crop-doctor-advice-grid">
@@ -4822,7 +5685,7 @@ function CropDoctor({ t }: PageProps) {
 }
 
 function Advisory({ t, language, messages, input, setInput, send }: PageProps & { language: Language; messages: ChatMessage[]; input: string; setInput: (value: string) => void; send: (message?: string) => void }) {
-  const copy = advisoryCopy[language];
+  const copy = advisoryCopy[language] ?? advisoryCopy.en;
   const welcomeText = `${copy.introduction}\n\n${copy.safetyNote}`;
   return <>
     <PageHeading eyebrow={t("demoChat")} title={t("advisoryTitle")} description={t("advisorySub")} t={t} />
@@ -4847,7 +5710,14 @@ function Settings({ t, language, setLanguage, profile, clearProfile, navigate }:
   return <>
     <PageHeading eyebrow={t("settingsTitle")} title={t("settingsTitle")} description={t("settingsSub")} t={t} />
     <div className="settings-layout">
-      <section className="panel settings-card"><div className="settings-icon">文</div><div className="settings-card-main"><h2>{t("language")}</h2><p>{t("chooseLanguage")}</p><div className="language-options"><button className={language === "en" ? "chosen" : ""} onClick={() => setLanguage("en")}><span>EN</span>English {language === "en" && <b>✓</b>}</button><button className={language === "kn" ? "chosen" : ""} onClick={() => setLanguage("kn")}><span>ಕ</span>ಕನ್ನಡ {language === "kn" && <b>✓</b>}</button><button className={language === "hi" ? "chosen" : ""} onClick={() => setLanguage("hi")}><span>हि</span>हिंदी {language === "hi" && <b>✓</b>}</button></div></div></section>
+      <section className="panel settings-card"><div className="settings-icon">文</div><div className="settings-card-main"><h2>{t("language")}</h2><p>{t("chooseLanguage")}</p><div className="language-options">
+        <button className={language === "en" ? "chosen" : ""} onClick={() => setLanguage("en")}><span>EN</span>English {language === "en" && <b>✓</b>}</button>
+        <button className={language === "kn" ? "chosen" : ""} onClick={() => setLanguage("kn")}><span>ಕ</span>ಕನ್ನಡ {language === "kn" && <b>✓</b>}</button>
+        <button className={language === "hi" ? "chosen" : ""} onClick={() => setLanguage("hi")}><span>हि</span>हिंदी {language === "hi" && <b>✓</b>}</button>
+        <button className={language === "te" ? "chosen" : ""} onClick={() => setLanguage("te")}><span>తె</span>తెలుగు {language === "te" && <b>✓</b>}</button>
+        <button className={language === "ta" ? "chosen" : ""} onClick={() => setLanguage("ta")}><span>த</span>தமிழ் {language === "ta" && <b>✓</b>}</button>
+        <button className={language === "mr" ? "chosen" : ""} onClick={() => setLanguage("mr")}><span>म</span>मराठी {language === "mr" && <b>✓</b>}</button>
+      </div></div></section>
       <section className="panel settings-card"><div className="settings-icon">♙</div><div className="settings-card-main"><h2>{t("profileSection")}</h2><p>{profile ? `${profile.name} · ${profile.village}, ${profile.district}` : t("noProfile")}</p><small className="muted">{t("savedLocally")}</small><div className="settings-actions"><button className="button button-outline" onClick={() => document.getElementById("profile-form")?.scrollIntoView({ behavior: "smooth" })}>{profile ? t("editProfile") : t("completeProfile")} <span>→</span></button>{profile && <button className="danger-link" onClick={clearProfile}>{t("clearProfile")}</button>}</div></div></section>
       <section className="panel about-card"><div className="about-mark">K✳</div><div><h2>{t("about")}</h2><p>{t("aboutCopy")}</p><button className="text-link" onClick={() => navigate("dashboard")}>{t("dashboard")} <span>→</span></button></div></section>
     </div>
