@@ -95,8 +95,11 @@ h1, h2, p { margin-top: 0; }
 .text-link { margin-top: 12px; padding: 0; color: #477a53; border: 0; background: none; font-size: 9px; font-weight: 700; }
 .text-link span { padding-left: 4px; }
 .market-crop { margin-top: 15px; color: #78877b; font-size: 10px; }
-.change-up, .change-down { display: inline-block; padding: 4px 6px; border-radius: 5px; color: #508153; background: #eaf3e7; font-size: 9px; font-weight: 700; }
+.change-up, .change-down, .change-neutral { display: inline-block; padding: 4px 6px; border-radius: 5px; color: #508153; background: #eaf3e7; font-size: 9px; font-weight: 700; }
 .change-down { color: #a66c46; background: #fbefe6; }
+.change-neutral { color: #78877b; background: #edf0e9; }
+.market-snapshot-content { animation: market-snapshot-enter .3s ease both; }
+@keyframes market-snapshot-enter { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 .market-price { margin-top: 4px; font: 700 25px "Manrope", sans-serif; letter-spacing: -.7px; color: #2e4a36; }
 .market-price small { color: #849087; font: 400 9px "DM Sans", sans-serif; letter-spacing: 0; }
 .market-location { color: #8a968e; font-size: 9px; }
@@ -967,4 +970,4 @@ td:first-child { color: #455b49; font-weight: 600; }
   .schemes-filters-heading { align-items: flex-start; }.scheme-card-meta { align-items: flex-start; flex-direction: column; }.scheme-region, .scheme-need { max-width: 100%; }
   .weather-search-row .button { padding: 0 7px; }.weather-search-row .spinner { display: none; }.weather-live-location { max-width: 72%; }.weather-live-facts { grid-template-columns: repeat(2, 1fr); row-gap: 9px; }.weather-live-facts > div:nth-child(3) { border-left: 0; padding-left: 0; }.weather-live-hero { min-height: 320px; }.seven-day-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }.forecast-rain { font-size: 6px; }
 }
-@media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; } }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; } }

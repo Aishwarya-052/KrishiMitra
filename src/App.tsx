@@ -1381,6 +1381,16 @@ function Dashboard({ t, profile, navigate, weatherLocation, weatherForecast, wea
   weatherForecast: WeatherForecast | null;
   weatherLoading: boolean;
 }) {
+  const [marketIndex, setMarketIndex] = useState(0);
+  useEffect(() => {
+    if (dashboardMarketSnapshots.length < 2) return;
+    const interval = window.setInterval(() => {
+      setMarketIndex((current) => (current + 1) % dashboardMarketSnapshots.length);
+    }, 5000);
+    return () => window.clearInterval(interval);
+  }, []);
+
+  const marketSnapshot = dashboardMarketSnapshots[marketIndex % dashboardMarketSnapshots.length];
   return (
     <>
       <section className="welcome-row">
@@ -1400,8 +1410,15 @@ function Dashboard({ t, profile, navigate, weatherLocation, weatherForecast, wea
         </article>
         <article className="overview-card market-overview">
           <div className="card-topline"><span>{t("marketCard")}</span><span className="demo-badge mini-demo"><i />{t("demo")}</span></div>
-          <div className="market-crop">{t("cropRice")} <span className="change-up">+2.4%</span></div><div className="market-price">₹2,180 <small>/ quintal</small></div>
-          <div className="market-location">{t("sampleMarket")}</div>
+          {marketSnapshot && <div className="market-snapshot-content" key={marketSnapshot.commodity}>
+            <div className="market-crop">{marketSnapshot.cropLabel ? t(marketSnapshot.cropLabel) : marketSnapshot.commodity} <span className={marketSnapshot.percentageChange === null ? "change-neutral" : marketSnapshot.percentageChange >= 0 ? "change-up" : "change-down"}>
+              {marketSnapshot.percentageChange === null
+                ? "—"
+                : `${marketSnapshot.percentageChange > 0 ? "+" : ""}${marketSnapshot.percentageChange.toFixed(1)}%`}
+            </span></div>
+            <div className="market-price">{formatPrice(marketSnapshot.modalPrice)} <small>/ quintal</small></div>
+            <div className="market-location">{marketSnapshot.market}</div>
+          </div>}
           <div className="market-spark" aria-label={t("marketItems")}><span /><span /><span /><span /><span /><span /><span /><span /></div>
           <button className="text-link" onClick={() => navigate("mandi")}>{t("viewMarket")} <span>→</span></button>
         </article>
@@ -2059,6 +2076,46 @@ function analyzeFarmPrices(history: FarmPricePoint[]): FarmPriceAnalysis {
         : "monitorMarketReason";
   return { current, previous, percentageChange, trend, recommendation, reason };
 }
+
+type DashboardMarketSnapshot = {
+  commodity: string;
+  cropLabel: keyof typeof text.en | null;
+  modalPrice: number;
+  percentageChange: number | null;
+  market: string;
+};
+
+const dashboardMarketCropLabels: Record<string, keyof typeof text.en> = {
+  Paddy: "cropRice",
+  Ragi: "cropRagi",
+  Maize: "cropMaize",
+  Tomato: "cropDoctorTomato",
+  Chilli: "cropDoctorChilli",
+};
+
+const dashboardMarketRecords = createSampleMandiRecords().filter(
+  (record) => record.state === "Karnataka" && record.district === "Mysuru",
+);
+
+const dashboardMarketSnapshots: DashboardMarketSnapshot[] = uniqueSorted(
+  dashboardMarketRecords.map((record) => record.commodity),
+).flatMap((commodity) => {
+  const analysis = analyzeFarmPrices(dailyModalPrices(dashboardMarketRecords, commodity));
+  if (!analysis.current) return [];
+  const latestMarket = dashboardMarketRecords.find((record) =>
+    record.commodity === commodity &&
+    record.arrivalDate === analysis.current?.date &&
+    record.modalPrice !== null,
+  );
+  if (!latestMarket || latestMarket.modalPrice === null) return [];
+  return [{
+    commodity,
+    cropLabel: dashboardMarketCropLabels[commodity] ?? null,
+    modalPrice: latestMarket.modalPrice,
+    percentageChange: analysis.percentageChange,
+    market: latestMarket.market,
+  }];
+});
 
 type AdvisoryResponseContext = {
   language: Language;
